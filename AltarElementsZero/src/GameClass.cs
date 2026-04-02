@@ -3,6 +3,9 @@ using Microsoft.Xna.Framework;
 
 class GameClass : Game
 {
+
+    private readonly InputHandler _inputHandler = new();
+
 	public GameClass()
 	{
 		GraphicsDeviceManager graphicDeviceManager = new(this);
@@ -32,6 +35,9 @@ class GameClass : Game
     }
     protected override void Update(GameTime gameTime)
     {
+        _inputHandler.Update();
+        // Console.WriteLine(_inputHandler.Actions.IsDown); // debugging InputHandler
+
         base.Update(gameTime);
     }
     protected override void Draw(GameTime gameTime)
