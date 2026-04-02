@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /y /d &quot;..\..\fnalibs\x64\*.dll&quot; &quot;$(TargetDir)&quot;&#xD;&#xA;xcopy /y /d &quot;$(ProjectDir)assets\*.*&quot; &quot;$(TargetDir)assets\&quot;" />
+    <Exec Command="xcopy /y /d &quot;..\..\fnalibs\x64\*.dll&quot; &quot;$(TargetDir)&quot;&#xD;&#xA;xcopy /y /d /S /E &quot;$(ProjectDir)assets\&quot; &quot;$(TargetDir)assets\&quot;" />
   </Target>
 
 

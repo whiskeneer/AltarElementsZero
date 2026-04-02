@@ -1,10 +1,15 @@
 ﻿using AltarElementsZero.src;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 class GameClass : Game
 {
 
     private readonly InputHandler _inputHandler = new();
+
+    private SpriteBatch _spriteBatch;
+
+    private GlobalAssets? _globalAssets;
 
 	public GameClass()
 	{
@@ -27,10 +32,20 @@ class GameClass : Game
     }
     protected override void LoadContent()
     {
+        _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        _globalAssets = new GlobalAssets(GraphicsDevice, Services);
+        _globalAssets.Load();
+
         base.LoadContent();
     }
     protected override void UnloadContent()
     {
+        _spriteBatch!.Dispose();
+
+        _globalAssets!.Unload();
+        _globalAssets = null;
+
         base.UnloadContent();
     }
     protected override void Update(GameTime gameTime)
@@ -42,6 +57,24 @@ class GameClass : Game
     }
     protected override void Draw(GameTime gameTime)
     {
+        GraphicsDevice.SetRenderTarget(null);
+        GraphicsDevice.Clear(Color.Black);
+        _spriteBatch.Begin(
+            SpriteSortMode.Deferred,
+            BlendState.AlphaBlend,
+            SamplerState.PointClamp,
+            DepthStencilState.None,
+            RasterizerState.CullNone
+            );
+
+        _spriteBatch.Draw(
+            _globalAssets!.Placeholder,
+            Vector2.Zero,
+            Color.White
+            );
+
+        _spriteBatch.End();
+
         base.Draw(gameTime);
     }
 }
