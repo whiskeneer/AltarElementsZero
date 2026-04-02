@@ -1,2 +1,11 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿static class Program
+{
+	[STAThread]
+	static void Main()
+	{
+		using (GameClass game = new())
+		{
+			game.Run();
+		}
+	}
+}
