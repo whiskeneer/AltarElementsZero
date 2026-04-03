@@ -1,4 +1,5 @@
 ﻿using AltarElementsZero.src;
+using AltarElementsZero.src.states.intro;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -14,6 +15,12 @@ class GameClass : Game
     private Rectangle _outputRectangle;
     private bool _resizing = false;
     private RenderTarget2D? _downscaled;
+
+    private Manager? _manager;
+
+    // replace later with manager
+    private Intro? _debugState;
+    //
 
 	public GameClass()
 	{
@@ -54,12 +61,28 @@ class GameClass : Game
         _globalAssets = new GlobalAssets(GraphicsDevice, Services);
         _globalAssets.Load();
 
+        _manager = new(GraphicsDevice, Services, _globalAssets, _inputHandler);
+
+        // replace later with manager
+        _debugState = new Intro(
+            GraphicsDevice,
+            Services,
+            _manager,
+            new IntroPayload(),
+            _globalAssets,
+            _inputHandler);
+        _debugState.Enter();
+        //
+
         base.LoadContent();
     }
     protected override void UnloadContent()
     {
         _spriteBatch!.Dispose();
         _downscaled!.Dispose();
+
+        //
+        _manager = null;
 
         _globalAssets!.Unload();
         _globalAssets = null;
@@ -69,7 +92,9 @@ class GameClass : Game
     protected override void Update(GameTime gameTime)
     {
         _inputHandler.Update();
-        // Console.WriteLine(_inputHandler.Actions.IsDown); // debugging InputHandler
+
+        // replace later with manager
+        _debugState!.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -85,11 +110,14 @@ class GameClass : Game
 			RasterizerState.CullNone
 			);
 
-		_spriteBatch.Draw(
-			_globalAssets!.Placeholder,
-			Vector2.Zero,
-			Color.White
-			);
+        //_spriteBatch.Draw(
+        //	_globalAssets!.Placeholder,
+        //	Vector2.Zero,
+        //	Color.White
+        //	);
+
+        // replace later with manager
+        _debugState!.Draw(_spriteBatch);
 
 		_spriteBatch.End();
 
