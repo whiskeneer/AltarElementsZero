@@ -31,6 +31,7 @@ namespace AltarElementsZero.src.states.intro
             base.Draw(spriteBatch);
 
             spriteBatch.Draw(_assets.Background, Vector2.Zero, Color.White);
+            spriteBatch.Draw(_assets.DebugText, Vector2.Zero, Color.White);
         }
         public override void Exit()
         {

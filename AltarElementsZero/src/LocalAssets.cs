@@ -25,6 +25,13 @@ namespace AltarElementsZero.src
 				RasterizerState.CullNone
 				);
         }
+        protected void PrerenderSwitch(
+            SpriteBatch spriteBatch,
+			RenderTarget2D renderTarget2D)
+        {
+			spriteBatch.End();
+			PrerenderBegin(spriteBatch, renderTarget2D);
+		}
         protected void PrerenderEnd(SpriteBatch spriteBatch)
         {
             spriteBatch.End();

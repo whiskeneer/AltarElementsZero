@@ -58,7 +58,7 @@ class GameClass : Game
         _globalAssets.Load();
 
         _manager = new(GraphicsDevice, Services, _globalAssets, _inputHandler);
-        _manager.RequestTransition(new IntroPayload());
+        _manager.RequestTransition(new IntroPayload(debugText: "THIS TEXT IS\nPRERENDERED"));
 
         base.LoadContent();
     }
