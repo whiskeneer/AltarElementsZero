@@ -18,10 +18,6 @@ class GameClass : Game
 
     private Manager? _manager;
 
-    // replace later with manager
-    private Intro? _debugState;
-    //
-
 	public GameClass()
 	{
 		GraphicsDeviceManager graphicDeviceManager = new(this);
@@ -62,17 +58,7 @@ class GameClass : Game
         _globalAssets.Load();
 
         _manager = new(GraphicsDevice, Services, _globalAssets, _inputHandler);
-
-        // replace later with manager
-        _debugState = new Intro(
-            GraphicsDevice,
-            Services,
-            _manager,
-            new IntroPayload(),
-            _globalAssets,
-            _inputHandler);
-        _debugState.Enter();
-        //
+        _manager.RequestTransition(new IntroPayload());
 
         base.LoadContent();
     }
@@ -81,7 +67,7 @@ class GameClass : Game
         _spriteBatch!.Dispose();
         _downscaled!.Dispose();
 
-        //
+        _manager!.End();
         _manager = null;
 
         _globalAssets!.Unload();
@@ -93,13 +79,16 @@ class GameClass : Game
     {
         _inputHandler.Update();
 
-        // replace later with manager
-        _debugState!.Update(gameTime);
+        _manager!.Update(gameTime);
 
         base.Update(gameTime);
     }
     protected override void Draw(GameTime gameTime)
     {
+        // Prerendering
+        _manager!.Prerender(_spriteBatch!);
+
+        // Rendering
         GraphicsDevice.SetRenderTarget(_downscaled);
         GraphicsDevice.Clear(Color.Black);
 		_spriteBatch!.Begin(
@@ -110,17 +99,11 @@ class GameClass : Game
 			RasterizerState.CullNone
 			);
 
-        //_spriteBatch.Draw(
-        //	_globalAssets!.Placeholder,
-        //	Vector2.Zero,
-        //	Color.White
-        //	);
-
-        // replace later with manager
-        _debugState!.Draw(_spriteBatch);
+        _manager!.Draw(_spriteBatch);
 
 		_spriteBatch.End();
 
+        // Upscaling
 		GraphicsDevice.SetRenderTarget(null);
         GraphicsDevice.Clear(Color.Black);
         _spriteBatch!.Begin(

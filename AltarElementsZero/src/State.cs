@@ -3,14 +3,23 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src
 {
+    interface IState
+    {
+        public void Enter();
+        public void Update(GameTime gameTime);
+        public void Prerender(SpriteBatch spriteBatch);
+        public void Draw(SpriteBatch spriteBatch);
+        public void Exit();
+    }
+
     abstract class State<TAssets, TPayload>(
             IManager manager,
             TPayload payload,
             TAssets assets,
             InputHandler inputHandler,
             GlobalAssets globalAssets
-        )
-        where TAssets : LocalAssets
+        ) : IState
+		where TAssets : LocalAssets
         where TPayload : Payload
     {
         protected readonly IManager _manager = manager;
