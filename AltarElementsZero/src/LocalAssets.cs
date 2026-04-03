@@ -40,7 +40,8 @@ namespace AltarElementsZero.src
 
         public virtual void Prerender(
             SpriteBatch spriteBatch,
-            GlobalAssets globalAssets
+            GlobalAssets globalAssets,
+            Payload payload
             )
         {
             // use globalAssets to prerender 

@@ -42,7 +42,7 @@ namespace AltarElementsZero.src
         {
             if (!IsPrerendered)
             {
-                _assets.Prerender(spriteBatch, _globalAssets);
+                _assets.Prerender(spriteBatch, _globalAssets, _payload);
                 IsPrerendered = true;
             }
         }

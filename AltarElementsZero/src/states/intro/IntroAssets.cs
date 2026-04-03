@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using AltarElementsZero.src;
 
 namespace AltarElementsZero.src.states.intro
 {
@@ -33,13 +34,25 @@ namespace AltarElementsZero.src.states.intro
                 );
         }
 
-        public override void Prerender(SpriteBatch spriteBatch, GlobalAssets globalAssets)
+        public override void Prerender(
+            SpriteBatch spriteBatch, 
+            GlobalAssets globalAssets,
+            Payload payload
+            )
         {
-            base.Prerender(spriteBatch, globalAssets);
+            base.Prerender(spriteBatch, globalAssets, payload);
+
+            IntroPayload introPayload = (payload as IntroPayload)!;
 
             // Prerendering renterTargets
             PrerenderBegin(spriteBatch, DebugText!);
-            spriteBatch.Draw(globalAssets.RomanFont, Vector2.Zero, new Rectangle(16, 64, 16, 16), Color.White);
+            TextUtilities.DrawText(
+                spriteBatch,
+                globalAssets.RomanFont!,
+                16,16,
+                introPayload.DebugText,
+                0,0
+                );
             PrerenderEnd(spriteBatch);
         }
 
