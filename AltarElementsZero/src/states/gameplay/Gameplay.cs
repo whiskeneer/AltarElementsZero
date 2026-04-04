@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.level;
+﻿using AltarElementsZero.src.states.gameplay.gameObject;
+using AltarElementsZero.src.states.gameplay.level;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -21,17 +22,37 @@ namespace AltarElementsZero.src.states.gameplay
     {
         private readonly Level _level = new();
 
+        private readonly Camera _camera = new();
+
         public override void Enter()
         {
             base.Enter();
 
             _level.SetAll(new Tile(Tile.Families.Terrain, 2));
+            _level.SetTile(5,5,new Tile(Tile.Families.Terrain, 3));
 
         }
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-        }
+
+            if (_inputHandler.IsDown(Input.Up))
+            {
+                _camera.Position.Y -= 10;
+            }
+            if (_inputHandler.IsDown(Input.Down))
+            {
+                _camera.Position.Y += 10;
+            }
+			if (_inputHandler.IsDown(Input.Left))
+			{
+				_camera.Position.X -= 10;
+			}
+			if (_inputHandler.IsDown(Input.Right))
+			{
+				_camera.Position.X += 10;
+			}
+		}
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
@@ -58,18 +79,26 @@ namespace AltarElementsZero.src.states.gameplay
 
         private void Render(SpriteBatch spriteBatch)
         {
-            for (int y = 0; y < Configuration.Chunk.Tile.Height; y++)
+            PxPosition cameraPxPosition = _camera.Position.ToPx();
+            PxPosition cameraTileRemainder = cameraPxPosition.TileRemainder();
+            TilePosition cameraTilePosition = cameraPxPosition.ToTile();
+
+            for (int tileOffsetY = 0; tileOffsetY <= Configuration.Chunk.Tile.Height; tileOffsetY++)
             {
-                for (int x = 0; x < Configuration.Chunk.Tile.Width; x++)
+                for (int tileOffsetX = 0; tileOffsetX <= Configuration.Chunk.Tile.Width; tileOffsetX++)
                 {
-                    Tile tile = _level.GetTile(x, y);
+                    Tile tile = _level.GetTile(
+                        (int)cameraTilePosition.X + tileOffsetX,
+                        (int)cameraTilePosition.Y + tileOffsetY
+                        );
+
                     if (tile.Family == Tile.Families.Terrain) {
                         int spritesheetCol = tile.Member & 0xf;
                         int spritesheetRow = (tile.Member >> 4) & 0xf;
 
                         Vector2 outputVector = new(
-                            Configuration.Tile.Px.Width * x,
-                            Configuration.Tile.Px.Height * y
+                            Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
+                            Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
                             );
                         Rectangle sourceRectangle = new(
                             Configuration.Tile.Px.Width * spritesheetCol,
