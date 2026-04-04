@@ -18,6 +18,13 @@
         public uint X = x;
         public uint Y = y;
 
+        public readonly SubpxPosition ToSubpx()
+        {
+			return new SubpxPosition(
+	            X << Configuration.Px.SubpxPower,
+	            Y << Configuration.Px.SubpxPower
+	            );
+		}
         public readonly TilePosition ToTile()
         {
             return new TilePosition(
@@ -66,6 +73,14 @@
     {
         public uint X = x;
         public uint Y = y;
+
+        public readonly PxPosition ToPx()
+        {
+            return new PxPosition(
+				X << Configuration.Tile.PxPower,
+				Y << Configuration.Tile.PxPower
+				);
+        }
     }
 
     public struct SubpxVelocity(int x, int y)

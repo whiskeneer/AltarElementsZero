@@ -38,6 +38,8 @@ namespace AltarElementsZero.src.states.gameplay
 					_level.SetTile(i, j, new Tile(Tile.Families.None, 0));
 				}
             }
+
+            _testObject.Position = new TilePosition(2,2).ToPx().ToSubpx();
             
 
         }
@@ -83,13 +85,115 @@ namespace AltarElementsZero.src.states.gameplay
         {
             gameObject.Velocity.X += forceX;
             gameObject.Velocity.Y += forceY;
-        }
-        private static void ApplyVelocity(GameObject gameObject)
-        {
-            gameObject.Position.X += (uint)gameObject.Velocity.X;
-            gameObject.Position.Y += (uint)gameObject.Velocity.Y;
 
-            // cap velocity!
+			// cap velocity!
+		}
+        private void ApplyVelocity(GameObject gameObject)
+        {
+            // can collision calculations be optimized?
+
+            // Vertical collisions
+            SubpxPosition destinyPosition = new(
+                gameObject.Position.X, // + (uint)gameObject.Velocity.X,
+                gameObject.Position.Y + (uint)gameObject.Velocity.Y
+                );
+
+            SubpxPosition oppositeVertex = new(
+                destinyPosition.X + gameObject.Size.X - 1,
+                destinyPosition.Y + gameObject.Size.Y - 1
+                );
+            TilePosition vertexTile = destinyPosition.ToPx().ToTile();
+            TilePosition oppositeTile = oppositeVertex.ToPx().ToTile();
+
+            uint top = vertexTile.Y;
+            uint left = vertexTile.X;
+            uint bottom = oppositeTile.Y;
+            uint right = oppositeTile.X;
+
+
+            if (gameObject.Velocity.Y > 0) // going down
+            {
+                bool foundBelow = false;
+                for (uint row = top; !foundBelow && row <= bottom; row++)
+                {
+                    for (uint col = left; !foundBelow && col <= right; col++)
+                    {
+                        if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
+                        {
+                            destinyPosition.Y = new TilePosition(0, row).ToPx().ToSubpx().Y - gameObject.Size.Y;
+                            gameObject.Velocity.Y = 0;
+                            foundBelow = true;
+                        }
+                    }
+                }
+            }
+            else // going up
+            {
+                bool foundAbove = false;
+                for (uint row = bottom; !foundAbove && row >= top; row--)
+                {
+                    for (uint col = left; !foundAbove && col <= right; col++)
+                    {
+                        if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
+                        {
+                            destinyPosition.Y = new TilePosition(0, row + 1).ToPx().ToSubpx().Y;
+                            gameObject.Velocity.Y = 0;
+                            foundAbove = true;
+                        }
+                    }
+                }
+            }
+
+            // Horizontal collisions
+            destinyPosition.X += (uint)gameObject.Velocity.X;
+			oppositeVertex = new(
+                destinyPosition.X + gameObject.Size.X - 1,
+                destinyPosition.Y + gameObject.Size.Y - 1
+                );
+            vertexTile = destinyPosition.ToPx().ToTile();
+            oppositeTile = oppositeVertex.ToPx().ToTile();
+            top = vertexTile.Y;
+			left = vertexTile.X;
+			bottom = oppositeTile.Y;
+			right = oppositeTile.X;
+
+			if (gameObject.Velocity.X > 0) // going right
+			{
+				bool foundAtRight = false;
+				for (uint col = left; !foundAtRight && col <= right; col++)
+				{
+				    for (uint row = top; !foundAtRight && row <= bottom; row++)
+					{
+						if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
+						{
+							destinyPosition.X = new TilePosition(col, 0).ToPx().ToSubpx().X - gameObject.Size.X;
+							gameObject.Velocity.X = 0;
+							foundAtRight = true;
+						}
+					}
+				}
+			}
+			else // going left
+			{
+				bool foundAtLeft = false;
+				for (uint col = right; !foundAtLeft && col >= left; col--)
+				{
+				    for (uint row = top; !foundAtLeft && row <= bottom; row++)
+					{
+						if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
+						{
+							destinyPosition.X = new TilePosition(col+1, 0).ToPx().ToSubpx().X;
+							gameObject.Velocity.X = 0;
+							foundAtLeft = true;
+						}
+					}
+				}
+			}
+
+
+
+
+			gameObject.Position = destinyPosition;
         }
         private void Render(SpriteBatch spriteBatch)
         {
