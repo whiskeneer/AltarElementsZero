@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AltarElementsZero.src.states.gameplay;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.intro
@@ -25,6 +26,11 @@ namespace AltarElementsZero.src.states.intro
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+
+            if (_inputHandler.IsPressed(Input.Jump))
+            {
+                _manager.RequestTransition(new GameplayPayload());
+            }
         }
         public override void Draw(SpriteBatch spriteBatch)
         {

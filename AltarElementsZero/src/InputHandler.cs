@@ -12,8 +12,8 @@ namespace AltarElementsZero.src
 		Left = 1 << 2,
 		Right = 1 << 3,
 
-		Jump = 1 << 4,
-		Attack = 1 << 5,
+		Jump = 1 << 4,	// Accept
+		Attack = 1 << 5,// Cancel
 		Dash = 1 << 6,
 		Pause = 1 << 7,
 	}

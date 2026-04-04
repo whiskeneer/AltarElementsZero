@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.intro;
+﻿using AltarElementsZero.src.states.gameplay;
+using AltarElementsZero.src.states.intro;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -37,6 +38,14 @@ namespace AltarElementsZero.src
 				_gameServiceContainer,
 				this,
 				introPayload,
+				_globalAssets,
+				_inputHandler
+				);
+			if (payload is GameplayPayload gameplayPayload) return new Gameplay(
+				_graphicsDevice,
+				_gameServiceContainer,
+				this,
+				gameplayPayload,
 				_globalAssets,
 				_inputHandler
 				);
