@@ -90,7 +90,7 @@ class GameClass : Game
 
         // Rendering
         GraphicsDevice.SetRenderTarget(_downscaled);
-        GraphicsDevice.Clear(Color.Black);
+        GraphicsDevice.Clear(Color.White);
 		_spriteBatch!.Begin(
 			SpriteSortMode.Deferred,
 			BlendState.AlphaBlend,

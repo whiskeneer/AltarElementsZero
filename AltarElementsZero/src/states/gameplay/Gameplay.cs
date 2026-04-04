@@ -24,49 +24,51 @@ namespace AltarElementsZero.src.states.gameplay
 
         private readonly Camera _camera = new();
 
+        private readonly TestObject _testObject = new();
+
         public override void Enter()
         {
             base.Enter();
 
             _level.SetAll(new Tile(Tile.Families.Terrain, 2));
-            _level.SetTile(5,5,new Tile(Tile.Families.Terrain, 3));
+            for (int j = 1; j <= 6; j++)
+            {
+                for(int i = 1; i <= 10; i++)
+                {
+					_level.SetTile(i, j, new Tile(Tile.Families.None, 0));
+				}
+            }
+            
 
         }
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
-            if (_inputHandler.IsDown(Input.Up))
+            if (_inputHandler.IsDown(Input.Left))
             {
-                _camera.Position.Y -= 10;
+                ApplyForce(_testObject, -1, 0);
             }
-            if (_inputHandler.IsDown(Input.Down))
-            {
-                _camera.Position.Y += 10;
-            }
-			if (_inputHandler.IsDown(Input.Left))
-			{
-				_camera.Position.X -= 10;
-			}
 			if (_inputHandler.IsDown(Input.Right))
 			{
-				_camera.Position.X += 10;
+				ApplyForce(_testObject, 1, 0);
 			}
+			if (_inputHandler.IsDown(Input.Up))
+			{
+				ApplyForce(_testObject, 0, -1);
+			}
+			if (_inputHandler.IsDown(Input.Down))
+			{
+				ApplyForce(_testObject, 0, 1);
+			}
+            ApplyVelocity(_testObject);
+
 		}
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
 
             Render(spriteBatch);
-
-            TextUtilities.DrawText(
-                spriteBatch,
-                _globalAssets.RomanFont!,
-                16,16,
-                "GAMEPLAY",
-                0,0
-                );
-
 
         }
         public override void Exit()
@@ -77,6 +79,18 @@ namespace AltarElementsZero.src.states.gameplay
 
         //
 
+        private static void ApplyForce(GameObject gameObject, int forceX, int forceY)
+        {
+            gameObject.Velocity.X += forceX;
+            gameObject.Velocity.Y += forceY;
+        }
+        private static void ApplyVelocity(GameObject gameObject)
+        {
+            gameObject.Position.X += (uint)gameObject.Velocity.X;
+            gameObject.Position.Y += (uint)gameObject.Velocity.Y;
+
+            // cap velocity!
+        }
         private void Render(SpriteBatch spriteBatch)
         {
             PxPosition cameraPxPosition = _camera.Position.ToPx();
@@ -115,6 +129,20 @@ namespace AltarElementsZero.src.states.gameplay
                     }
                 }
             }
-        }
+
+            PxPosition testObjectPxPosition = _testObject.Position.ToPx();
+            spriteBatch.Draw(
+                texture: _assets.DebugSpritesheet,
+                position: new Vector2(testObjectPxPosition.X, testObjectPxPosition.Y),
+                sourceRectangle: new(
+                    Configuration.Tile.Px.Width * 4,
+                    Configuration.Tile.Px.Height * 0,
+                    Configuration.Tile.Px.Width,
+                    Configuration.Tile.Px.Height
+                    ),
+                color: Color.White
+                );
+
+		}
     }
 }

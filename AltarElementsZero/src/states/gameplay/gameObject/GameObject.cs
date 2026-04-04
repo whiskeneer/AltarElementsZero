@@ -34,14 +34,50 @@
         }
     }
 
+    public struct SubpxSize(uint x, uint y)
+    {
+        public uint X = x;
+        public uint Y = y;
+
+		public readonly PxSize ToPx()
+		{
+			return new PxSize(
+				X >> Configuration.Px.SubpxPower,
+				Y >> Configuration.Px.SubpxPower
+				);
+		}
+	}
+
+    public struct PxSize(uint x, uint y)
+    {
+        public uint X = x;
+        public uint Y = y;
+
+        public readonly SubpxSize ToSubpx()
+        {
+			return new SubpxSize(
+	            X << Configuration.Px.SubpxPower,
+	            Y << Configuration.Px.SubpxPower
+	            );
+		}
+    }
+
     public struct TilePosition(uint x, uint y)
     {
         public uint X = x;
         public uint Y = y;
     }
 
+    public struct SubpxVelocity(int x, int y)
+    {
+        public int X = x;
+        public int Y = y;
+    }
+
     abstract class GameObject
     {
         public SubpxPosition Position;
+        public SubpxSize Size;
+        public SubpxVelocity Velocity;
     }
 }
