@@ -49,6 +49,11 @@ namespace AltarElementsZero.src
 				);
 		}
 
+        public static readonly Dimensions MaxMovement = new(
+            Tile.Subpx.Width / 2,
+            Tile.Subpx.Height / 2
+            );
+
         // Game display
         public static class VisibleScreen
         {

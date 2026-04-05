@@ -33,7 +33,7 @@ namespace AltarElementsZero.src.states.gameplay
             _level.SetAll(new Tile(Tile.Families.Terrain, 2));
             for (int j = 1; j <= 6; j++)
             {
-                for(int i = 1; i <= 10; i++)
+                for(int i = 1; i < Configuration.Level.Tile.Width - 1; i++)
                 {
 					_level.SetTile(i, j, new Tile(Tile.Families.None, 0));
 				}
@@ -47,26 +47,110 @@ namespace AltarElementsZero.src.states.gameplay
         {
             base.Update(gameTime);
 
+            //      STEP 1: directly applied forces and fluid medium friction forces
+
+            //      RESETTING PREVIOUSLY APPLIED FORCES
+
+            _testObject.ResetForces();
+            
+            //      DIRECTLY APPLIED FORCES
+            // e.g.: gravity, magnetism, etc.
+
             if (_inputHandler.IsDown(Input.Left))
             {
-                ApplyForce(_testObject, -1, 0);
+				_testObject.ApplyForce(new Force(-10, 0));
             }
 			if (_inputHandler.IsDown(Input.Right))
 			{
-				ApplyForce(_testObject, 1, 0);
+				_testObject.ApplyForce(new Force(10, 0));
 			}
 			if (_inputHandler.IsDown(Input.Up))
 			{
-				ApplyForce(_testObject, 0, -1);
+				_testObject.ApplyForce(new Force(0, -10));
 			}
 			if (_inputHandler.IsDown(Input.Down))
 			{
-				ApplyForce(_testObject, 0, 1);
+				_testObject.ApplyForce(new Force(0, 5));
 			}
-            ApplyVelocity(_testObject);
+
+            //      FLUID MEDIUM FRICTION FORCES
+            // e.g.: air, water, etc.
+            // - They depend on the relative velocity of the object to the medium!
+            //   ( proportional to relative_velocity ^ 2 )
+
+            // TODO: Get fluid velocity from medium!
+            _testObject.ApplyFluidFriction(20, _testObject.Velocity - new SubpxVelocity(64,0));
+
+            //      UPDATING VELOCITY
+            SubpxVelocity velocityBeforeFirstForces = _testObject.Velocity;
+			_testObject.UpdateVelocity();
+
+            //      Step 2: terrain friction forces
+
+            //      RESETTING PREVIOUSLY APPLIED FORCES
+            Force forcesBeforeTerrainFriction = _testObject.AppliedForces;
+            _testObject.ResetForces();
+
+			//      TERRAIN FRICTION FORCES
+			// e.g.: ground, ice, moving platforms, etc.
+			// - They depend on the relative velocity of the object to the terrain!
+			//   ( if prev_relative_velocity = 0 => capped at max static friction force and (target)relative_velocity )
+			//   ( if prev_relative_velocity!= 0 => capped at (target)relative_velocity )
+			//   ( in both cases, max is proportional to normal force )
+
+			// previousRelativeVelocity: used for determine whether the friction is Kinematic or Static
+			SubpxVelocity previousRelativeVelocity = velocityBeforeFirstForces - _testObject.GroundVelocity;
+			// targetRelativeVelocity: used for capping friction force (so that it doesn't start going "backwards" just by friction
+			SubpxVelocity targetRelativeVelocity = _testObject.Velocity - _testObject.GroundVelocity;
+            if (_testObject.Grounded && forcesBeforeTerrainFriction.Y > 0)
+            {
+                if(previousRelativeVelocity.X == 0) // STATIC FRICTION
+                {
+                    int staticFriction = Math.Min(
+                        Math.Abs(targetRelativeVelocity.X),
+                        _testObject.GroundMuSta * forcesBeforeTerrainFriction.Y
+                        );
+                    _testObject.ApplyForce(new Force(
+                        staticFriction * -Math.Sign(targetRelativeVelocity.X),
+                        0
+                        ));
+
+					_testObject.UpdateVelocity();
+				}
+				else // KINEMATIC FRICTION
+                {
+					int kinematicFriction = Math.Min(
+						Math.Abs(targetRelativeVelocity.X),
+						_testObject.GroundMuKin * forcesBeforeTerrainFriction.Y
+						);
+					_testObject.ApplyForce(new Force(
+						kinematicFriction * -Math.Sign(targetRelativeVelocity.X),
+						0
+						));
+
+					_testObject.UpdateVelocity();
+				}
+			}
+
+
+			MoveAndApplyCollision(_testObject);
+
+            SubpxPosition cameraPosition = _testObject.Position;
+            cameraPosition.X -= (uint)(Configuration.VisibleScreen.Px.Width << (Configuration.Px.SubpxPower-1));
+			cameraPosition.Y -= (uint)(Configuration.VisibleScreen.Px.Height << (Configuration.Px.SubpxPower-1));
+            if (cameraPosition.X > Configuration.Level.Subpx.Width)
+            {
+                cameraPosition.X = 0;
+            }
+            if(cameraPosition.Y > Configuration.Level.Subpx.Height)
+            {
+                cameraPosition.Y = 0;
+            }
+
+            _camera.Position = cameraPosition;
 
 		}
-        public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
 
@@ -79,37 +163,30 @@ namespace AltarElementsZero.src.states.gameplay
             base.Exit();
         }
 
-        //
-
-        private static void ApplyForce(GameObject gameObject, int forceX, int forceY)
-        {
-            gameObject.Velocity.X += forceX;
-            gameObject.Velocity.Y += forceY;
-
-			// cap velocity!
-		}
-        private void ApplyVelocity(GameObject gameObject)
+        private void MoveAndApplyCollision(GameObject gameObject)
         {
             // can collision calculations be optimized?
+            SubpxPosition targetPosition = gameObject.TargetPosition();
 
             // Vertical collisions
-            SubpxPosition destinyPosition = new(
-                gameObject.Position.X, // + (uint)gameObject.Velocity.X,
-                gameObject.Position.Y + (uint)gameObject.Velocity.Y
+            SubpxPosition checkingVertex = new(
+                gameObject.Position.X,
+                targetPosition.Y
                 );
 
             SubpxPosition oppositeVertex = new(
-                destinyPosition.X + gameObject.Size.X - 1,
-                destinyPosition.Y + gameObject.Size.Y - 1
+                checkingVertex.X + gameObject.Size.X - 1,
+                checkingVertex.Y + gameObject.Size.Y - 1
                 );
-            TilePosition vertexTile = destinyPosition.ToPx().ToTile();
+            TilePosition checkingTile = checkingVertex.ToPx().ToTile();
             TilePosition oppositeTile = oppositeVertex.ToPx().ToTile();
 
-            uint top = vertexTile.Y;
-            uint left = vertexTile.X;
+            uint top = checkingTile.Y;
+            uint left = checkingTile.X;
             uint bottom = oppositeTile.Y;
             uint right = oppositeTile.X;
 
+            gameObject.Grounded = false;
 
             if (gameObject.Velocity.Y > 0) // going down
             {
@@ -120,9 +197,14 @@ namespace AltarElementsZero.src.states.gameplay
                     {
                         if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
                         {
-                            destinyPosition.Y = new TilePosition(0, row).ToPx().ToSubpx().Y - gameObject.Size.Y;
+                            checkingVertex.Y = new TilePosition(0, row).ToPx().ToSubpx().Y - gameObject.Size.Y;
                             gameObject.Velocity.Y = 0;
                             foundBelow = true;
+                            gameObject.Grounded = true;
+							// TODO: get GroundMuKin and GroundMuSta
+							gameObject.GroundMuKin = 1;
+                            gameObject.GroundMuSta = 2;
+                            gameObject.GroundVelocity = new SubpxVelocity(-128,0); // zero, because terrain is immobile ground
                         }
                     }
                 }
@@ -136,7 +218,7 @@ namespace AltarElementsZero.src.states.gameplay
                     {
                         if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
                         {
-                            destinyPosition.Y = new TilePosition(0, row + 1).ToPx().ToSubpx().Y;
+                            checkingVertex.Y = new TilePosition(0, row + 1).ToPx().ToSubpx().Y;
                             gameObject.Velocity.Y = 0;
                             foundAbove = true;
                         }
@@ -145,15 +227,15 @@ namespace AltarElementsZero.src.states.gameplay
             }
 
             // Horizontal collisions
-            destinyPosition.X += (uint)gameObject.Velocity.X;
+            checkingVertex.X = targetPosition.X;
 			oppositeVertex = new(
-                destinyPosition.X + gameObject.Size.X - 1,
-                destinyPosition.Y + gameObject.Size.Y - 1
+                checkingVertex.X + gameObject.Size.X - 1,
+                checkingVertex.Y + gameObject.Size.Y - 1
                 );
-            vertexTile = destinyPosition.ToPx().ToTile();
+            checkingTile = checkingVertex.ToPx().ToTile();
             oppositeTile = oppositeVertex.ToPx().ToTile();
-            top = vertexTile.Y;
-			left = vertexTile.X;
+            top = checkingTile.Y;
+			left = checkingTile.X;
 			bottom = oppositeTile.Y;
 			right = oppositeTile.X;
 
@@ -166,7 +248,7 @@ namespace AltarElementsZero.src.states.gameplay
 					{
 						if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
 						{
-							destinyPosition.X = new TilePosition(col, 0).ToPx().ToSubpx().X - gameObject.Size.X;
+							checkingVertex.X = new TilePosition(col, 0).ToPx().ToSubpx().X - gameObject.Size.X;
 							gameObject.Velocity.X = 0;
 							foundAtRight = true;
 						}
@@ -182,7 +264,7 @@ namespace AltarElementsZero.src.states.gameplay
 					{
 						if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
 						{
-							destinyPosition.X = new TilePosition(col+1, 0).ToPx().ToSubpx().X;
+							checkingVertex.X = new TilePosition(col+1, 0).ToPx().ToSubpx().X;
 							gameObject.Velocity.X = 0;
 							foundAtLeft = true;
 						}
@@ -193,10 +275,11 @@ namespace AltarElementsZero.src.states.gameplay
 
 
 
-			gameObject.Position = destinyPosition;
+			gameObject.Position = checkingVertex;
         }
         private void Render(SpriteBatch spriteBatch)
         {
+            // TODO: add SubpxPosition.ToVisualPx()
             PxPosition cameraPxPosition = _camera.Position.ToPx();
             PxPosition cameraTileRemainder = cameraPxPosition.TileRemainder();
             TilePosition cameraTilePosition = cameraPxPosition.ToTile();
@@ -237,7 +320,10 @@ namespace AltarElementsZero.src.states.gameplay
             PxPosition testObjectPxPosition = _testObject.Position.ToPx();
             spriteBatch.Draw(
                 texture: _assets.DebugSpritesheet,
-                position: new Vector2(testObjectPxPosition.X, testObjectPxPosition.Y),
+                position: new Vector2(
+                    testObjectPxPosition.X - cameraPxPosition.X, 
+                    testObjectPxPosition.Y - cameraPxPosition.Y
+					),
                 sourceRectangle: new(
                     Configuration.Tile.Px.Width * 4,
                     Configuration.Tile.Px.Height * 0,
