@@ -112,6 +112,7 @@
         public SubpxVelocity GroundVelocity;
         public int GroundMuKin;
         public int GroundMuSta;
+        public SubpxVelocity FeetVelocity;
 
 
         public Force AppliedForces;

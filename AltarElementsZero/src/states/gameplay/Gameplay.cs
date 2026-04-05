@@ -47,31 +47,29 @@ namespace AltarElementsZero.src.states.gameplay
         {
             base.Update(gameTime);
 
-            //      STEP 1: directly applied forces and fluid medium friction forces
-
-            //      RESETTING PREVIOUSLY APPLIED FORCES
-
-            _testObject.ResetForces();
-            
-            //      DIRECTLY APPLIED FORCES
-            // e.g.: gravity, magnetism, etc.
-
             if (_inputHandler.IsDown(Input.Left))
             {
-				_testObject.ApplyForce(new Force(-10, 0));
+                _testObject.FeetVelocity = new(-64, 0);
             }
-			if (_inputHandler.IsDown(Input.Right))
-			{
-				_testObject.ApplyForce(new Force(10, 0));
+            else if (_inputHandler.IsDown(Input.Right)) 
+            {
+                _testObject.FeetVelocity = new(64, 0);
+            }
+            else{
+				_testObject.FeetVelocity = new(0, 0);
 			}
-			if (_inputHandler.IsDown(Input.Up))
-			{
-				_testObject.ApplyForce(new Force(0, -10));
-			}
-			if (_inputHandler.IsDown(Input.Down))
-			{
-				_testObject.ApplyForce(new Force(0, 5));
-			}
+
+
+			//      STEP 1: directly applied forces and fluid medium friction forces
+
+			//      RESETTING PREVIOUSLY APPLIED FORCES
+
+			_testObject.ResetForces();
+
+			//      DIRECTLY APPLIED FORCES
+			// e.g.: gravity, magnetism, etc.
+
+			_testObject.ApplyForce(new Force(0, 10));
 
             //      FLUID MEDIUM FRICTION FORCES
             // e.g.: air, water, etc.
@@ -79,7 +77,7 @@ namespace AltarElementsZero.src.states.gameplay
             //   ( proportional to relative_velocity ^ 2 )
 
             // TODO: Get fluid velocity from medium!
-            _testObject.ApplyFluidFriction(20, _testObject.Velocity - new SubpxVelocity(64,0));
+            _testObject.ApplyFluidFriction(20, _testObject.Velocity - new SubpxVelocity(16,0));
 
             //      UPDATING VELOCITY
             SubpxVelocity velocityBeforeFirstForces = _testObject.Velocity;
@@ -99,16 +97,16 @@ namespace AltarElementsZero.src.states.gameplay
 			//   ( in both cases, max is proportional to normal force )
 
 			// previousRelativeVelocity: used for determine whether the friction is Kinematic or Static
-			SubpxVelocity previousRelativeVelocity = velocityBeforeFirstForces - _testObject.GroundVelocity;
+			SubpxVelocity previousRelativeVelocity = velocityBeforeFirstForces - _testObject.GroundVelocity - _testObject.FeetVelocity;
 			// targetRelativeVelocity: used for capping friction force (so that it doesn't start going "backwards" just by friction
-			SubpxVelocity targetRelativeVelocity = _testObject.Velocity - _testObject.GroundVelocity;
+			SubpxVelocity targetRelativeVelocity = _testObject.Velocity - _testObject.GroundVelocity - _testObject.FeetVelocity;
             if (_testObject.Grounded && forcesBeforeTerrainFriction.Y > 0)
             {
                 if(previousRelativeVelocity.X == 0) // STATIC FRICTION
                 {
                     int staticFriction = Math.Min(
                         Math.Abs(targetRelativeVelocity.X),
-                        _testObject.GroundMuSta * forcesBeforeTerrainFriction.Y
+                        (_testObject.GroundMuSta * forcesBeforeTerrainFriction.Y) >> 8
                         );
                     _testObject.ApplyForce(new Force(
                         staticFriction * -Math.Sign(targetRelativeVelocity.X),
@@ -121,7 +119,7 @@ namespace AltarElementsZero.src.states.gameplay
                 {
 					int kinematicFriction = Math.Min(
 						Math.Abs(targetRelativeVelocity.X),
-						_testObject.GroundMuKin * forcesBeforeTerrainFriction.Y
+						(_testObject.GroundMuKin * forcesBeforeTerrainFriction.Y) >> 8
 						);
 					_testObject.ApplyForce(new Force(
 						kinematicFriction * -Math.Sign(targetRelativeVelocity.X),
@@ -202,9 +200,9 @@ namespace AltarElementsZero.src.states.gameplay
                             foundBelow = true;
                             gameObject.Grounded = true;
 							// TODO: get GroundMuKin and GroundMuSta
-							gameObject.GroundMuKin = 1;
-                            gameObject.GroundMuSta = 2;
-                            gameObject.GroundVelocity = new SubpxVelocity(-128,0); // zero, because terrain is immobile ground
+							gameObject.GroundMuKin = 100;
+                            gameObject.GroundMuSta = 200;
+                            gameObject.GroundVelocity = new SubpxVelocity(-10,0); // zero, because terrain is immobile ground
                         }
                     }
                 }
