@@ -59,27 +59,52 @@ namespace AltarElementsZero.src.states.gameplay
         {
             base.Update(gameTime);
 
+            //
+            _testObject.MediumVelocity = new(0, 0);
+            //
+
+
+
+            SubpxVelocity targetAirVelocity;
+
             if (_inputHandler.IsDown(Input.Left))
             {
+                targetAirVelocity = new SubpxVelocity(-64 * 3, 0) - _testObject.MediumVelocity;
                 _testObject.FeetVelocity = new(-64 * 2, 0);
             }
             else if (_inputHandler.IsDown(Input.Right))
             {
-                _testObject.FeetVelocity = new(64 * 2, 0);
+                targetAirVelocity = new SubpxVelocity(64 * 3, 0) - _testObject.MediumVelocity;
+				_testObject.FeetVelocity = new(64 * 2, 0);
             }
             else {
-                _testObject.FeetVelocity = new(0, 0);
+                targetAirVelocity = new SubpxVelocity() - _testObject.MediumVelocity;
+				_testObject.FeetVelocity = new(0, 0);
             }
 
+			_testObject.ResetForces();
+
+            int deltaAirVelocity = targetAirVelocity.X - _testObject.Velocity.X;
+
+            //if (!_testObject.Grounded)
+            {
+			    _testObject.ApplyForce(new Force(
+                    Math.Sign(deltaAirVelocity)*(Math.Abs(targetAirVelocity.X - _testObject.Velocity.X) >> 5) ,
+                    0
+                    ));
+
+            }
+
+            _testObject.UpdateVelocity();
 
 
 
 
-            //      STEP 1: directly applied forces and fluid medium friction forces
+			//      STEP 1: directly applied forces and fluid medium friction forces
 
-            //      RESETTING PREVIOUSLY APPLIED FORCES
+			//      RESETTING PREVIOUSLY APPLIED FORCES
 
-            _testObject.ResetForces();
+			_testObject.ResetForces();
 
 			//      DIRECTLY APPLIED FORCES
 			// e.g.: gravity, magnetism, etc.
@@ -110,19 +135,19 @@ namespace AltarElementsZero.src.states.gameplay
 
 				if (_inputHandler.IsDown(Input.Up))
                 {
-					_testObject.ApplyForce(new Force(0, -128));
+					_testObject.ApplyForce(new Force(0, -64));
 				}
                 else if (_inputHandler.IsDown(Input.Down))
                 {
-					_testObject.ApplyForce(new Force(0, 128));
+					_testObject.ApplyForce(new Force(0, 64));
 				}
 				else if (_inputHandler.IsDown(Input.Left))
                 {
-                    _testObject.ApplyForce(new Force(-128, 0));
+                    _testObject.ApplyForce(new Force(-64, 0));
                 }
                 else if (_inputHandler.IsDown(Input.Right))
                 {
-					_testObject.ApplyForce(new Force(128, 0));
+					_testObject.ApplyForce(new Force(64, 0));
 				}
 				_attackCooldown = 30;
 			}
@@ -131,14 +156,13 @@ namespace AltarElementsZero.src.states.gameplay
                 _attackCooldown--;
             }
 
+			//      FLUID MEDIUM FRICTION FORCES
+			// e.g.: air, water, etc.
+			// - They depend on the relative velocity of the object to the medium!
+			//   ( proportional to relative_velocity ^ 2 )
 
-            //      FLUID MEDIUM FRICTION FORCES
-            // e.g.: air, water, etc.
-            // - They depend on the relative velocity of the object to the medium!
-            //   ( proportional to relative_velocity ^ 2 )
-
-            // TODO: Get fluid velocity from medium!
-            _testObject.ApplyFluidFriction(10, _testObject.Velocity - new SubpxVelocity());// (16,0));
+			// TODO: Get fluid velocity from medium!
+			_testObject.ApplyFluidFriction(0, _testObject.Velocity - _testObject.MediumVelocity);// (16,0));
 
             //      UPDATING VELOCITY
             SubpxVelocity velocityBeforeFirstForces = _testObject.Velocity;
@@ -260,10 +284,10 @@ namespace AltarElementsZero.src.states.gameplay
                             gameObject.Velocity.Y = 0;
                             foundBelow = true;
                             gameObject.Grounded = true;
-							// TODO: get GroundMuKin and GroundMuSta
-							gameObject.GroundMuKin = 200;
-                            gameObject.GroundMuSta = 400;
-                            gameObject.GroundVelocity = new SubpxVelocity();// (-10,0); // zero, because terrain is immobile ground
+                            // TODO: get GroundMuKin and GroundMuSta
+                            gameObject.GroundMuKin =  200;
+                            gameObject.GroundMuSta =  400;
+                            gameObject.GroundVelocity = new SubpxVelocity();// (-100,0); // zero, because terrain is immobile ground
                         }
                     }
                 }

@@ -109,6 +109,7 @@
         public SubpxSize Size;
         public SubpxVelocity Velocity;
         public bool Grounded = false;
+        public SubpxVelocity MediumVelocity;
         public SubpxVelocity GroundVelocity;
         public int GroundMuKin;
         public int GroundMuSta;
