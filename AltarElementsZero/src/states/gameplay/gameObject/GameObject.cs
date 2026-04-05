@@ -131,8 +131,8 @@
         public void ApplyFluidFriction(int viscosity, SubpxVelocity velocityDifference)
         {
             ApplyForce(new Force(
-                - Math.Sign(velocityDifference.X)*(((velocityDifference.X * velocityDifference.X * viscosity) >> 16) + 1),
-				- Math.Sign(velocityDifference.Y)*(((velocityDifference.Y * velocityDifference.Y * viscosity) >> 16) + 1)
+                - Math.Sign(velocityDifference.X)*(((velocityDifference.X * velocityDifference.X * viscosity) >> 16)),
+				- Math.Sign(velocityDifference.Y)*(((velocityDifference.Y * velocityDifference.Y * viscosity) >> 16))
 				));
         }
 
