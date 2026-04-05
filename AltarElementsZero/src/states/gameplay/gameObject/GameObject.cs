@@ -12,6 +12,22 @@
                 Y >> Configuration.Px.SubpxPower
 				);
         }
+
+        public static SubpxPosition operator +(SubpxPosition left, SubpxSize right)
+        {
+            return new(
+                left.X + right.X,
+                left.Y + right.Y
+                );
+        }
+        public static SubpxPosition operator -(SubpxPosition left, SubpxSize right)
+        {
+            return new(
+                left.X - right.X,
+                left.Y - right.Y
+                );
+        }
+
     }
     public struct PxPosition(uint x, uint y)
     {

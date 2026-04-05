@@ -60,13 +60,17 @@ namespace AltarElementsZero.src.states.gameplay
 
             _testObject.Position = new TilePosition(2,2).ToPx().ToSubpx();
 
-            _objectPool[0].Exist = true;
-            _objectPool[0].IsMobile = true;
-            _objectPool[0].IsSolid = true;
-            _objectPool[0].IsVisible = true;
-            _objectPool[0].Position = new TilePosition(3, 3).ToPx().ToSubpx();
-            _objectPool[0].Size = new PxSize(16,16).ToSubpx();
+            for(int o = 0; o < _objectPool.Length; o++)
+            {
 
+                _objectPool[o].Exist = true;
+                _objectPool[o].IsMobile = true;
+                _objectPool[o].IsSolid = true;
+                _objectPool[o].IsVisible = true;
+                _objectPool[o].Position = new TilePosition((uint)(3+o), 3).ToPx().ToSubpx();
+                _objectPool[o].Size = new PxSize(16,16).ToSubpx();
+
+            }
 
         }
         public override void Update(GameTime gameTime)
@@ -319,48 +323,118 @@ namespace AltarElementsZero.src.states.gameplay
             uint bottom = oppositeTile.Y;
             uint right = oppositeTile.X;
 
-            gameObject.Grounded = false;
+			uint currentTop = checkingVertex.Y;
+			uint currentBottom = oppositeVertex.Y;
+			uint currentLeft = checkingVertex.X;
+			uint currentRight = oppositeVertex.X;
+
+			gameObject.Grounded = false;
 
             if (gameObject.Velocity.Y > 0) // going down
             {
                 bool foundBelow = false;
+                uint foundAtY = 0;
                 for (uint row = top; !foundBelow && row <= bottom; row++)
                 {
                     for (uint col = left; !foundBelow && col <= right; col++)
                     {
                         if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
                         {
-                            checkingVertex.Y = new TilePosition(0, row).ToPx().ToSubpx().Y - gameObject.Size.Y;
-                            gameObject.Velocity.Y = 0;
                             foundBelow = true;
-                            gameObject.Grounded = true;
+                            foundAtY = new TilePosition(0, row).ToPx().ToSubpx().Y;
+                            checkingVertex.Y = foundAtY - gameObject.Size.Y;
+
+                            gameObject.Velocity.Y = 0;
+
+							gameObject.Grounded = true;
                             // TODO: get GroundMuKin and GroundMuSta
                             gameObject.GroundMuKin =  200;
                             gameObject.GroundMuSta =  400;
-                            gameObject.GroundVelocity = new SubpxVelocity();// (-100,0); // zero, because terrain is immobile ground
+                            gameObject.GroundVelocity = new SubpxVelocity(100,0);// (-100,0); // zero, because terrain is immobile ground
                         }
                     }
                 }
+
+				for (int o = 0; o < _objectPool.Length; o++)
+                {
+                    GameObject otherGameObject = _objectPool[o];
+                    if (!object.ReferenceEquals(otherGameObject, gameObject))
+                    {
+                        SubpxPosition otherVertex = otherGameObject.Position;
+                        SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1,1);
+
+                        uint otherTop = otherVertex.Y;
+                        uint otherBottom = otherOppositeVertex.Y;
+                        uint otherLeft = otherVertex.X;
+                        uint otherRight = otherOppositeVertex.X;
+                    
+                        if((!foundBelow || otherTop < foundAtY) &&
+                            currentTop <= otherBottom && otherTop <= currentBottom &&
+                            currentLeft <= otherRight && otherLeft <= currentRight)
+                        {
+                            foundBelow = true;
+                            foundAtY = otherTop;
+                            checkingVertex.Y  = foundAtY - gameObject.Size.Y;
+
+							gameObject.Velocity.Y = 0;
+							gameObject.Grounded = true;
+							// TODO: get GroundMuKin and GroundMuSta
+							gameObject.GroundMuKin = 200;
+							gameObject.GroundMuSta = 400;
+                            gameObject.GroundVelocity = otherGameObject.Velocity;
+						}
+                    }
+                }
+
             }
             else // going up
             {
-                bool foundAbove = false;
+				bool foundAbove = false;
+				uint foundAtY = 0;
                 for (uint row = bottom; !foundAbove && row >= top; row--)
                 {
                     for (uint col = left; !foundAbove && col <= right; col++)
                     {
                         if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
                         {
-                            checkingVertex.Y = new TilePosition(0, row + 1).ToPx().ToSubpx().Y;
-                            gameObject.Velocity.Y = 0;
                             foundAbove = true;
+                            foundAtY = new TilePosition(0, row + 1).ToPx().ToSubpx().Y - 1;
+							checkingVertex.Y = foundAtY + 1;
+                            gameObject.Velocity.Y = 0;
                         }
                     }
                 }
-            }
 
-            // Horizontal collisions
-            checkingVertex.X = targetPosition.X;
+				for (int o = 0; o < _objectPool.Length; o++)
+				{
+					GameObject otherGameObject = _objectPool[o];
+					if (!object.ReferenceEquals(otherGameObject, gameObject))
+					{
+						SubpxPosition otherVertex = otherGameObject.Position;
+						SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
+
+						uint otherTop = otherVertex.Y;
+						uint otherBottom = otherOppositeVertex.Y;
+						uint otherLeft = otherVertex.X;
+						uint otherRight = otherOppositeVertex.X;
+
+						if ((!foundAbove || otherBottom > foundAtY) &&
+							currentTop <= otherBottom && otherTop <= currentBottom &&
+							currentLeft <= otherRight && otherLeft <= currentRight)
+						{
+							foundAbove = true;
+							foundAtY = otherBottom;
+							checkingVertex.Y = otherBottom + 1;
+
+							gameObject.Velocity.Y = 0;
+						}
+					}
+				}
+
+			}
+
+			// Horizontal collisions
+			checkingVertex.X = targetPosition.X;
 			oppositeVertex = new(
                 checkingVertex.X + gameObject.Size.X - 1,
                 checkingVertex.Y + gameObject.Size.Y - 1
@@ -372,41 +446,100 @@ namespace AltarElementsZero.src.states.gameplay
 			bottom = oppositeTile.Y;
 			right = oppositeTile.X;
 
-			if (gameObject.Velocity.X > 0) // going right
-			{
-				bool foundAtRight = false;
-				for (uint col = left; !foundAtRight && col <= right; col++)
-				{
-				    for (uint row = top; !foundAtRight && row <= bottom; row++)
-					{
-						if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
-						{
-							checkingVertex.X = new TilePosition(col, 0).ToPx().ToSubpx().X - gameObject.Size.X;
-							gameObject.Velocity.X = 0;
-							foundAtRight = true;
-						}
-					}
-				}
-			}
-			else // going left
-			{
-				bool foundAtLeft = false;
-				for (uint col = right; !foundAtLeft && col >= left; col--)
-				{
-				    for (uint row = top; !foundAtLeft && row <= bottom; row++)
-					{
-						if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
-						{
-							checkingVertex.X = new TilePosition(col+1, 0).ToPx().ToSubpx().X;
-							gameObject.Velocity.X = 0;
-							foundAtLeft = true;
-						}
-					}
-				}
-			}
+			currentTop = checkingVertex.Y;
+			currentBottom = oppositeVertex.Y;
+			currentLeft = checkingVertex.X;
+			currentRight = oppositeVertex.X;
+
+            if (gameObject.Velocity.X > 0) // going right
+            {
+                bool foundAtRight = false;
+                uint foundAtX = 0;
+                for (uint col = left; !foundAtRight && col <= right; col++)
+                {
+                    for (uint row = top; !foundAtRight && row <= bottom; row++)
+                    {
+                        if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
+                        {
+                            foundAtRight = true;
+                            foundAtX = new TilePosition(col, 0).ToPx().ToSubpx().X;
+                            checkingVertex.X = foundAtX - gameObject.Size.X;
+                            gameObject.Velocity.X = 0;
+                        }
+                    }
+                }
+                for (int o = 0; o < _objectPool.Length; o++)
+                {
+                    GameObject otherGameObject = _objectPool[o];
+                    if (!object.ReferenceEquals(otherGameObject, gameObject))
+                    {
+                        SubpxPosition otherVertex = otherGameObject.Position;
+                        SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
+
+                        uint otherTop = otherVertex.Y;
+                        uint otherBottom = otherOppositeVertex.Y;
+                        uint otherLeft = otherVertex.X;
+                        uint otherRight = otherOppositeVertex.X;
+
+                        if ((!foundAtRight || otherLeft < foundAtX) &&
+                            currentTop <= otherBottom && otherTop <= currentBottom &&
+                            currentLeft <= otherRight && otherLeft <= currentRight)
+                        {
+                            foundAtRight = true;
+                            foundAtX = otherLeft;
+                            checkingVertex.X = foundAtX - gameObject.Size.X;
+
+                            gameObject.Velocity.X = 0;
+                        }
+                    }
+                }
+            }
+            else // going left
+            {
+                bool foundAtLeft = false;
+                uint foundAtX = 0;
+                for (uint col = right; !foundAtLeft && col >= left; col--)
+                {
+                    for (uint row = top; !foundAtLeft && row <= bottom; row++)
+                    {
+                        if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
+                        {
+                            foundAtLeft = true;
+                            foundAtX = new TilePosition(col + 1, 0).ToPx().ToSubpx().X - 1;
+                            checkingVertex.X = foundAtX + 1;
+                            gameObject.Velocity.X = 0;
+                        }
+                    }
+                }
+
+                for (int o = 0; o < _objectPool.Length; o++)
+                {
+                    GameObject otherGameObject = _objectPool[o];
+                    if (!object.ReferenceEquals(otherGameObject, gameObject))
+                    {
+                        SubpxPosition otherVertex = otherGameObject.Position;
+                        SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
+
+                        uint otherTop = otherVertex.Y;
+                        uint otherBottom = otherOppositeVertex.Y;
+                        uint otherLeft = otherVertex.X;
+                        uint otherRight = otherOppositeVertex.X;
+
+                        if ((!foundAtLeft || otherRight > foundAtX) &&
+                            currentTop <= otherBottom && otherTop <= currentBottom &&
+                            currentLeft <= otherRight && otherLeft <= currentRight)
+                        {
+                            foundAtLeft = true;
+                            foundAtX = otherRight;
+                            checkingVertex.X = otherRight + 1;
+
+                            gameObject.Velocity.X = 0;
+                        }
+                    }
+                }
 
 
-
+            }
 
 			gameObject.Position = checkingVertex;
         }
