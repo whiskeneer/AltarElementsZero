@@ -1,7 +1,7 @@
 ﻿namespace AltarElementsZero.src.states.gameplay.gameObject
 {
-    sealed class Camera : GameObject
-    {
+    //sealed class Camera : GameObject
+    //{
 
-    }
+    //}
 }

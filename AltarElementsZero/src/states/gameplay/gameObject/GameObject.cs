@@ -103,9 +103,19 @@
         public int Y = y;
     }
 
-    abstract class GameObject
+    sealed class GameObject
     {
-        public SubpxPosition Position;
+		public static GameObject GetTestObject()
+		{
+			GameObject testObject = new();
+			testObject.Size = new PxSize(
+				(uint)Configuration.Tile.Px.Width,
+				(uint)Configuration.Tile.Px.Height
+				).ToSubpx();
+			return testObject;
+		}
+
+		public SubpxPosition Position;
         public SubpxSize Size;
         public SubpxVelocity Velocity;
         public bool Grounded = false;
@@ -113,8 +123,14 @@
         public SubpxVelocity GroundVelocity;
         public int GroundMuKin;
         public int GroundMuSta;
-        public SubpxVelocity FeetVelocity;
+        public SubpxVelocity FeetVelocity; // Refers to efforts to move on ground
+        // public SubpxVelocity WingVelocity; // Refers to efforts to move on air ( + ground )
 
+        // BEHAVIOUR
+        public bool Exist = false;
+        public bool IsMobile = false;
+        public bool IsSolid = false;
+        public bool IsVisible = false;
 
         public Force AppliedForces;
 
@@ -122,6 +138,27 @@
         {
             AppliedForces.X = 0;
             AppliedForces.Y = 0;
+        }
+
+        public void ApplyWingVelocity(SubpxVelocity wingVelocity)
+        {
+            ResetForces();
+
+            SubpxVelocity targetAirVelocity = wingVelocity - MediumVelocity;
+            int deltaAirVelocity = targetAirVelocity.X - Velocity.X;
+
+			//if (!Grounded)
+			//{
+			// Air horizontal acceleration = acceleration on ice, with GroundMu = 0
+			ApplyForce(new Force(
+                // Should I add a vertical value to this vector, for symmetry?
+                Math.Sign(deltaAirVelocity)*(Math.Abs(deltaAirVelocity) >> 5),
+                0
+				));
+			//}
+
+			UpdateVelocity();
+
         }
 
         public void ApplyForce(Force force)

@@ -24,11 +24,13 @@ namespace AltarElementsZero.src.states.gameplay
     {
         private readonly Level _level = new();
 
-        private readonly Camera _camera = new();
+        private readonly GameObject _camera = new();
 
-        private readonly TestObject _testObject = new();
+        private readonly GameObject _testObject = GameObject.GetTestObject();
         private int _remainingJumpFrames = 0;
         private int _attackCooldown = 0;
+
+        private GameObject[] _objectPool = new GameObject[64];
 
         public override void Enter()
         {
@@ -51,53 +53,47 @@ namespace AltarElementsZero.src.states.gameplay
 				}
             }
 
+            for(int o = 0; o < _objectPool.Length; o++)
+            {
+                _objectPool[o] = new();
+            }
+
             _testObject.Position = new TilePosition(2,2).ToPx().ToSubpx();
-            
+
+            _objectPool[0].Exist = true;
+            _objectPool[0].IsMobile = true;
+            _objectPool[0].IsSolid = true;
+            _objectPool[0].IsVisible = true;
+            _objectPool[0].Position = new TilePosition(3, 3).ToPx().ToSubpx();
+            _objectPool[0].Size = new PxSize(16,16).ToSubpx();
+
 
         }
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
-            //
+            // Checking medium velocity should be done after moving the object
             _testObject.MediumVelocity = new(0, 0);
             //
 
 
 
-            SubpxVelocity targetAirVelocity;
 
             if (_inputHandler.IsDown(Input.Left))
             {
-                targetAirVelocity = new SubpxVelocity(-64 * 3, 0) - _testObject.MediumVelocity;
+                _testObject.ApplyWingVelocity(new SubpxVelocity(-64 * 3, 0));
                 _testObject.FeetVelocity = new(-64 * 2, 0);
             }
             else if (_inputHandler.IsDown(Input.Right))
             {
-                targetAirVelocity = new SubpxVelocity(64 * 3, 0) - _testObject.MediumVelocity;
+                _testObject.ApplyWingVelocity(new SubpxVelocity(64 * 3, 0));
 				_testObject.FeetVelocity = new(64 * 2, 0);
             }
             else {
-                targetAirVelocity = new SubpxVelocity() - _testObject.MediumVelocity;
+				_testObject.ApplyWingVelocity(new SubpxVelocity(0, 0));
 				_testObject.FeetVelocity = new(0, 0);
             }
-
-			_testObject.ResetForces();
-
-            int deltaAirVelocity = targetAirVelocity.X - _testObject.Velocity.X;
-
-            //if (!_testObject.Grounded)
-            {
-			    _testObject.ApplyForce(new Force(
-                    Math.Sign(deltaAirVelocity)*(Math.Abs(targetAirVelocity.X - _testObject.Velocity.X) >> 5) ,
-                    0
-                    ));
-
-            }
-
-            _testObject.UpdateVelocity();
-
-
 
 
 			//      STEP 1: directly applied forces and fluid medium friction forces
@@ -231,6 +227,60 @@ namespace AltarElementsZero.src.states.gameplay
             }
 
             _camera.Position = cameraPosition;
+
+
+            //
+            for (int o = 0; o < _objectPool.Length; o++)
+            {
+                GameObject gameObject = _objectPool[o];
+                if (gameObject.Exist && gameObject.IsSolid && gameObject.IsMobile)
+                {
+                    gameObject.ApplyWingVelocity(new SubpxVelocity());
+
+                    gameObject.ResetForces();
+                    gameObject.ApplyForce(new Force(0, 12));
+                    gameObject.ApplyFluidFriction(0, gameObject.Velocity - gameObject.MediumVelocity);
+					SubpxVelocity _velocityBeforeFirstForces = gameObject.Velocity;
+                    gameObject.UpdateVelocity();
+
+                    Force _forcesBeforeTerrainFriction = gameObject.AppliedForces;
+                    gameObject.ResetForces();
+					SubpxVelocity _previousRelativeVelocity = velocityBeforeFirstForces - gameObject.GroundVelocity - gameObject.FeetVelocity;
+					SubpxVelocity _targetRelativeVelocity = gameObject.Velocity - gameObject.GroundVelocity - gameObject.FeetVelocity;
+					if (gameObject.Grounded && _forcesBeforeTerrainFriction.Y > 0)
+                    {
+						if (_previousRelativeVelocity.X == 0) // STATIC FRICTION
+						{
+							int staticFriction = Math.Min(
+								Math.Abs(_targetRelativeVelocity.X),
+								(gameObject.GroundMuSta * _forcesBeforeTerrainFriction.Y) >> 8
+								);
+							gameObject.ApplyForce(new Force(
+								staticFriction * -Math.Sign(_targetRelativeVelocity.X),
+								0
+								));
+
+							gameObject.UpdateVelocity();
+						}
+						else // KINEMATIC FRICTION
+						{
+							int kinematicFriction = Math.Min(
+								Math.Abs(_targetRelativeVelocity.X),
+								(gameObject.GroundMuKin * _forcesBeforeTerrainFriction.Y) >> 8
+								);
+							gameObject.ApplyForce(new Force(
+								kinematicFriction * -Math.Sign(_targetRelativeVelocity.X),
+								0
+								));
+
+							gameObject.UpdateVelocity();
+						}
+					}
+
+                    MoveAndApplyCollision(gameObject);
+				}
+			}
+            //
 
 		}
 		public override void Draw(SpriteBatch spriteBatch)
@@ -415,6 +465,29 @@ namespace AltarElementsZero.src.states.gameplay
                     ),
                 color: Color.White
                 );
+
+            for(int o = 0; o < _objectPool.Length; o++)
+            {
+                GameObject currentObject = _objectPool[o];
+                if (currentObject.Exist && currentObject.IsVisible)
+                {
+                    PxPosition objectPosition = currentObject.Position.ToPx();
+                    spriteBatch.Draw(
+	                    texture: _assets.DebugSpritesheet,
+	                    position: new Vector2(
+							(int)objectPosition.X - cameraPxPosition.X,
+							(int)objectPosition.Y - cameraPxPosition.Y
+		                    ),
+	                    sourceRectangle: new(
+		                    Configuration.Tile.Px.Width * 5,
+		                    Configuration.Tile.Px.Height * 1,
+		                    Configuration.Tile.Px.Width,
+		                    Configuration.Tile.Px.Height
+		                    ),
+	                    color: Color.White
+	                    );
+				}
+            }
 
 		}
     }
