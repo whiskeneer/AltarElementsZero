@@ -1,9 +1,10 @@
 ﻿using AltarElementsZero.src.states.gameplay.gameObject;
 using AltarElementsZero.src.states.gameplay.level;
+using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-using System;
+//using System;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -30,7 +31,7 @@ namespace AltarElementsZero.src.states.gameplay
         private int _remainingJumpFrames = 0;
         private int _attackCooldown = 0;
 
-        private GameObject[] _objectPool = new GameObject[64];
+        private readonly GameObject[] _objectPool = new GameObject[64];
 
         uint _animationFrame = 0;
 
@@ -38,28 +39,13 @@ namespace AltarElementsZero.src.states.gameplay
         {
             base.Enter();
 
-            Random rnd = new Random();
+            //Random rnd = new();
             _level.SetAll(new Tile(Tile.Families.Ground, 0));
-            for (int j = 1; j < Configuration.Level.Tile.Height - 1; j++)
+            for (int j = 1; j <= 6; j++)
             {
-                for(int i = 1; i < Configuration.Level.Tile.Width - 1; i++)
+                for(int i = 1; i <= 10; i++)
                 {
-                    if(rnd.Next(0,100) > 90)
-                    {
-                        switch(rnd.Next(0,4))
-                        {
-                            case 0:  _level.SetTile(i, j, new Tile(Tile.Families.Ground, 8)); break;
-                            case 1: _level.SetTile(i, j, new Tile(Tile.Families.Ice, 0xfe));  break;
-                            case 2: _level.SetTile(i, j, new Tile(Tile.Families.ConveyorRight, (byte)(0x00 | rnd.Next(0,4))));  break;
-							case 3: _level.SetTile(i, j, new Tile(Tile.Families.ConveyorLeft, (byte)(0x04 | rnd.Next(0, 4)))); break;
-
-							default: break;
-                        }
-					}
-                    else
-                    {
-                        _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
-					}
+                    _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
 				}
             }
 
@@ -70,17 +56,17 @@ namespace AltarElementsZero.src.states.gameplay
 
             _testObject.Position = new TilePosition(2,2).ToPx().ToSubpx();
 
-            for(int o = 0; o < _objectPool.Length; o++)
-            {
+            //for(int o = 0; o < _objectPool.Length; o++)
+            //{
 
-                _objectPool[o].Exist = true;
-                _objectPool[o].IsMobile = true;
-                _objectPool[o].IsSolid = true;
-                _objectPool[o].IsVisible = true;
-                _objectPool[o].Position = new TilePosition((uint)(3+o), 3).ToPx().ToSubpx();
-                _objectPool[o].Size = new PxSize(16,16).ToSubpx();
+            //    _objectPool[o].Exist = true;
+            //    _objectPool[o].IsMobile = true;
+            //    _objectPool[o].IsSolid = true;
+            //    _objectPool[o].IsVisible = true;
+            //    _objectPool[o].Position = new TilePosition((uint)(3+o), 3).ToPx().ToSubpx();
+            //    _objectPool[o].Size = new PxSize(16,16).ToSubpx();
 
-            }
+            //}
 
         }
         public override void Update(GameTime gameTime)
@@ -228,19 +214,21 @@ namespace AltarElementsZero.src.states.gameplay
 
 			MoveAndApplyCollision(_testObject);
 
-            SubpxPosition cameraPosition = _testObject.Position;
-            cameraPosition.X -= (uint)(Configuration.VisibleScreen.Px.Width << (Configuration.Px.SubpxPower-1));
-			cameraPosition.Y -= (uint)(Configuration.VisibleScreen.Px.Height << (Configuration.Px.SubpxPower-1));
-            if (cameraPosition.X > Configuration.Level.Subpx.Width)
-            {
-                cameraPosition.X = 0;
-            }
-            if(cameraPosition.Y > Configuration.Level.Subpx.Height)
-            {
-                cameraPosition.Y = 0;
-            }
+            // CAMERA UPDATE
 
-            _camera.Position = cameraPosition;
+   //         SubpxPosition cameraPosition = _testObject.Position;
+   //         cameraPosition.X -= (uint)(Configuration.VisibleScreen.Px.Width << (Configuration.Px.SubpxPower-1));
+			//cameraPosition.Y -= (uint)(Configuration.VisibleScreen.Px.Height << (Configuration.Px.SubpxPower-1));
+   //         if (cameraPosition.X > Configuration.Level.Subpx.Width)
+   //         {
+   //             cameraPosition.X = 0;
+   //         }
+   //         if(cameraPosition.Y > Configuration.Level.Subpx.Height)
+   //         {
+   //             cameraPosition.Y = 0;
+   //         }
+
+   //         _camera.Position = cameraPosition;
 
 
             //
