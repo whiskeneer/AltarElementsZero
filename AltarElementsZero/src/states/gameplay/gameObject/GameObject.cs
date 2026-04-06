@@ -78,7 +78,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         {
             Velocity.X += AppliedForces.X;
             Velocity.Y += AppliedForces.Y;
-
+		}
+        public SubpxPosition TargetPosition()
+        {
 			if (Velocity.X > Configuration.MaxMovement.Width)
 			{
 				Velocity.X = Configuration.MaxMovement.Width;
@@ -96,10 +98,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 			{
 				Velocity.Y = -Configuration.MaxMovement.Height;
 			}
-		}
-        public SubpxPosition TargetPosition()
-        {
-            return new SubpxPosition(
+
+			return new SubpxPosition(
                 (uint)(Position.X + Velocity.X),
 				(uint)(Position.Y + Velocity.Y)
                 );
