@@ -12,6 +12,8 @@ namespace AltarElementsZero.src.states.gameplay
             )
     {
         public Texture2D? DebugSpritesheet {  get; private set; }
+        public Texture2D? StaticSpritesheet { get; private set; }
+        public Texture2D? AnimatedSpritesheet { get; private set; }
 
         public override void Load()
         {
@@ -19,6 +21,8 @@ namespace AltarElementsZero.src.states.gameplay
 
             // Loading textures
             DebugSpritesheet = _contentManager!.Load<Texture2D>("img/spritesheet_placeholder.png");
+            StaticSpritesheet = _contentManager!.Load<Texture2D>("img/static_spritesheet_level1.png");
+            AnimatedSpritesheet = _contentManager!.Load<Texture2D>("img/animated_spritesheet_level1.png");
 
             // Creating renderTargets
             // none
@@ -45,6 +49,8 @@ namespace AltarElementsZero.src.states.gameplay
 
             // Unreferencing textures
             DebugSpritesheet = null;
+            StaticSpritesheet = null;
+            AnimatedSpritesheet = null;
 
             // Disposing renderTargets
             // none

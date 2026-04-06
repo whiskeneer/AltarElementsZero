@@ -9,9 +9,17 @@
         public byte Member = member;
 
         public enum Families : byte
-        {
-            None,
-            Terrain,
-        }
+        {   // Family       //  Member
+            None,           //  ----
+
+            Ground,         //  static spritesheet index
+            Ice,            //  static spritesheet index
+            Spikes,         //  static spritesheet index
+
+            ConveyorRight,  //  6msb animated spritesheet index | 2lsb animation & physic speed
+            ConveyorLeft,   //  6msb animated spritesheet index | 2lsb animation & physic speed
+			// Spring,         //  6msb animated spritesheet index | direction
+
+		}
     }
 }

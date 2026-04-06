@@ -32,20 +32,30 @@ namespace AltarElementsZero.src.states.gameplay
 
         private GameObject[] _objectPool = new GameObject[64];
 
+        uint _animationFrame = 0;
+
         public override void Enter()
         {
             base.Enter();
 
             Random rnd = new Random();
-            _level.SetAll(new Tile(Tile.Families.Terrain, 2));
+            _level.SetAll(new Tile(Tile.Families.Ground, 0));
             for (int j = 1; j < Configuration.Level.Tile.Height - 1; j++)
             {
                 for(int i = 1; i < Configuration.Level.Tile.Width - 1; i++)
                 {
                     if(rnd.Next(0,100) > 90)
                     {
-					    _level.SetTile(i, j, new Tile(Tile.Families.Terrain, 7));
-                    }
+                        switch(rnd.Next(0,4))
+                        {
+                            case 0:  _level.SetTile(i, j, new Tile(Tile.Families.Ground, 8)); break;
+                            case 1: _level.SetTile(i, j, new Tile(Tile.Families.Ice, 0xfe));  break;
+                            case 2: _level.SetTile(i, j, new Tile(Tile.Families.ConveyorRight, (byte)(0x00 | rnd.Next(0,4))));  break;
+							case 3: _level.SetTile(i, j, new Tile(Tile.Families.ConveyorLeft, (byte)(0x04 | rnd.Next(0, 4)))); break;
+
+							default: break;
+                        }
+					}
                     else
                     {
                         _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
@@ -249,7 +259,7 @@ namespace AltarElementsZero.src.states.gameplay
 
                     Force _forcesBeforeTerrainFriction = gameObject.AppliedForces;
                     gameObject.ResetForces();
-					SubpxVelocity _previousRelativeVelocity = velocityBeforeFirstForces - gameObject.GroundVelocity - gameObject.FeetVelocity;
+					SubpxVelocity _previousRelativeVelocity = _velocityBeforeFirstForces - gameObject.GroundVelocity - gameObject.FeetVelocity;
 					SubpxVelocity _targetRelativeVelocity = gameObject.Velocity - gameObject.GroundVelocity - gameObject.FeetVelocity;
 					if (gameObject.Grounded && _forcesBeforeTerrainFriction.Y > 0)
                     {
@@ -291,7 +301,9 @@ namespace AltarElementsZero.src.states.gameplay
         {
             base.Draw(spriteBatch);
 
-            Render(spriteBatch);
+            _animationFrame++;
+
+			Render(spriteBatch);
 
         }
         public override void Exit()
@@ -338,19 +350,43 @@ namespace AltarElementsZero.src.states.gameplay
                 {
                     for (uint col = left; !foundBelow && col <= right; col++)
                     {
-                        if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
-                        {
+                        Tile tile = _level.GetTile((int)col, (int)row);
+
+						Tile.Families family = tile.Family;
+						if (family >= Tile.Families.Ground && tile.Family <= Tile.Families.ConveyorLeft)
+						{
                             foundBelow = true;
                             foundAtY = new TilePosition(0, row).ToPx().ToSubpx().Y;
                             checkingVertex.Y = foundAtY - gameObject.Size.Y;
 
                             gameObject.Velocity.Y = 0;
 
-							gameObject.Grounded = true;
-                            // TODO: get GroundMuKin and GroundMuSta
-                            gameObject.GroundMuKin =  200;
-                            gameObject.GroundMuSta =  400;
-                            gameObject.GroundVelocity = new SubpxVelocity(100,0);// (-100,0); // zero, because terrain is immobile ground
+                            gameObject.Grounded = true;
+
+                            if (tile.Family == Tile.Families.Ground)
+                            {
+                                gameObject.GroundMuKin = 200;
+                                gameObject.GroundMuSta =  400;
+                                gameObject.GroundVelocity = new SubpxVelocity(0,0);// (-100,0); // zero, because terrain is immobile ground
+                            }
+                            else if(tile.Family == Tile.Families.Ice)
+                            {
+								gameObject.GroundMuKin = 0;
+								gameObject.GroundMuSta = 0;
+								gameObject.GroundVelocity = new SubpxVelocity(0, 0);// (-100,0); // zero, because terrain is immobile ground
+							}
+                            else if (tile.Family == Tile.Families.ConveyorRight)
+                            {
+								gameObject.GroundMuKin = 200;
+								gameObject.GroundMuSta = 400;
+								gameObject.GroundVelocity = new SubpxVelocity(64<<(tile.Member & 0x3), 0);
+							}
+                            else if(tile.Family == Tile.Families.ConveyorLeft)
+                            {
+								gameObject.GroundMuKin = 200;
+								gameObject.GroundMuSta = 400;
+								gameObject.GroundVelocity = new SubpxVelocity(-(64<<(tile.Member & 0x3)), 0);
+							}
                         }
                     }
                 }
@@ -358,7 +394,7 @@ namespace AltarElementsZero.src.states.gameplay
 				for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (!object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1,1);
@@ -395,8 +431,11 @@ namespace AltarElementsZero.src.states.gameplay
                 {
                     for (uint col = left; !foundAbove && col <= right; col++)
                     {
-                        if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
-                        {
+						Tile tile = _level.GetTile((int)col, (int)row);
+
+						Tile.Families family = tile.Family;
+						if (family >= Tile.Families.Ground && tile.Family <= Tile.Families.ConveyorLeft)
+						{
                             foundAbove = true;
                             foundAtY = new TilePosition(0, row + 1).ToPx().ToSubpx().Y - 1;
 							checkingVertex.Y = foundAtY + 1;
@@ -408,7 +447,7 @@ namespace AltarElementsZero.src.states.gameplay
 				for (int o = 0; o < _objectPool.Length; o++)
 				{
 					GameObject otherGameObject = _objectPool[o];
-					if (!object.ReferenceEquals(otherGameObject, gameObject))
+					if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
 					{
 						SubpxPosition otherVertex = otherGameObject.Position;
 						SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -459,8 +498,11 @@ namespace AltarElementsZero.src.states.gameplay
                 {
                     for (uint row = top; !foundAtRight && row <= bottom; row++)
                     {
-                        if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
-                        {
+						Tile tile = _level.GetTile((int)col, (int)row);
+
+                        Tile.Families family = tile.Family;
+						if (family >= Tile.Families.Ground && tile.Family <= Tile.Families.ConveyorLeft)
+						{
                             foundAtRight = true;
                             foundAtX = new TilePosition(col, 0).ToPx().ToSubpx().X;
                             checkingVertex.X = foundAtX - gameObject.Size.X;
@@ -471,7 +513,7 @@ namespace AltarElementsZero.src.states.gameplay
                 for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (!object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -502,8 +544,11 @@ namespace AltarElementsZero.src.states.gameplay
                 {
                     for (uint row = top; !foundAtLeft && row <= bottom; row++)
                     {
-                        if (_level.GetTile((int)col, (int)row).Family == Tile.Families.Terrain)
-                        {
+                        Tile tile = _level.GetTile((int)col, (int)row);
+
+						Tile.Families family = tile.Family;
+						if (family >= Tile.Families.Ground && tile.Family <= Tile.Families.ConveyorLeft)
+						{
                             foundAtLeft = true;
                             foundAtX = new TilePosition(col + 1, 0).ToPx().ToSubpx().X - 1;
                             checkingVertex.X = foundAtX + 1;
@@ -515,7 +560,7 @@ namespace AltarElementsZero.src.states.gameplay
                 for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (!object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -559,7 +604,7 @@ namespace AltarElementsZero.src.states.gameplay
                         (int)cameraTilePosition.Y + tileOffsetY
                         );
 
-                    if (tile.Family == Tile.Families.Terrain) {
+                    if (tile.Family >= Tile.Families.Ground && tile.Family <= Tile.Families.Spikes) {
                         int spritesheetCol = tile.Member & 0xf;
                         int spritesheetRow = (tile.Member >> 4) & 0xf;
 
@@ -575,17 +620,41 @@ namespace AltarElementsZero.src.states.gameplay
 							);
 
 						spriteBatch.Draw(
-                            _assets.DebugSpritesheet,
+                            _assets.StaticSpritesheet,
 							outputVector,
 							sourceRectangle,
                             Color.White);
                     }
+                    else if(tile.Family >= Tile.Families.ConveyorRight && tile.Family <= Tile.Families.ConveyorLeft)
+                    {
+						int spritesheetCol = (tile.Member & 0xc) | (((int)_animationFrame >> (3 - (tile.Member & 0x3))) & 0x3);
+						int spritesheetRow = (tile.Member >> 4) & 0xf;
+
+                        Vector2 outputVector = new(
+                            Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
+                            Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
+                            );
+                        Rectangle sourceRectangle = new(
+                            Configuration.Tile.Px.Width * spritesheetCol,
+							Configuration.Tile.Px.Height * spritesheetRow,
+							Configuration.Tile.Px.Width,
+							Configuration.Tile.Px.Height
+							);
+
+						spriteBatch.Draw(
+                            _assets.AnimatedSpritesheet,
+							outputVector,
+							sourceRectangle,
+                            Color.White);
+
+					}
+
                 }
             }
 
             PxPosition testObjectPxPosition = _testObject.Position.ToPx();
             spriteBatch.Draw(
-                texture: _assets.DebugSpritesheet,
+                texture: _assets.StaticSpritesheet,
                 position: new Vector2(
                     testObjectPxPosition.X - cameraPxPosition.X, 
                     testObjectPxPosition.Y - cameraPxPosition.Y
@@ -606,14 +675,14 @@ namespace AltarElementsZero.src.states.gameplay
                 {
                     PxPosition objectPosition = currentObject.Position.ToPx();
                     spriteBatch.Draw(
-	                    texture: _assets.DebugSpritesheet,
+	                    texture: _assets.StaticSpritesheet,
 	                    position: new Vector2(
 							(int)objectPosition.X - cameraPxPosition.X,
 							(int)objectPosition.Y - cameraPxPosition.Y
 		                    ),
 	                    sourceRectangle: new(
-		                    Configuration.Tile.Px.Width * 5,
-		                    Configuration.Tile.Px.Height * 1,
+		                    Configuration.Tile.Px.Width * 4,
+		                    Configuration.Tile.Px.Height * 0,
 		                    Configuration.Tile.Px.Width,
 		                    Configuration.Tile.Px.Height
 		                    ),
