@@ -1,5 +1,6 @@
 ﻿using AltarElementsZero.src.states.gameplay.gameObject;
 using AltarElementsZero.src.states.gameplay.level;
+using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -30,7 +31,7 @@ namespace AltarElementsZero.src.states.gameplay
         private int _remainingJumpFrames = 0;
         private int _attackCooldown = 0;
 
-        private GameObject[] _objectPool = new GameObject[64];
+        private readonly GameObject[] _objectPool = new GameObject[64];
 
         uint _animationFrame = 0;
 
@@ -38,28 +39,13 @@ namespace AltarElementsZero.src.states.gameplay
         {
             base.Enter();
 
-            Random rnd = new Random();
+            Random rnd = new();
             _level.SetAll(new Tile(Tile.Families.Ground, 0));
-            for (int j = 1; j < Configuration.Level.Tile.Height - 1; j++)
+            for (int j = 1; j <= 6; j++)
             {
-                for(int i = 1; i < Configuration.Level.Tile.Width - 1; i++)
+                for(int i = 1; i <= 10; i++)
                 {
-                    if(rnd.Next(0,100) > 90)
-                    {
-                        switch(rnd.Next(0,4))
-                        {
-                            case 0:  _level.SetTile(i, j, new Tile(Tile.Families.Ground, 8)); break;
-                            case 1: _level.SetTile(i, j, new Tile(Tile.Families.Ice, 0xfe));  break;
-                            case 2: _level.SetTile(i, j, new Tile(Tile.Families.ConveyorRight, (byte)(0x00 | rnd.Next(0,4))));  break;
-							case 3: _level.SetTile(i, j, new Tile(Tile.Families.ConveyorLeft, (byte)(0x04 | rnd.Next(0, 4)))); break;
-
-							default: break;
-                        }
-					}
-                    else
-                    {
-                        _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
-					}
+                    _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
 				}
             }
 
@@ -68,19 +54,21 @@ namespace AltarElementsZero.src.states.gameplay
                 _objectPool[o] = new();
             }
 
-            _testObject.Position = new TilePosition(2,2).ToPx().ToSubpx();
+            _testObject.Position = new TilePosition(1,1).ToPx().ToSubpx();
 
-            for(int o = 0; o < _objectPool.Length; o++)
+            for(int o = 0; o < 1; o++)
             {
-
-                _objectPool[o].Exist = true;
-                _objectPool[o].IsMobile = true;
-                _objectPool[o].IsSolid = true;
-                _objectPool[o].IsVisible = true;
-                _objectPool[o].Position = new TilePosition((uint)(3+o), 3).ToPx().ToSubpx();
-                _objectPool[o].Size = new PxSize(16,16).ToSubpx();
+                _objectPool[o] = GameObject.GetToki();
+                _objectPool[o].Init();
+                _objectPool[o].Position = new PxPosition((uint)rnd.Next(32,100), (uint)rnd.Next(32,80)).ToSubpx();
 
             }
+
+
+            _objectPool[1] = GameObject.GetMovingPlatform1();
+            _objectPool[1].Init();
+            _objectPool[1].Position = new TilePosition(5, 5).ToPx().ToSubpx();
+
 
         }
         public override void Update(GameTime gameTime)
@@ -228,70 +216,89 @@ namespace AltarElementsZero.src.states.gameplay
 
 			MoveAndApplyCollision(_testObject);
 
-            SubpxPosition cameraPosition = _testObject.Position;
-            cameraPosition.X -= (uint)(Configuration.VisibleScreen.Px.Width << (Configuration.Px.SubpxPower-1));
-			cameraPosition.Y -= (uint)(Configuration.VisibleScreen.Px.Height << (Configuration.Px.SubpxPower-1));
-            if (cameraPosition.X > Configuration.Level.Subpx.Width)
-            {
-                cameraPosition.X = 0;
-            }
-            if(cameraPosition.Y > Configuration.Level.Subpx.Height)
-            {
-                cameraPosition.Y = 0;
-            }
+            // CAMERA UPDATE
 
-            _camera.Position = cameraPosition;
+   //         SubpxPosition cameraPosition = _testObject.Position;
+   //         cameraPosition.X -= (uint)(Configuration.VisibleScreen.Px.Width << (Configuration.Px.SubpxPower-1));
+			//cameraPosition.Y -= (uint)(Configuration.VisibleScreen.Px.Height << (Configuration.Px.SubpxPower-1));
+   //         if (cameraPosition.X > Configuration.Level.Subpx.Width)
+   //         {
+   //             cameraPosition.X = 0;
+   //         }
+   //         if(cameraPosition.Y > Configuration.Level.Subpx.Height)
+   //         {
+   //             cameraPosition.Y = 0;
+   //         }
+
+   //         _camera.Position = cameraPosition;
 
 
             //
             for (int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject gameObject = _objectPool[o];
-                if (gameObject.Exist && gameObject.IsSolid && gameObject.IsMobile)
+                if (gameObject.exists && gameObject.isSolid && !gameObject.isFixed)
                 {
-                    gameObject.ApplyWingVelocity(new SubpxVelocity());
-
-                    gameObject.ResetForces();
-                    gameObject.ApplyForce(new Force(0, 12));
-                    gameObject.ApplyFluidFriction(0, gameObject.Velocity - gameObject.MediumVelocity);
-					SubpxVelocity _velocityBeforeFirstForces = gameObject.Velocity;
-                    gameObject.UpdateVelocity();
-
-                    Force _forcesBeforeTerrainFriction = gameObject.AppliedForces;
-                    gameObject.ResetForces();
-					SubpxVelocity _previousRelativeVelocity = _velocityBeforeFirstForces - gameObject.GroundVelocity - gameObject.FeetVelocity;
-					SubpxVelocity _targetRelativeVelocity = gameObject.Velocity - gameObject.GroundVelocity - gameObject.FeetVelocity;
-					if (gameObject.Grounded && _forcesBeforeTerrainFriction.Y > 0)
+                    if (!gameObject.isSelfMoving)
                     {
-						if (_previousRelativeVelocity.X == 0) // STATIC FRICTION
-						{
-							int staticFriction = Math.Min(
-								Math.Abs(_targetRelativeVelocity.X),
-								(gameObject.GroundMuSta * _forcesBeforeTerrainFriction.Y) >> 8
-								);
-							gameObject.ApplyForce(new Force(
-								staticFriction * -Math.Sign(_targetRelativeVelocity.X),
-								0
-								));
+                        gameObject.ApplyWingVelocity(new SubpxVelocity());
 
-							gameObject.UpdateVelocity();
-						}
-						else // KINEMATIC FRICTION
-						{
-							int kinematicFriction = Math.Min(
-								Math.Abs(_targetRelativeVelocity.X),
-								(gameObject.GroundMuKin * _forcesBeforeTerrainFriction.Y) >> 8
-								);
-							gameObject.ApplyForce(new Force(
-								kinematicFriction * -Math.Sign(_targetRelativeVelocity.X),
-								0
-								));
+                        gameObject.ResetForces();
 
-							gameObject.UpdateVelocity();
-						}
+                        if (gameObject.isAffectedByGravity)
+                        {
+                            gameObject.ApplyForce(new Force(0, 12));
+                        }
+
+                        gameObject.Update();
+
+                        gameObject.ApplyFluidFriction(0, gameObject.Velocity - gameObject.MediumVelocity);
+					    SubpxVelocity _velocityBeforeFirstForces = gameObject.Velocity;
+                        gameObject.UpdateVelocity();
+
+                        Force _forcesBeforeTerrainFriction = gameObject.AppliedForces;
+                        gameObject.ResetForces();
+					    SubpxVelocity _previousRelativeVelocity = _velocityBeforeFirstForces - gameObject.GroundVelocity - gameObject.FeetVelocity;
+					    SubpxVelocity _targetRelativeVelocity = gameObject.Velocity - gameObject.GroundVelocity - gameObject.FeetVelocity;
+					    if (gameObject.Grounded && _forcesBeforeTerrainFriction.Y > 0)
+                        {
+						    if (_previousRelativeVelocity.X == 0) // STATIC FRICTION
+						    {
+							    int staticFriction = Math.Min(
+								    Math.Abs(_targetRelativeVelocity.X),
+								    (gameObject.GroundMuSta * _forcesBeforeTerrainFriction.Y) >> 8
+								    );
+							    gameObject.ApplyForce(new Force(
+								    staticFriction * -Math.Sign(_targetRelativeVelocity.X),
+								    0
+								    ));
+
+							    gameObject.UpdateVelocity();
+						    }
+						    else // KINEMATIC FRICTION
+						    {
+							    int kinematicFriction = Math.Min(
+								    Math.Abs(_targetRelativeVelocity.X),
+								    (gameObject.GroundMuKin * _forcesBeforeTerrainFriction.Y) >> 8
+								    );
+							    gameObject.ApplyForce(new Force(
+								    kinematicFriction * -Math.Sign(_targetRelativeVelocity.X),
+								    0
+								    ));
+
+							    gameObject.UpdateVelocity();
+						    }
+					    }
+
+                        MoveAndApplyCollision(gameObject);
+                    }
+                    else
+                    {
+						gameObject.Update();
+
+						MoveAndApplyCollision(gameObject);
 					}
 
-                    MoveAndApplyCollision(gameObject);
 				}
 			}
             //
@@ -394,7 +401,7 @@ namespace AltarElementsZero.src.states.gameplay
 				for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1,1);
@@ -447,7 +454,7 @@ namespace AltarElementsZero.src.states.gameplay
 				for (int o = 0; o < _objectPool.Length; o++)
 				{
 					GameObject otherGameObject = _objectPool[o];
-					if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
+					if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
 					{
 						SubpxPosition otherVertex = otherGameObject.Position;
 						SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -513,7 +520,7 @@ namespace AltarElementsZero.src.states.gameplay
                 for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -560,7 +567,7 @@ namespace AltarElementsZero.src.states.gameplay
                 for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -671,23 +678,26 @@ namespace AltarElementsZero.src.states.gameplay
             for(int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject currentObject = _objectPool[o];
-                if (currentObject.Exist && currentObject.IsVisible)
+                if (currentObject.exists && currentObject.isVisible)
                 {
-                    PxPosition objectPosition = currentObject.Position.ToPx();
+                    PxPosition objectPosition = currentObject.Position.ToPx() - currentObject.SpriteOffset;
+                    uint spritesheetIndex = currentObject.spritesheetIndex;
+                    SpriteEffects spriteEffects = currentObject.spriteEffects;
                     spriteBatch.Draw(
-	                    texture: _assets.StaticSpritesheet,
-	                    position: new Vector2(
-							(int)objectPosition.X - cameraPxPosition.X,
-							(int)objectPosition.Y - cameraPxPosition.Y
-		                    ),
-	                    sourceRectangle: new(
-		                    Configuration.Tile.Px.Width * 4,
-		                    Configuration.Tile.Px.Height * 0,
-		                    Configuration.Tile.Px.Width,
-		                    Configuration.Tile.Px.Height
-		                    ),
-	                    color: Color.White
-	                    );
+                        texture: _assets.ObjectSpritesheet,
+                        position: new Vector2(
+                            (int)objectPosition.X - cameraPxPosition.X,
+                            (int)objectPosition.Y - cameraPxPosition.Y
+                            ),
+                        sourceRectangle: new(
+                            Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
+                            Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
+                            Configuration.Tile.Px.Width * 2,
+                            Configuration.Tile.Px.Height * 2
+                            ),
+                        color: Color.White, 
+                        0f,Vector2.Zero,1f,spriteEffects,0f
+                        );
 				}
             }
 

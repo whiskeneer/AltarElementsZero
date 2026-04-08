@@ -1,137 +1,80 @@
-﻿namespace AltarElementsZero.src.states.gameplay.gameObject
+﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
+using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace AltarElementsZero.src.states.gameplay.gameObject
 {
-    public struct SubpxPosition(uint x, uint y)
-    {
-        public uint X = x; 
-        public uint Y = y;
-
-        public readonly PxPosition ToPx()
-        {
-            return new PxPosition(
-                X >> Configuration.Px.SubpxPower, 
-                Y >> Configuration.Px.SubpxPower
-				);
-        }
-
-        public static SubpxPosition operator +(SubpxPosition left, SubpxSize right)
-        {
-            return new(
-                left.X + right.X,
-                left.Y + right.Y
-                );
-        }
-        public static SubpxPosition operator -(SubpxPosition left, SubpxSize right)
-        {
-            return new(
-                left.X - right.X,
-                left.Y - right.Y
-                );
-        }
-
-    }
-    public struct PxPosition(uint x, uint y)
-    {
-        public uint X = x;
-        public uint Y = y;
-
-        public readonly SubpxPosition ToSubpx()
-        {
-			return new SubpxPosition(
-	            X << Configuration.Px.SubpxPower,
-	            Y << Configuration.Px.SubpxPower
-	            );
-		}
-        public readonly TilePosition ToTile()
-        {
-            return new TilePosition(
-                X >> Configuration.Tile.PxPower,
-                Y >> Configuration.Tile.PxPower
-                );
-        }
-        public readonly PxPosition TileRemainder()
-        {
-            return new PxPosition(
-                X & (uint)~-(1 << Configuration.Tile.PxPower),
-				Y & (uint)~-(1 << Configuration.Tile.PxPower)
-				);
-        }
-    }
-
-    public struct SubpxSize(uint x, uint y)
-    {
-        public uint X = x;
-        public uint Y = y;
-
-		public readonly PxSize ToPx()
-		{
-			return new PxSize(
-				X >> Configuration.Px.SubpxPower,
-				Y >> Configuration.Px.SubpxPower
-				);
-		}
-	}
-
-    public struct PxSize(uint x, uint y)
-    {
-        public uint X = x;
-        public uint Y = y;
-
-        public readonly SubpxSize ToSubpx()
-        {
-			return new SubpxSize(
-	            X << Configuration.Px.SubpxPower,
-	            Y << Configuration.Px.SubpxPower
-	            );
-		}
-    }
-
-    public struct TilePosition(uint x, uint y)
-    {
-        public uint X = x;
-        public uint Y = y;
-
-        public readonly PxPosition ToPx()
-        {
-            return new PxPosition(
-				X << Configuration.Tile.PxPower,
-				Y << Configuration.Tile.PxPower
-				);
-        }
-    }
-
-    public struct SubpxVelocity(int x, int y)
-    {
-        public int X = x;
-        public int Y = y;
-
-        public static SubpxVelocity operator -(SubpxVelocity v1, SubpxVelocity v2)
-        {
-            return new SubpxVelocity(
-                x: v1.X - v2.X,
-                y: v1.Y - v2.Y
-                );
-        }
-
-    }
-    public struct Force(int x, int y)
-    {
-        public int X = x;
-        public int Y = y;
-    }
 
     sealed class GameObject
     {
+        public IBehaviour behaviour = EmptyObject.Instance;
+     
+        public bool exists = false;
+        public bool isSolid = false;
+        public bool hurtsPlayer = false;
+        public bool canCrushPlayer = false;
+        public bool isFixed = false;
+        public bool isAffectedByGravity = false;
+        public bool isSelfMoving = false;
+
+        public bool isVisible = false;
+        public uint spritesheetIndex = 0;
+        public SpriteEffects spriteEffects = SpriteEffects.None;
+
+        public void Update()
+        {
+            behaviour.Update(this);
+        }
+        public void Init()
+        {
+            behaviour.Init(this);
+        }
+
+        public uint State = 0;
+        public uint SubState = 0;
+        public uint Timer = 0;
+        //public uint SpritesheetIndex = 0;
+
+        public static GameObject GetToki()
+        {
+            return new GameObject()
+            {
+                Size = new PxSize(
+					12,
+					12
+					).ToSubpx(),
+				SpriteOffset = new PxSize(10,20),
+				behaviour = Toki.Instance,
+			};
+        }
+
+
 		public static GameObject GetTestObject()
 		{
-			GameObject testObject = new();
-			testObject.Size = new PxSize(
-				(uint)Configuration.Tile.Px.Width,
-				(uint)Configuration.Tile.Px.Height
-				).ToSubpx();
-			return testObject;
+            GameObject testObject = new()
+            {
+                Size = new PxSize(
+                    (uint)Configuration.Tile.Px.Width,
+                    (uint)Configuration.Tile.Px.Height
+                    ).ToSubpx()
+            };
+            return testObject;
 		}
 
+        public static GameObject GetMovingPlatform1()
+        {
+            return new GameObject()
+            {
+                Size = new PxSize(32, 16).ToSubpx(),
+                SpriteOffset = new PxSize(0, 16),
+                behaviour = MovingPlatform1.Instance,
+            };
+        }
+
 		public SubpxPosition Position;
+        public PxSize SpriteOffset;
         public SubpxSize Size;
         public SubpxVelocity Velocity;
         public bool Grounded = false;
@@ -141,12 +84,6 @@
         public int GroundMuSta;
         public SubpxVelocity FeetVelocity; // Refers to efforts to move on ground
         // public SubpxVelocity WingVelocity; // Refers to efforts to move on air ( + ground )
-
-        // BEHAVIOUR
-        public bool Exist = false;
-        public bool IsMobile = false;
-        public bool IsSolid = false;
-        public bool IsVisible = false;
 
         public Force AppliedForces;
 
@@ -194,7 +131,9 @@
         {
             Velocity.X += AppliedForces.X;
             Velocity.Y += AppliedForces.Y;
-
+		}
+        public SubpxPosition TargetPosition()
+        {
 			if (Velocity.X > Configuration.MaxMovement.Width)
 			{
 				Velocity.X = Configuration.MaxMovement.Width;
@@ -212,10 +151,8 @@
 			{
 				Velocity.Y = -Configuration.MaxMovement.Height;
 			}
-		}
-        public SubpxPosition TargetPosition()
-        {
-            return new SubpxPosition(
+
+			return new SubpxPosition(
                 (uint)(Position.X + Velocity.X),
 				(uint)(Position.Y + Velocity.Y)
                 );
