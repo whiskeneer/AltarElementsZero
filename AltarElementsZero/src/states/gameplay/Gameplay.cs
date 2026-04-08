@@ -1,6 +1,8 @@
 ﻿using AltarElementsZero.src.states.gameplay.gameObject;
 using AltarElementsZero.src.states.gameplay.level;
 using AltarElementsZero.src.states.gameplay.vectors;
+using AltarElementsZero.src.renderer;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -599,65 +601,18 @@ namespace AltarElementsZero.src.states.gameplay
         {
             // TODO: add SubpxPosition.ToVisualPx()
             PxPosition cameraPxPosition = _camera.Position.ToPx();
-            PxPosition cameraTileRemainder = cameraPxPosition.TileRemainder();
-            TilePosition cameraTilePosition = cameraPxPosition.ToTile();
+            //PxPosition cameraTileRemainder = cameraPxPosition.TileRemainder();
+            //TilePosition cameraTilePosition = cameraPxPosition.ToTile();
 
-            for (int tileOffsetY = 0; tileOffsetY <= Configuration.Chunk.Tile.Height; tileOffsetY++)
-            {
-                for (int tileOffsetX = 0; tileOffsetX <= Configuration.Chunk.Tile.Width; tileOffsetX++)
-                {
-                    Tile tile = _level.GetTile(
-                        (int)cameraTilePosition.X + tileOffsetX,
-                        (int)cameraTilePosition.Y + tileOffsetY
-                        );
+            Renderer.RenderTiles(
+                spriteBatch,
+                _level,
+                cameraPxPosition,
+                _animationFrame,
+                _assets.StaticSpritesheet!,
+                _assets.AnimatedSpritesheet!
+                );
 
-                    if (tile.Family >= Tile.Families.Ground && tile.Family <= Tile.Families.Spikes) {
-                        int spritesheetCol = tile.Member & 0xf;
-                        int spritesheetRow = (tile.Member >> 4) & 0xf;
-
-                        Vector2 outputVector = new(
-                            Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
-                            Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
-                            );
-                        Rectangle sourceRectangle = new(
-                            Configuration.Tile.Px.Width * spritesheetCol,
-							Configuration.Tile.Px.Height * spritesheetRow,
-							Configuration.Tile.Px.Width,
-							Configuration.Tile.Px.Height
-							);
-
-						spriteBatch.Draw(
-                            _assets.StaticSpritesheet,
-							outputVector,
-							sourceRectangle,
-                            Color.White);
-                    }
-                    else if(tile.Family >= Tile.Families.ConveyorRight && tile.Family <= Tile.Families.ConveyorLeft)
-                    {
-						int spritesheetCol = (tile.Member & 0xc) | (((int)_animationFrame >> (3 - (tile.Member & 0x3))) & 0x3);
-						int spritesheetRow = (tile.Member >> 4) & 0xf;
-
-                        Vector2 outputVector = new(
-                            Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
-                            Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
-                            );
-                        Rectangle sourceRectangle = new(
-                            Configuration.Tile.Px.Width * spritesheetCol,
-							Configuration.Tile.Px.Height * spritesheetRow,
-							Configuration.Tile.Px.Width,
-							Configuration.Tile.Px.Height
-							);
-
-						spriteBatch.Draw(
-                            _assets.AnimatedSpritesheet,
-							outputVector,
-							sourceRectangle,
-                            Color.White);
-
-					}
-
-                }
-            }
 
             PxPosition testObjectPxPosition = _testObject.Position.ToPx();
             spriteBatch.Draw(

@@ -8,6 +8,15 @@
         public Families Family = family; 
         public byte Member = member;
 
+        readonly public bool IsStaticTile()
+        {
+            return Family >= Families.Ground && Family <= Families.Spikes;
+        }
+		readonly public bool IsAnimatedTile()
+        {
+            return Family >= Families.ConveyorRight && Family <= Families.ConveyorLeft;
+        }
+
         public enum Families : byte
         {   // Family       //  Member
             None,           //  ----
