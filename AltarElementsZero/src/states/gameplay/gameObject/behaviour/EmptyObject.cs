@@ -6,46 +6,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
     {
         public static readonly EmptyObject Instance = new();
 
-        public bool Exists(GameObject gameObject)
+        public void Init(GameObject gameObject)
         {
-            return false;
-        }
-        public bool IsSolid(GameObject gameObject)
-        {
-            return false;
-        }
-        public bool HurtsPlayer(GameObject gameObject)
-        {
-            return false;
-        }
-        public bool IsFixed(GameObject gameObject)
-        {
-            // should this be true? It is not going to be checked anyway (since Exists() = false)
-            return false;
-        }
-        public bool IsAffectedByGravity(GameObject gameObject)
-        {
-            return false;
-        }
-        public bool IsVisible(GameObject gameObject)
-        {
-            return false;
+            gameObject.exists = false;
+            gameObject.isVisible = false;
+            return;
         }
         public void Update(GameObject gameObject)
         {
             return;
-        }
-		public uint GetSpritesheetIndex(GameObject gameObject)
-        {
-            return 0;
-        }
-        public void Init(GameObject gameObject)
-        {
-            return;
-        }
-		public SpriteEffects GetSpriteEffects(GameObject gameObject)
-        {
-            return SpriteEffects.None;
         }
 
 

@@ -18,24 +18,22 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
         public void Init(GameObject gameObject)
         {
+            gameObject.exists = true;
+            gameObject.isSolid = true;
+            gameObject.hurtsPlayer = true;
+            gameObject.isFixed = false;
+            gameObject.isAffectedByGravity = true;
+
+            gameObject.isVisible = true;
+            gameObject.spritesheetIndex = 0;
+            gameObject.spriteEffects = SpriteEffects.None;
+
 			gameObject.State = (uint)State.GOING_LEFT;
 			gameObject.Timer = 60 * 4;
 		}
 
         public void Update(GameObject gameObject)
         {
-            switch ((State)gameObject.State)
-            {
-                case State.GOING_LEFT:
-                    gameObject.FeetVelocity = new(-16,0);
-                    break;
-                case State.GOING_RIGHT:
-					gameObject.FeetVelocity = new(16, 0);
-					break;
-                default:
-                    gameObject.FeetVelocity = new(0, 0);
-					break;
-			}
             if (--gameObject.Timer == 0)
             {
                 switch ((State)gameObject.State)
@@ -58,75 +56,34 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 						break;
 				}
             }
-        }
 
-        public bool Exists(GameObject gameObject)
-        {
-            return true; 
-        }
-        public bool IsSolid(GameObject gameObject)
-        {
-            return true;
-        }
-        public bool HurtsPlayer(GameObject gameObject)
-        {
-            return true;
-        }
-        public bool IsFixed(GameObject gameObject)
-        {
-            return false;
-        }
-        public bool IsAffectedByGravity(GameObject gameObject)
-        {
-            return true;
-        }
-        public bool IsVisible(GameObject gameObject)
-        {
-            return true;
-        }
-		public uint GetSpritesheetIndex(GameObject gameObject)
-        {
-            switch ((State)gameObject.State)
-            {
-                case State.GOING_LEFT:
-                    return 0;
-                case State.GOING_RIGHT:
-                    return 0;
-                case State.ATTACKING_LEFT:
-                    return 6;
-                case State.ATTACKING_RIGHT:
-                    return 6;
-				case State.SHIFTING_TO_LEFT:
-                    return 5;
+			switch ((State)gameObject.State)
+			{
+				case State.GOING_LEFT:
+					gameObject.FeetVelocity = new(-16, 0);
+                    gameObject.spritesheetIndex = 0;
+                    gameObject.spriteEffects = SpriteEffects.None;
+					break;
+				case State.GOING_RIGHT:
+					gameObject.FeetVelocity = new(16, 0);
+					gameObject.spritesheetIndex = 0;
+					gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					break;
                 case State.SHIFTING_TO_RIGHT:
-					return 5;
-				default:
-                    return 0;
-            }
-
-        }
-        public SpriteEffects GetSpriteEffects(GameObject gameObject)
-        {
-            switch ((State)gameObject.State)
-            {
-                case State.GOING_LEFT:
-                    return SpriteEffects.None;
-                case State.GOING_RIGHT:
-                    return SpriteEffects.FlipHorizontally;
-                case State.ATTACKING_LEFT:
-                    return SpriteEffects.None;
-                case State.ATTACKING_RIGHT:
-                    return SpriteEffects.FlipHorizontally;
-                case State.SHIFTING_TO_RIGHT:
-                    return SpriteEffects.None;
+					gameObject.FeetVelocity = new(0, 0);
+					gameObject.spritesheetIndex = 5;
+					gameObject.spriteEffects = SpriteEffects.None;
+					break;
                 case State.SHIFTING_TO_LEFT:
-                    return SpriteEffects.FlipHorizontally;
-                default:
-                    return SpriteEffects.None;
-            }
-
-        }
-
+					gameObject.FeetVelocity = new(0, 0);
+					gameObject.spritesheetIndex = 5;
+					gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					break;
+				default:
+					gameObject.FeetVelocity = new(0, 0);
+					break;
+			}
+		}
 
 	}
 }

@@ -243,7 +243,7 @@ namespace AltarElementsZero.src.states.gameplay
             for (int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject gameObject = _objectPool[o];
-                if (gameObject.Exists() && gameObject.IsSolid() && !gameObject.IsFixed())
+                if (gameObject.exists && gameObject.isSolid && !gameObject.isFixed)
                 {
                     gameObject.ApplyWingVelocity(new SubpxVelocity());
 
@@ -393,7 +393,7 @@ namespace AltarElementsZero.src.states.gameplay
 				for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.Exists() && !object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1,1);
@@ -446,7 +446,7 @@ namespace AltarElementsZero.src.states.gameplay
 				for (int o = 0; o < _objectPool.Length; o++)
 				{
 					GameObject otherGameObject = _objectPool[o];
-					if (otherGameObject.Exists() && !object.ReferenceEquals(otherGameObject, gameObject))
+					if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
 					{
 						SubpxPosition otherVertex = otherGameObject.Position;
 						SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -512,7 +512,7 @@ namespace AltarElementsZero.src.states.gameplay
                 for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.Exists() && !object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -559,7 +559,7 @@ namespace AltarElementsZero.src.states.gameplay
                 for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.Exists() && !object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -670,11 +670,11 @@ namespace AltarElementsZero.src.states.gameplay
             for(int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject currentObject = _objectPool[o];
-                if (currentObject.Exists() && currentObject.IsVisible())
+                if (currentObject.exists && currentObject.isVisible)
                 {
                     PxPosition objectPosition = currentObject.Position.ToPx() - currentObject.SpriteOffset;
-                    uint spritesheetIndex = currentObject.GetSpritesheetIndex();
-                    SpriteEffects spriteEffects = currentObject.GetSpriteEffects();
+                    uint spritesheetIndex = currentObject.spritesheetIndex;
+                    SpriteEffects spriteEffects = currentObject.spriteEffects;
                     spriteBatch.Draw(
                         texture: _assets.ObjectSpritesheet,
                         position: new Vector2(

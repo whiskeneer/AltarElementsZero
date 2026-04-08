@@ -9,40 +9,20 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
     sealed class GameObject
     {
         public IBehaviour behaviour = EmptyObject.Instance;
-        public bool Exists()
-        {
-            return behaviour.Exists(this);
-        }
-        public bool IsSolid()
-        {
-            return behaviour.IsSolid(this);
-        }
-        public bool HurtsPlayer()
-        {
-            return behaviour.HurtsPlayer(this);
-        }
-        public bool IsFixed()
-        {
-            return behaviour.IsFixed(this);
-        }
-        public bool IsAffectedByGravity()
-        {
-            return behaviour.IsAffectedByGravity(this);
-        }
-        public bool IsVisible()
-        {
-            return behaviour.IsVisible(this);
-        }
+     
+        public bool exists = false;
+        public bool isSolid = false;
+        public bool hurtsPlayer = false;
+        public bool isFixed = false;
+        public bool isAffectedByGravity = false;
+
+        public bool isVisible = false;
+        public uint spritesheetIndex = 0;
+        public SpriteEffects spriteEffects = SpriteEffects.None;
+
         public void Update()
         {
             behaviour.Update(this);
-        }
-        public uint GetSpritesheetIndex()
-        {
-            return behaviour.GetSpritesheetIndex(this);
-        }
-        public SpriteEffects GetSpriteEffects() {
-            return behaviour.GetSpriteEffects(this);
         }
         public void Init()
         {
