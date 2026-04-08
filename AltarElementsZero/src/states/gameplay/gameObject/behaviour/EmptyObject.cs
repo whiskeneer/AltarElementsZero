@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-
-namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
+﻿namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
 {
     class EmptyObject : IBehaviour
     {

@@ -64,17 +64,11 @@ namespace AltarElementsZero.src.states.gameplay
 
             }
 
-            //for(int o = 0; o < _objectPool.Length; o++)
-            //{
 
-            //    _objectPool[o].Exist = true;
-            //    _objectPool[o].IsMobile = true;
-            //    _objectPool[o].IsSolid = true;
-            //    _objectPool[o].IsVisible = true;
-            //    _objectPool[o].Position = new TilePosition((uint)(3+o), 3).ToPx().ToSubpx();
-            //    _objectPool[o].Size = new PxSize(16,16).ToSubpx();
+            _objectPool[1] = GameObject.GetMovingPlatform1();
+            _objectPool[1].Init();
+            _objectPool[1].Position = new TilePosition(5, 5).ToPx().ToSubpx();
 
-            //}
 
         }
         public override void Update(GameTime gameTime)
@@ -245,52 +239,66 @@ namespace AltarElementsZero.src.states.gameplay
                 GameObject gameObject = _objectPool[o];
                 if (gameObject.exists && gameObject.isSolid && !gameObject.isFixed)
                 {
-                    gameObject.ApplyWingVelocity(new SubpxVelocity());
-
-                    gameObject.ResetForces();
-                    gameObject.ApplyForce(new Force(0, 12));
-
-                    gameObject.Update();
-
-                    gameObject.ApplyFluidFriction(0, gameObject.Velocity - gameObject.MediumVelocity);
-					SubpxVelocity _velocityBeforeFirstForces = gameObject.Velocity;
-                    gameObject.UpdateVelocity();
-
-                    Force _forcesBeforeTerrainFriction = gameObject.AppliedForces;
-                    gameObject.ResetForces();
-					SubpxVelocity _previousRelativeVelocity = _velocityBeforeFirstForces - gameObject.GroundVelocity - gameObject.FeetVelocity;
-					SubpxVelocity _targetRelativeVelocity = gameObject.Velocity - gameObject.GroundVelocity - gameObject.FeetVelocity;
-					if (gameObject.Grounded && _forcesBeforeTerrainFriction.Y > 0)
+                    if (!gameObject.isSelfMoving)
                     {
-						if (_previousRelativeVelocity.X == 0) // STATIC FRICTION
-						{
-							int staticFriction = Math.Min(
-								Math.Abs(_targetRelativeVelocity.X),
-								(gameObject.GroundMuSta * _forcesBeforeTerrainFriction.Y) >> 8
-								);
-							gameObject.ApplyForce(new Force(
-								staticFriction * -Math.Sign(_targetRelativeVelocity.X),
-								0
-								));
+                        gameObject.ApplyWingVelocity(new SubpxVelocity());
 
-							gameObject.UpdateVelocity();
-						}
-						else // KINEMATIC FRICTION
-						{
-							int kinematicFriction = Math.Min(
-								Math.Abs(_targetRelativeVelocity.X),
-								(gameObject.GroundMuKin * _forcesBeforeTerrainFriction.Y) >> 8
-								);
-							gameObject.ApplyForce(new Force(
-								kinematicFriction * -Math.Sign(_targetRelativeVelocity.X),
-								0
-								));
+                        gameObject.ResetForces();
 
-							gameObject.UpdateVelocity();
-						}
+                        if (gameObject.isAffectedByGravity)
+                        {
+                            gameObject.ApplyForce(new Force(0, 12));
+                        }
+
+                        gameObject.Update();
+
+                        gameObject.ApplyFluidFriction(0, gameObject.Velocity - gameObject.MediumVelocity);
+					    SubpxVelocity _velocityBeforeFirstForces = gameObject.Velocity;
+                        gameObject.UpdateVelocity();
+
+                        Force _forcesBeforeTerrainFriction = gameObject.AppliedForces;
+                        gameObject.ResetForces();
+					    SubpxVelocity _previousRelativeVelocity = _velocityBeforeFirstForces - gameObject.GroundVelocity - gameObject.FeetVelocity;
+					    SubpxVelocity _targetRelativeVelocity = gameObject.Velocity - gameObject.GroundVelocity - gameObject.FeetVelocity;
+					    if (gameObject.Grounded && _forcesBeforeTerrainFriction.Y > 0)
+                        {
+						    if (_previousRelativeVelocity.X == 0) // STATIC FRICTION
+						    {
+							    int staticFriction = Math.Min(
+								    Math.Abs(_targetRelativeVelocity.X),
+								    (gameObject.GroundMuSta * _forcesBeforeTerrainFriction.Y) >> 8
+								    );
+							    gameObject.ApplyForce(new Force(
+								    staticFriction * -Math.Sign(_targetRelativeVelocity.X),
+								    0
+								    ));
+
+							    gameObject.UpdateVelocity();
+						    }
+						    else // KINEMATIC FRICTION
+						    {
+							    int kinematicFriction = Math.Min(
+								    Math.Abs(_targetRelativeVelocity.X),
+								    (gameObject.GroundMuKin * _forcesBeforeTerrainFriction.Y) >> 8
+								    );
+							    gameObject.ApplyForce(new Force(
+								    kinematicFriction * -Math.Sign(_targetRelativeVelocity.X),
+								    0
+								    ));
+
+							    gameObject.UpdateVelocity();
+						    }
+					    }
+
+                        MoveAndApplyCollision(gameObject);
+                    }
+                    else
+                    {
+						gameObject.Update();
+
+						MoveAndApplyCollision(gameObject);
 					}
 
-                    MoveAndApplyCollision(gameObject);
 				}
 			}
             //

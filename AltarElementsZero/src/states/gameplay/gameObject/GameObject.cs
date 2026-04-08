@@ -1,5 +1,6 @@
 ﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,8 +14,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public bool exists = false;
         public bool isSolid = false;
         public bool hurtsPlayer = false;
+        public bool canCrushPlayer = false;
         public bool isFixed = false;
         public bool isAffectedByGravity = false;
+        public bool isSelfMoving = false;
 
         public bool isVisible = false;
         public uint spritesheetIndex = 0;
@@ -59,6 +62,16 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             };
             return testObject;
 		}
+
+        public static GameObject GetMovingPlatform1()
+        {
+            return new GameObject()
+            {
+                Size = new PxSize(32, 16).ToSubpx(),
+                SpriteOffset = new PxSize(0, 16),
+                behaviour = MovingPlatform1.Instance,
+            };
+        }
 
 		public SubpxPosition Position;
         public PxSize SpriteOffset;
