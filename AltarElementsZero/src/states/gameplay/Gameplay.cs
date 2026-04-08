@@ -56,7 +56,7 @@ namespace AltarElementsZero.src.states.gameplay
 
             _testObject.Position = new TilePosition(1,1).ToPx().ToSubpx();
 
-            for(int o = 0; o < 20; o++)
+            for(int o = 0; o < 1; o++)
             {
                 _objectPool[o] = GameObject.GetToki();
                 _objectPool[o].Init();

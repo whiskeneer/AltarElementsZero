@@ -61,23 +61,50 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			{
 				case State.GOING_LEFT:
 					gameObject.FeetVelocity = new(-16, 0);
-                    gameObject.spritesheetIndex = 0;
+                    gameObject.spritesheetIndex = (gameObject.Timer>>4)&3;
                     gameObject.spriteEffects = SpriteEffects.None;
 					break;
 				case State.GOING_RIGHT:
 					gameObject.FeetVelocity = new(16, 0);
-					gameObject.spritesheetIndex = 0;
+					gameObject.spritesheetIndex = (gameObject.Timer >> 4) & 3;
 					gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
 					break;
                 case State.SHIFTING_TO_RIGHT:
 					gameObject.FeetVelocity = new(0, 0);
-					gameObject.spritesheetIndex = 5;
-					gameObject.spriteEffects = SpriteEffects.None;
+                    if(gameObject.Timer > 16)
+                    {
+						gameObject.spritesheetIndex = 4;
+						gameObject.spriteEffects = SpriteEffects.None;
+					}
+                    else if(gameObject.Timer > 8)
+                    {
+						gameObject.spritesheetIndex = 5;
+						gameObject.spriteEffects = SpriteEffects.None;
+					}
+                    else
+                    {
+						gameObject.spritesheetIndex = 4;
+						gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					}
+
 					break;
                 case State.SHIFTING_TO_LEFT:
 					gameObject.FeetVelocity = new(0, 0);
-					gameObject.spritesheetIndex = 5;
-					gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					if (gameObject.Timer > 16)
+					{
+						gameObject.spritesheetIndex = 4;
+						gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					}
+					else if (gameObject.Timer > 8)
+					{
+						gameObject.spritesheetIndex = 5;
+						gameObject.spriteEffects = SpriteEffects.None;
+					}
+					else
+					{
+						gameObject.spritesheetIndex = 4;
+						gameObject.spriteEffects = SpriteEffects.None;
+					}
 					break;
 				default:
 					gameObject.FeetVelocity = new(0, 0);
