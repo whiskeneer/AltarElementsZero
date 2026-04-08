@@ -1,10 +1,12 @@
-﻿namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
+﻿using Microsoft.Xna.Framework.Graphics;
+
+namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
 {
     class EmptyObject : IBehaviour
     {
         public static readonly EmptyObject Instance = new();
 
-        public bool Exists(GameObject gameObject) 
+        public bool Exists(GameObject gameObject)
         {
             return false;
         }
@@ -29,7 +31,23 @@
         {
             return false;
         }
+        public void Update(GameObject gameObject)
+        {
+            return;
+        }
+		public uint GetSpritesheetIndex(GameObject gameObject)
+        {
+            return 0;
+        }
+        public void Init(GameObject gameObject)
+        {
+            return;
+        }
+		public SpriteEffects GetSpriteEffects(GameObject gameObject)
+        {
+            return SpriteEffects.None;
+        }
 
 
-    }
+	}
 }

@@ -1,4 +1,6 @@
-﻿namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
+﻿using Microsoft.Xna.Framework.Graphics;
+
+namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
 {
     interface IBehaviour
     {
@@ -11,6 +13,12 @@
         //
 
         bool IsVisible(GameObject gameObject);
+        uint GetSpritesheetIndex(GameObject gameObject);
+        SpriteEffects GetSpriteEffects(GameObject gameObject);
+
+        void Update(GameObject gameObject);
+        void Init(GameObject gameObject);
+
 
     }
 }

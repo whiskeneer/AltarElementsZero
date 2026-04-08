@@ -1,6 +1,7 @@
 ﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject
 {
@@ -32,21 +33,37 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         {
             return behaviour.IsVisible(this);
         }
+        public void Update()
+        {
+            behaviour.Update(this);
+        }
+        public uint GetSpritesheetIndex()
+        {
+            return behaviour.GetSpritesheetIndex(this);
+        }
+        public SpriteEffects GetSpriteEffects() {
+            return behaviour.GetSpriteEffects(this);
+        }
+        public void Init()
+        {
+            behaviour.Init(this);
+        }
 
         public uint State = 0;
         public uint SubState = 0;
         public uint Timer = 0;
-        public uint SpritesheetIndex = 0;
+        //public uint SpritesheetIndex = 0;
 
         public static GameObject GetToki()
         {
             return new GameObject()
             {
                 Size = new PxSize(
-					(uint)Configuration.Tile.Px.Width,
-					(uint)Configuration.Tile.Px.Height
+					12,
+					12
 					).ToSubpx(),
-                behaviour = Toki.Instance,
+				SpriteOffset = new PxSize(10,20),
+				behaviour = Toki.Instance,
 			};
         }
 
@@ -64,6 +81,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 		}
 
 		public SubpxPosition Position;
+        public PxSize SpriteOffset;
         public SubpxSize Size;
         public SubpxVelocity Velocity;
         public bool Grounded = false;

@@ -58,6 +58,14 @@ namespace AltarElementsZero.src.states.gameplay.vectors
 				Y & (uint)~-(1 << Configuration.Tile.PxPower)
 				);
 		}
+
+		public static PxPosition operator -(PxPosition left, PxSize right)
+		{
+			return new(
+				left.X - right.X,
+				left.Y - right.Y
+				);
+		}
 	}
 	public struct TilePosition(uint x, uint y)
 	{

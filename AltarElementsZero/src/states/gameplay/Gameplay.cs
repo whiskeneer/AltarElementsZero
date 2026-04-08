@@ -4,7 +4,7 @@ using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-//using System;
+using System;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -39,7 +39,7 @@ namespace AltarElementsZero.src.states.gameplay
         {
             base.Enter();
 
-            //Random rnd = new();
+            Random rnd = new();
             _level.SetAll(new Tile(Tile.Families.Ground, 0));
             for (int j = 1; j <= 6; j++)
             {
@@ -54,10 +54,15 @@ namespace AltarElementsZero.src.states.gameplay
                 _objectPool[o] = new();
             }
 
-            _testObject.Position = new TilePosition(2,2).ToPx().ToSubpx();
+            _testObject.Position = new TilePosition(1,1).ToPx().ToSubpx();
 
-            _objectPool[0] = GameObject.GetToki();
-            _objectPool[0].Position = new TilePosition(3, 3).ToPx().ToSubpx();
+            for(int o = 0; o < 20; o++)
+            {
+                _objectPool[o] = GameObject.GetToki();
+                _objectPool[o].Init();
+                _objectPool[o].Position = new PxPosition((uint)rnd.Next(32,100), (uint)rnd.Next(32,80)).ToSubpx();
+
+            }
 
             //for(int o = 0; o < _objectPool.Length; o++)
             //{
@@ -244,6 +249,9 @@ namespace AltarElementsZero.src.states.gameplay
 
                     gameObject.ResetForces();
                     gameObject.ApplyForce(new Force(0, 12));
+
+                    gameObject.Update();
+
                     gameObject.ApplyFluidFriction(0, gameObject.Velocity - gameObject.MediumVelocity);
 					SubpxVelocity _velocityBeforeFirstForces = gameObject.Velocity;
                     gameObject.UpdateVelocity();
@@ -664,22 +672,24 @@ namespace AltarElementsZero.src.states.gameplay
                 GameObject currentObject = _objectPool[o];
                 if (currentObject.Exists() && currentObject.IsVisible())
                 {
-                    PxPosition objectPosition = currentObject.Position.ToPx();
-                    uint spritesheetIndex = currentObject.SpritesheetIndex;
+                    PxPosition objectPosition = currentObject.Position.ToPx() - currentObject.SpriteOffset;
+                    uint spritesheetIndex = currentObject.GetSpritesheetIndex();
+                    SpriteEffects spriteEffects = currentObject.GetSpriteEffects();
                     spriteBatch.Draw(
-	                    texture: _assets.ObjectSpritesheet,
-	                    position: new Vector2(
-							(int)objectPosition.X - cameraPxPosition.X,
-							(int)objectPosition.Y - cameraPxPosition.Y
-		                    ),
-	                    sourceRectangle: new(
-		                    Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex&0x7),
-		                    Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
-		                    Configuration.Tile.Px.Width * 2,
-		                    Configuration.Tile.Px.Height * 2
-		                    ),
-	                    color: Color.White
-	                    );
+                        texture: _assets.ObjectSpritesheet,
+                        position: new Vector2(
+                            (int)objectPosition.X - cameraPxPosition.X,
+                            (int)objectPosition.Y - cameraPxPosition.Y
+                            ),
+                        sourceRectangle: new(
+                            Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
+                            Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
+                            Configuration.Tile.Px.Width * 2,
+                            Configuration.Tile.Px.Height * 2
+                            ),
+                        color: Color.White, 
+                        0f,Vector2.Zero,1f,spriteEffects,0f
+                        );
 				}
             }
 
