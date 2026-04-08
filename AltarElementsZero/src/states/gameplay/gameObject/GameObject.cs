@@ -1,18 +1,66 @@
-﻿using AltarElementsZero.src.states.gameplay.vectors;
+﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+using AltarElementsZero.src.states.gameplay.vectors;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject
 {
 
     sealed class GameObject
     {
+        public IBehaviour behaviour = EmptyObject.Instance;
+        public bool Exists()
+        {
+            return behaviour.Exists(this);
+        }
+        public bool IsSolid()
+        {
+            return behaviour.IsSolid(this);
+        }
+        public bool HurtsPlayer()
+        {
+            return behaviour.HurtsPlayer(this);
+        }
+        public bool IsFixed()
+        {
+            return behaviour.IsFixed(this);
+        }
+        public bool IsAffectedByGravity()
+        {
+            return behaviour.IsAffectedByGravity(this);
+        }
+        public bool IsVisible()
+        {
+            return behaviour.IsVisible(this);
+        }
+
+        public uint State = 0;
+        public uint SubState = 0;
+        public uint Timer = 0;
+        public uint SpritesheetIndex = 0;
+
+        public static GameObject GetToki()
+        {
+            return new GameObject()
+            {
+                Size = new PxSize(
+					(uint)Configuration.Tile.Px.Width,
+					(uint)Configuration.Tile.Px.Height
+					).ToSubpx(),
+                behaviour = Toki.Instance,
+			};
+        }
+
+
 		public static GameObject GetTestObject()
 		{
-			GameObject testObject = new();
-			testObject.Size = new PxSize(
-				(uint)Configuration.Tile.Px.Width,
-				(uint)Configuration.Tile.Px.Height
-				).ToSubpx();
-			return testObject;
+            GameObject testObject = new()
+            {
+                Size = new PxSize(
+                    (uint)Configuration.Tile.Px.Width,
+                    (uint)Configuration.Tile.Px.Height
+                    ).ToSubpx()
+            };
+            return testObject;
 		}
 
 		public SubpxPosition Position;
@@ -25,12 +73,6 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public int GroundMuSta;
         public SubpxVelocity FeetVelocity; // Refers to efforts to move on ground
         // public SubpxVelocity WingVelocity; // Refers to efforts to move on air ( + ground )
-
-        // BEHAVIOUR
-        public bool Exist = false;
-        public bool IsMobile = false;
-        public bool IsSolid = false;
-        public bool IsVisible = false;
 
         public Force AppliedForces;
 

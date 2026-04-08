@@ -56,6 +56,9 @@ namespace AltarElementsZero.src.states.gameplay
 
             _testObject.Position = new TilePosition(2,2).ToPx().ToSubpx();
 
+            _objectPool[0] = GameObject.GetToki();
+            _objectPool[0].Position = new TilePosition(3, 3).ToPx().ToSubpx();
+
             //for(int o = 0; o < _objectPool.Length; o++)
             //{
 
@@ -235,7 +238,7 @@ namespace AltarElementsZero.src.states.gameplay
             for (int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject gameObject = _objectPool[o];
-                if (gameObject.Exist && gameObject.IsSolid && gameObject.IsMobile)
+                if (gameObject.Exists() && gameObject.IsSolid() && !gameObject.IsFixed())
                 {
                     gameObject.ApplyWingVelocity(new SubpxVelocity());
 
@@ -382,7 +385,7 @@ namespace AltarElementsZero.src.states.gameplay
 				for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.Exists() && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1,1);
@@ -435,7 +438,7 @@ namespace AltarElementsZero.src.states.gameplay
 				for (int o = 0; o < _objectPool.Length; o++)
 				{
 					GameObject otherGameObject = _objectPool[o];
-					if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
+					if (otherGameObject.Exists() && !object.ReferenceEquals(otherGameObject, gameObject))
 					{
 						SubpxPosition otherVertex = otherGameObject.Position;
 						SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -501,7 +504,7 @@ namespace AltarElementsZero.src.states.gameplay
                 for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.Exists() && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -548,7 +551,7 @@ namespace AltarElementsZero.src.states.gameplay
                 for (int o = 0; o < _objectPool.Length; o++)
                 {
                     GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.Exist && !object.ReferenceEquals(otherGameObject, gameObject))
+                    if (otherGameObject.Exists() && !object.ReferenceEquals(otherGameObject, gameObject))
                     {
                         SubpxPosition otherVertex = otherGameObject.Position;
                         SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
@@ -659,20 +662,21 @@ namespace AltarElementsZero.src.states.gameplay
             for(int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject currentObject = _objectPool[o];
-                if (currentObject.Exist && currentObject.IsVisible)
+                if (currentObject.Exists() && currentObject.IsVisible())
                 {
                     PxPosition objectPosition = currentObject.Position.ToPx();
+                    uint spritesheetIndex = currentObject.SpritesheetIndex;
                     spriteBatch.Draw(
-	                    texture: _assets.StaticSpritesheet,
+	                    texture: _assets.ObjectSpritesheet,
 	                    position: new Vector2(
 							(int)objectPosition.X - cameraPxPosition.X,
 							(int)objectPosition.Y - cameraPxPosition.Y
 		                    ),
 	                    sourceRectangle: new(
-		                    Configuration.Tile.Px.Width * 4,
-		                    Configuration.Tile.Px.Height * 0,
-		                    Configuration.Tile.Px.Width,
-		                    Configuration.Tile.Px.Height
+		                    Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex&0x7),
+		                    Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
+		                    Configuration.Tile.Px.Width * 2,
+		                    Configuration.Tile.Px.Height * 2
 		                    ),
 	                    color: Color.White
 	                    );
