@@ -67,6 +67,23 @@ namespace AltarElementsZero.src.states.editor
                     _cursorPosition.Y++;
                 }
 
+                if (_inputHandler.IsDown(Input.Jump))
+                {
+                    _level.SetTile(
+                        (int)_cursorTilePosition.X,
+						(int)_cursorTilePosition.Y,
+                        new Tile((Tile.Families)paintingByteHigh, paintingByteLow)
+                        );
+                }
+                if (_inputHandler.IsDown(Input.Attack))
+                {
+					_level.SetTile(
+						(int)_cursorTilePosition.X,
+						(int)_cursorTilePosition.Y,
+						new Tile((Tile.Families)0, 0)
+						);
+				}
+
             }
             else
             {
@@ -182,6 +199,14 @@ namespace AltarElementsZero.src.states.editor
                         new Rectangle(n4 * 4, 8, 4, 8),
                         Color.White);
                 }
+
+
+                TextUtilities.DrawText(
+                    spriteBatch,
+                    _globalAssets.RomanFont!,
+                    16, 16,
+                    Tile.FamilyDescriptors[paintingByteHigh],
+                    0, 128 - 16);
 
 			}
             else
