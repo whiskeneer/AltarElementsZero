@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay;
+﻿using AltarElementsZero.src.states.editor;
+using AltarElementsZero.src.states.gameplay;
 using AltarElementsZero.src.states.intro;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -46,6 +47,14 @@ namespace AltarElementsZero.src
 				_gameServiceContainer,
 				this,
 				gameplayPayload,
+				_globalAssets,
+				_inputHandler
+				);
+			if (payload is EditorPayload editorPayload) return new Editor(
+				_graphicsDevice,
+				_gameServiceContainer,
+				this,
+				editorPayload,
 				_globalAssets,
 				_inputHandler
 				);
