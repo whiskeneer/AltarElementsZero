@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 {
@@ -28,8 +29,20 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
             gameObject.spritesheetIndex = 0;
             gameObject.spriteEffects = SpriteEffects.None;
 
-			gameObject.State = (uint)State.GOING_LEFT;
-			gameObject.Timer = 60 * 4;
+
+			gameObject.Size = new PxSize(12, 12).ToSubpx();
+			gameObject.SpriteOffset = new PxSize(10, 20);
+
+			if(gameObject.spawnValue == 0)
+			{
+				gameObject.State = (uint)State.GOING_LEFT;
+				gameObject.Timer = 60 * 4;
+			}
+			else
+			{
+				gameObject.State = (uint)State.GOING_RIGHT;
+				gameObject.Timer = 60 * 4;
+			}
 		}
 
         public void Update(GameObject gameObject)

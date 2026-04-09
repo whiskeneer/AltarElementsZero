@@ -7,6 +7,51 @@ namespace AltarElementsZero.src.renderer
 {
     static class Renderer
     {
+
+        public static void RenderSpawnPoints(
+            SpriteBatch spriteBatch,
+            Level level,
+            PxPosition cameraPosition,
+            Texture2D editorSpritesheet
+            )
+        {
+            PxPosition cameraTileRemainder = cameraPosition.TileRemainder();
+            TilePosition cameraTilePosition = cameraPosition.ToTile();
+            for (int tileOffsetY = 0; tileOffsetY <= Configuration.Chunk.Tile.Height; tileOffsetY++)
+            {
+                for (int tileOffsetX = 0; tileOffsetX <= Configuration.Chunk.Tile.Width; tileOffsetX++)
+                {
+                    Tile tile = level.GetTile(
+                        (int)cameraTilePosition.X + tileOffsetX,
+                        (int)cameraTilePosition.Y + tileOffsetY
+                        );
+
+                    if (tile.IsObjectSpawn())
+                    {
+                        int spritesheetCol = (int)tile.Family & 0xf;
+                        int spritesheetRow = ((int)tile.Family >> 4) & 0xf;
+                        Vector2 outputVector = new(
+                            Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
+                            Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
+                            );
+                        Rectangle sourceRectangle = new(
+                            Configuration.Tile.Px.Width * spritesheetCol,
+                            Configuration.Tile.Px.Height * spritesheetRow,
+                            Configuration.Tile.Px.Width,
+                            Configuration.Tile.Px.Height
+                            );
+                        spriteBatch.Draw(
+                            editorSpritesheet,
+                            outputVector,
+                            sourceRectangle,
+                            Color.White
+                            );
+
+                    }
+
+                }
+            }
+        }
         public static void RenderTilesHex(
 			SpriteBatch spriteBatch,
 			Level level,

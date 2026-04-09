@@ -152,6 +152,12 @@ namespace AltarElementsZero.src.states.editor
                 _assets.StaticSpritesheet1!,
                 _assets.AnimatedSpritesheet1!
                 );
+            Renderer.RenderSpawnPoints(
+                spriteBatch,
+                _level,
+                _cameraPosition,
+                _assets.EditorSpritesheet!
+                );
             if (_showHex)
             {
                 Renderer.RenderTilesHex(

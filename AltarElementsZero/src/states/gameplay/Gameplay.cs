@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using System;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -58,18 +60,45 @@ namespace AltarElementsZero.src.states.gameplay
 
             _testObject.Position = new TilePosition(1,1).ToPx().ToSubpx();
 
-            for(int o = 0; o < 1; o++)
+            //for(int o = 0; o < 1; o++)
+            //{
+            //    _objectPool[o] = GameObject.GetToki();
+            //    _objectPool[o].Init();
+            //    _objectPool[o].Position = new PxPosition((uint)rnd.Next(32,100), (uint)rnd.Next(32,80)).ToSubpx();
+
+            //}
+
+
+            //_objectPool[1] = GameObject.GetMovingPlatform1();
+            //_objectPool[1].Init();
+            //_objectPool[1].Position = new TilePosition(5, 5).ToPx().ToSubpx();
+
+            int nextAssignableObject = 0;
+            for (int j = 0; j < Configuration.Level.Tile.Height && nextAssignableObject < _objectPool.Length; j++)
             {
-                _objectPool[o] = GameObject.GetToki();
-                _objectPool[o].Init();
-                _objectPool[o].Position = new PxPosition((uint)rnd.Next(32,100), (uint)rnd.Next(32,80)).ToSubpx();
+                for (int i = 0; i < Configuration.Level.Tile.Width && nextAssignableObject < _objectPool.Length; i++)
+                {
+                    Tile tile = _level.GetTile(i, j);
+                    if (tile.IsObjectSpawn())
+                    {
+                        if(tile.Family == Tile.Families.Toki)
+                        {
+                            _objectPool[nextAssignableObject].behaviour = Toki.Instance;
+                            _objectPool[nextAssignableObject].Init();
+                            _objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							nextAssignableObject++;
+						}
+						else if(tile.Family == Tile.Families.MovingPlatform1)
+                        {
+							_objectPool[nextAssignableObject].behaviour = MovingPlatform1.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							nextAssignableObject++;
+                        }
 
+                    }
+                }
             }
-
-
-            _objectPool[1] = GameObject.GetMovingPlatform1();
-            _objectPool[1].Init();
-            _objectPool[1].Position = new TilePosition(5, 5).ToPx().ToSubpx();
 
 
         }

@@ -16,6 +16,10 @@
         {
             return Family >= Families.ConveyorRight && Family <= Families.ConveyorLeft;
         }
+        readonly public bool IsObjectSpawn()
+        {
+            return Family >= Families.Toki && Family <= Families.MovingPlatform1;
+        }
 
         public enum Families : byte
         {   // Family       //  Member
@@ -28,6 +32,9 @@
             ConveyorRight,  //  6msb animated spritesheet index | 2lsb animation & physic speed
             ConveyorLeft,   //  6msb animated spritesheet index | 2lsb animation & physic speed
                             // Spring,         //  6msb animated spritesheet index | direction
+
+            Toki = 128,
+            MovingPlatform1,
 
         }
         public static readonly string[] FamilyDescriptors = new string[256]{
@@ -62,7 +69,9 @@
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+			"TOKI",    "MOVINGP1",
+            
+            "UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
