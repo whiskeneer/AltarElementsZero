@@ -1,10 +1,26 @@
-﻿namespace AltarElementsZero.src.states.gameplay.level
+﻿using System.Text.Json;
+
+namespace AltarElementsZero.src.states.gameplay.level
 {
     class Level
     {
-        public readonly Tile[] tiles = new Tile[
-            Configuration.Level.Tile.Height * Configuration.Level.Tile.Width 
-            ];
+        public readonly Tile[] tiles;
+
+		public Level(string? filename)
+        {
+            if(filename == null)
+            {
+                tiles = new Tile[
+                    Configuration.Level.Tile.Height * Configuration.Level.Tile.Width
+                    ];
+            }
+            else
+            {
+                var json = File.ReadAllText(filename);
+                tiles = JsonSerializer.Deserialize<Tile[]>(json)!;
+            }
+		}
+
         public Tile GetTile(int x, int y)
         {
             // is there a more efficient way of checking this?
@@ -32,6 +48,20 @@
             {
                 tiles[i] = tile;
             }
+        }
+
+        // For now, I'll be using json files to store level data.
+        // Later, I'll use a more efficient way (like binary)
+        //public void LoadFromFile(string filename)
+        //{
+        //    var json = File.ReadAllText(filename);
+            
+        //}
+
+        public void SaveToFile(string filename) 
+        {
+            var json = JsonSerializer.Serialize(tiles);
+            File.WriteAllText(filename, json);
         }
     }
 }

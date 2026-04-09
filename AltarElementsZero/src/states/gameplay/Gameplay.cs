@@ -25,7 +25,7 @@ namespace AltarElementsZero.src.states.gameplay
             globalAssets: globalAssets
             )
     {
-        private readonly Level _level = new();
+        private readonly Level _level = new("assets/lvl/DEBUG_LEVEL.json");
 
         private readonly GameObject _camera = new();
 
@@ -42,14 +42,14 @@ namespace AltarElementsZero.src.states.gameplay
             base.Enter();
 
             Random rnd = new();
-            _level.SetAll(new Tile(Tile.Families.Ground, 0));
-            for (int j = 1; j <= 6; j++)
-            {
-                for(int i = 1; i <= 10; i++)
-                {
-                    _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
-				}
-            }
+    //        _level.SetAll(new Tile(Tile.Families.Ground, 0));
+    //        for (int j = 1; j <= 6; j++)
+    //        {
+    //            for(int i = 1; i <= 10; i++)
+    //            {
+    //                _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
+				//}
+    //        }
 
             for(int o = 0; o < _objectPool.Length; o++)
             {

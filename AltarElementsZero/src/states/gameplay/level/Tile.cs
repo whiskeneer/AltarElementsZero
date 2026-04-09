@@ -5,8 +5,8 @@
         byte member
         )
     {
-        public Families Family = family;
-        public byte Member = member;
+        public Families Family { get; set; } = family;
+        public byte Member { get; set; } = member;
 
         readonly public bool IsStaticTile()
         {

@@ -1,6 +1,7 @@
 ﻿using AltarElementsZero.src.renderer;
 using AltarElementsZero.src.states.gameplay.level;
 using AltarElementsZero.src.states.gameplay.vectors;
+using AltarElementsZero.src.states.intro;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -23,7 +24,7 @@ namespace AltarElementsZero.src.states.editor
     {
 
         private bool _showHex = false;
-        private readonly Level _level = new();
+        private readonly Level _level = new("assets/lvl/DEBUG_LEVEL.json");
         private uint _frame = 0;
 
 
@@ -132,6 +133,11 @@ namespace AltarElementsZero.src.states.editor
 
             _cursorTilePosition = _cursorPosition.ToTile();
 
+            if (_inputHandler.IsPressed(Input.Pause))
+            {
+                _manager.RequestTransition(new IntroPayload("LEVEL\nMODIFIED"));
+            }
+
 
 		}
 
@@ -233,6 +239,7 @@ namespace AltarElementsZero.src.states.editor
 
         public override void Exit()
         {
+            _level.SaveToFile("assets/lvl/DEBUG_LEVEL.json");
             // if allocating on Enter, dispose here
             base.Exit();
         }
