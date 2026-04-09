@@ -10,6 +10,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
     sealed class GameObject
     {
         public IBehaviour behaviour = EmptyObject.Instance;
+        public byte spawnValue = 0;
      
         public bool exists = false;
         public bool isSolid = false;

@@ -1,10 +1,14 @@
 ﻿using AltarElementsZero.src.states.gameplay.gameObject;
 using AltarElementsZero.src.states.gameplay.level;
 using AltarElementsZero.src.states.gameplay.vectors;
+using AltarElementsZero.src.renderer;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using System;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -23,7 +27,7 @@ namespace AltarElementsZero.src.states.gameplay
             globalAssets: globalAssets
             )
     {
-        private readonly Level _level = new();
+        private readonly Level _level = new("assets/lvl/DEBUG_LEVEL.json");
 
         private readonly GameObject _camera = new();
 
@@ -40,14 +44,14 @@ namespace AltarElementsZero.src.states.gameplay
             base.Enter();
 
             Random rnd = new();
-            _level.SetAll(new Tile(Tile.Families.Ground, 0));
-            for (int j = 1; j <= 6; j++)
-            {
-                for(int i = 1; i <= 10; i++)
-                {
-                    _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
-				}
-            }
+    //        _level.SetAll(new Tile(Tile.Families.Ground, 0));
+    //        for (int j = 1; j <= 6; j++)
+    //        {
+    //            for(int i = 1; i <= 10; i++)
+    //            {
+    //                _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
+				//}
+    //        }
 
             for(int o = 0; o < _objectPool.Length; o++)
             {
@@ -56,18 +60,45 @@ namespace AltarElementsZero.src.states.gameplay
 
             _testObject.Position = new TilePosition(1,1).ToPx().ToSubpx();
 
-            for(int o = 0; o < 1; o++)
+            //for(int o = 0; o < 1; o++)
+            //{
+            //    _objectPool[o] = GameObject.GetToki();
+            //    _objectPool[o].Init();
+            //    _objectPool[o].Position = new PxPosition((uint)rnd.Next(32,100), (uint)rnd.Next(32,80)).ToSubpx();
+
+            //}
+
+
+            //_objectPool[1] = GameObject.GetMovingPlatform1();
+            //_objectPool[1].Init();
+            //_objectPool[1].Position = new TilePosition(5, 5).ToPx().ToSubpx();
+
+            int nextAssignableObject = 0;
+            for (int j = 0; j < Configuration.Level.Tile.Height && nextAssignableObject < _objectPool.Length; j++)
             {
-                _objectPool[o] = GameObject.GetToki();
-                _objectPool[o].Init();
-                _objectPool[o].Position = new PxPosition((uint)rnd.Next(32,100), (uint)rnd.Next(32,80)).ToSubpx();
+                for (int i = 0; i < Configuration.Level.Tile.Width && nextAssignableObject < _objectPool.Length; i++)
+                {
+                    Tile tile = _level.GetTile(i, j);
+                    if (tile.IsObjectSpawn())
+                    {
+                        if(tile.Family == Tile.Families.Toki)
+                        {
+                            _objectPool[nextAssignableObject].behaviour = Toki.Instance;
+                            _objectPool[nextAssignableObject].Init();
+                            _objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							nextAssignableObject++;
+						}
+						else if(tile.Family == Tile.Families.MovingPlatform1)
+                        {
+							_objectPool[nextAssignableObject].behaviour = MovingPlatform1.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							nextAssignableObject++;
+                        }
 
+                    }
+                }
             }
-
-
-            _objectPool[1] = GameObject.GetMovingPlatform1();
-            _objectPool[1].Init();
-            _objectPool[1].Position = new TilePosition(5, 5).ToPx().ToSubpx();
 
 
         }
@@ -599,65 +630,18 @@ namespace AltarElementsZero.src.states.gameplay
         {
             // TODO: add SubpxPosition.ToVisualPx()
             PxPosition cameraPxPosition = _camera.Position.ToPx();
-            PxPosition cameraTileRemainder = cameraPxPosition.TileRemainder();
-            TilePosition cameraTilePosition = cameraPxPosition.ToTile();
+            //PxPosition cameraTileRemainder = cameraPxPosition.TileRemainder();
+            //TilePosition cameraTilePosition = cameraPxPosition.ToTile();
 
-            for (int tileOffsetY = 0; tileOffsetY <= Configuration.Chunk.Tile.Height; tileOffsetY++)
-            {
-                for (int tileOffsetX = 0; tileOffsetX <= Configuration.Chunk.Tile.Width; tileOffsetX++)
-                {
-                    Tile tile = _level.GetTile(
-                        (int)cameraTilePosition.X + tileOffsetX,
-                        (int)cameraTilePosition.Y + tileOffsetY
-                        );
+            Renderer.RenderTiles(
+                spriteBatch,
+                _level,
+                cameraPxPosition,
+                _animationFrame,
+                _assets.StaticSpritesheet!,
+                _assets.AnimatedSpritesheet!
+                );
 
-                    if (tile.Family >= Tile.Families.Ground && tile.Family <= Tile.Families.Spikes) {
-                        int spritesheetCol = tile.Member & 0xf;
-                        int spritesheetRow = (tile.Member >> 4) & 0xf;
-
-                        Vector2 outputVector = new(
-                            Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
-                            Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
-                            );
-                        Rectangle sourceRectangle = new(
-                            Configuration.Tile.Px.Width * spritesheetCol,
-							Configuration.Tile.Px.Height * spritesheetRow,
-							Configuration.Tile.Px.Width,
-							Configuration.Tile.Px.Height
-							);
-
-						spriteBatch.Draw(
-                            _assets.StaticSpritesheet,
-							outputVector,
-							sourceRectangle,
-                            Color.White);
-                    }
-                    else if(tile.Family >= Tile.Families.ConveyorRight && tile.Family <= Tile.Families.ConveyorLeft)
-                    {
-						int spritesheetCol = (tile.Member & 0xc) | (((int)_animationFrame >> (3 - (tile.Member & 0x3))) & 0x3);
-						int spritesheetRow = (tile.Member >> 4) & 0xf;
-
-                        Vector2 outputVector = new(
-                            Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
-                            Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
-                            );
-                        Rectangle sourceRectangle = new(
-                            Configuration.Tile.Px.Width * spritesheetCol,
-							Configuration.Tile.Px.Height * spritesheetRow,
-							Configuration.Tile.Px.Width,
-							Configuration.Tile.Px.Height
-							);
-
-						spriteBatch.Draw(
-                            _assets.AnimatedSpritesheet,
-							outputVector,
-							sourceRectangle,
-                            Color.White);
-
-					}
-
-                }
-            }
 
             PxPosition testObjectPxPosition = _testObject.Position.ToPx();
             spriteBatch.Draw(

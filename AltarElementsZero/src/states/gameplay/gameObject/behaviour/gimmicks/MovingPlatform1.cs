@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 {
@@ -56,7 +57,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
             gameObject.SpriteOffset = new(0, 16);
             gameObject.spriteEffects = SpriteEffects.None;
 
-            gameObject.isSelfMoving = true;
+			gameObject.Size = new PxSize(32, 16).ToSubpx();
+			gameObject.SpriteOffset = new PxSize(0, 16);
+
+			gameObject.isSelfMoving = true;
 
             StartMovingLeft(gameObject);
         }

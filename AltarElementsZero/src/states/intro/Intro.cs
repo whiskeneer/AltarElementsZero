@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay;
+﻿using AltarElementsZero.src.states.editor;
+using AltarElementsZero.src.states.gameplay;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -31,6 +32,11 @@ namespace AltarElementsZero.src.states.intro
             {
                 _manager.RequestTransition(new GameplayPayload());
             }
+            else if (_inputHandler.IsPressed(Input.Pause))
+            {
+                _manager.RequestTransition(new EditorPayload());
+            }
+
         }
         public override void Draw(SpriteBatch spriteBatch)
         {

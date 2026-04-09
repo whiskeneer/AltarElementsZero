@@ -1,4 +1,5 @@
 ﻿using AltarElementsZero.src.states.gameplay.gameObject;
+using Microsoft.Xna.Framework;
 
 namespace AltarElementsZero.src.states.gameplay.vectors
 {
@@ -66,6 +67,27 @@ namespace AltarElementsZero.src.states.gameplay.vectors
 				left.Y - right.Y
 				);
 		}
+
+		public static PxPosition operator -(PxPosition left, PxPosition right)
+		{
+			return new(
+				left.X - right.X,
+				left.Y - right.Y
+				);
+		}
+		public static PxPosition operator +(PxPosition left, PxPosition right)
+		{
+			return new(
+				left.X + right.X,
+				left.Y + right.Y
+				);
+		}
+
+		public readonly Vector2 ToVector2()
+		{
+			return new Vector2((int)X, (int)Y);
+		}
+
 	}
 	public struct TilePosition(uint x, uint y)
 	{
