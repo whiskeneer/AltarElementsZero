@@ -46,6 +46,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 
         public void Init(GameObject gameObject)
         {
+            //gameObject.Exists = true;
+            gameObject.Type = GameObject.Types.UNSTOPPABLE;
+
             //gameObject.exists = true;
             //gameObject.isSolid = true;
             //gameObject.hurtsPlayer = false;
@@ -57,7 +60,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
             gameObject.SpriteOffset = new(0, 16);
             gameObject.spriteEffects = SpriteEffects.None;
 
-            gameObject.Size = new PxSize(32, 16).ToSubpx();
+            gameObject.boundingBox.Size = new PxSize(32, 16).ToSubpx();
 
             //gameObject.isSelfMoving = true;
 

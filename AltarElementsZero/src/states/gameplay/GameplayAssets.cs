@@ -21,7 +21,7 @@ namespace AltarElementsZero.src.states.gameplay
             base.Load();
 
             // Loading textures
-            DebugSpritesheet = _contentManager!.Load<Texture2D>("img/spritesheet_placeholder.png");
+            DebugSpritesheet = _contentManager!.Load<Texture2D>("img/editor_spritesheet.png");
             StaticSpritesheet = _contentManager!.Load<Texture2D>("img/static_spritesheet_level1.png");
             AnimatedSpritesheet = _contentManager!.Load<Texture2D>("img/animated_spritesheet_level1.png");
             ObjectSpritesheet = _contentManager!.Load<Texture2D>("img/object_spritesheet_level1.png");

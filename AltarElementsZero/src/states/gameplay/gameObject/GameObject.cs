@@ -14,10 +14,24 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
 
         // For new physics implementation
+        public BoundingBox boundingBox = new();
+
         public bool PushingUp = false;
         public bool PushingDown = false;
         public bool PushingLeft = false;
         public bool PushingRight = false;
+
+        public enum Types : byte
+        {
+            NONEXISTENT,
+            IMMOBILE,
+            UNSTOPPABLE,
+            PUSHABLE
+        };
+
+        public Types Type { get; set; }
+        //public bool Exists { get; set; }
+
         //
 
         public IBehaviour behaviour = EmptyObject.Instance;
@@ -53,10 +67,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         {
             return new GameObject()
             {
-                Size = new PxSize(
+                boundingBox = new BoundingBox(new SubpxPosition(), new PxSize(
 					12,
 					12
-					).ToSubpx(),
+					).ToSubpx()),
 				SpriteOffset = new PxSize(10,20),
 				behaviour = Toki.Instance,
 			};
@@ -67,10 +81,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 		{
             GameObject testObject = new()
             {
-                Size = new PxSize(
+                boundingBox = new BoundingBox(new SubpxPosition(), new PxSize(
                     (uint)Configuration.Tile.Px.Width,
                     (uint)Configuration.Tile.Px.Height
-                    ).ToSubpx()
+                    ).ToSubpx()),
             };
             return testObject;
 		}
@@ -79,7 +93,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         {
             GameObject movingPlatform =  new()
             {
-                Size = new PxSize(32, 16).ToSubpx(),
+				boundingBox = new BoundingBox(new SubpxPosition(), new PxSize(32, 16).ToSubpx()),
                 SpriteOffset = new PxSize(0, 16),
                 behaviour = MovingPlatform1.Instance,
             };
@@ -87,12 +101,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             return movingPlatform;
         }
 
-		public SubpxPosition Position;
-        public PxSize SpriteOffset;
-        public SubpxSize Size;
+		//public SubpxPosition Position;
         public SubpxVelocity Velocity;
-        public bool Grounded = false;
+
+        public PxSize SpriteOffset;
+        //public SubpxSize Size;
+
         public SubpxVelocity MediumVelocity;
+        public bool Grounded = false;
         public SubpxVelocity GroundVelocity;
         public int GroundMuKin;
         public int GroundMuSta;
@@ -167,8 +183,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 			}
 
 			return new SubpxPosition(
-                (uint)(Position.X + Velocity.X),
-				(uint)(Position.Y + Velocity.Y)
+                (uint)(boundingBox.Position.X + Velocity.X),
+				(uint)(boundingBox.Position.Y + Velocity.Y)
                 );
         }
 

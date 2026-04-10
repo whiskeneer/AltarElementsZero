@@ -19,18 +19,20 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
         public void Init(GameObject gameObject)
         {
-            //gameObject.exists = true;
-            //gameObject.isSolid = true;
-            //gameObject.hurtsPlayer = true;
-            //gameObject.isFixed = false;
-            //gameObject.isAffectedByGravity = true;
+			gameObject.Type = GameObject.Types.PUSHABLE;
 
-            gameObject.isVisible = true;
+			//gameObject.exists = true;
+			//gameObject.isSolid = true;
+			//gameObject.hurtsPlayer = true;
+			//gameObject.isFixed = false;
+			//gameObject.isAffectedByGravity = true;
+
+			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0;
             gameObject.spriteEffects = SpriteEffects.None;
 
 
-			gameObject.Size = new PxSize(12, 12).ToSubpx();
+			gameObject.boundingBox.Size = new PxSize(12, 12).ToSubpx();
 			gameObject.SpriteOffset = new PxSize(10, 20);
 
 			if(gameObject.spawnValue == 0)

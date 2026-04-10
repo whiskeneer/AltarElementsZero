@@ -9,18 +9,20 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
 
         public void Init(GameObject gameObject)
         {
-            //gameObject.exists = true;
-            //gameObject.isSolid = true;
-            //gameObject.hurtsPlayer = false;
-            //gameObject.isFixed = false;
-            //gameObject.isAffectedByGravity = false;
+			gameObject.Type = GameObject.Types.UNSTOPPABLE;
 
-            gameObject.isVisible = true;
+			//gameObject.exists = true;
+			//gameObject.isSolid = true;
+			//gameObject.hurtsPlayer = false;
+			//gameObject.isFixed = false;
+			//gameObject.isAffectedByGravity = false;
+
+			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0x2f;
             gameObject.SpriteOffset = new(0, 0);
             gameObject.spriteEffects = SpriteEffects.None;
 
-            gameObject.Size = new PxSize(16,16).ToSubpx();
+            gameObject.boundingBox.Size = new PxSize(16,16).ToSubpx();
             //gameObject.isSelfMoving = true;
         }
 
@@ -31,11 +33,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
             {
                 if (inputHandler.IsDown(Input.Up))
                 {
-                    gameObject.Velocity.Y = -16;
+                    gameObject.Velocity.Y = -64;
                 }
                 else if (inputHandler.IsDown(Input.Down))
                 {
-                    gameObject.Velocity.Y = 16;
+                    gameObject.Velocity.Y = 64;
                 }
                 else
                 {
@@ -44,11 +46,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
 
 				if (inputHandler.IsDown(Input.Left))
 				{
-					gameObject.Velocity.X = -16;
+					gameObject.Velocity.X = -64;
 				}
 				else if (inputHandler.IsDown(Input.Right))
 				{
-					gameObject.Velocity.X = 16;
+					gameObject.Velocity.X = 64;
 				}
 				else
 				{
