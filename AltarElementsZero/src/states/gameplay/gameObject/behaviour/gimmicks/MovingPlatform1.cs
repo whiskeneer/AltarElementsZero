@@ -44,7 +44,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 			gameObject.Timer = 16 * 2;
 		}
 
-		public void Init(GameObject gameObject)
+        public void Init(GameObject gameObject)
         {
             gameObject.exists = true;
             gameObject.isSolid = true;
@@ -57,12 +57,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
             gameObject.SpriteOffset = new(0, 16);
             gameObject.spriteEffects = SpriteEffects.None;
 
-			gameObject.Size = new PxSize(32, 16).ToSubpx();
-			gameObject.SpriteOffset = new PxSize(0, 16);
+            gameObject.Size = new PxSize(32, 16).ToSubpx();
 
-			gameObject.isSelfMoving = true;
+            gameObject.isSelfMoving = true;
 
             StartMovingLeft(gameObject);
+            gameObject.Timer++;
         }
 
         public void Update(GameObject gameObject)

@@ -18,7 +18,7 @@
         }
         readonly public bool IsObjectSpawn()
         {
-            return Family >= Families.Toki && Family <= Families.MovingPlatform1;
+            return Family >= Families.Toki && Family <= Families.DebugBox;
         }
 
         public enum Families : byte
@@ -33,8 +33,13 @@
             ConveyorLeft,   //  6msb animated spritesheet index | 2lsb animation & physic speed
                             // Spring,         //  6msb animated spritesheet index | direction
 
+            // GameObjects spawn points
             Toki = 128,
             MovingPlatform1,
+
+            DebugPusher = 0xfe,
+            DebugBox = 0xff
+
 
         }
         public static readonly string[] FamilyDescriptors = new string[256]{
@@ -89,7 +94,7 @@
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN"
+			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","PUSHER","DEBUGBOX"
 			};
     }
 }

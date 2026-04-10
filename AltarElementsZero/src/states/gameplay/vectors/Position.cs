@@ -1,5 +1,4 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 namespace AltarElementsZero.src.states.gameplay.vectors
 {
@@ -30,6 +29,15 @@ namespace AltarElementsZero.src.states.gameplay.vectors
 				left.Y - right.Y
 				);
 		}
+
+		public static SubpxPosition operator +(SubpxPosition left, SubpxVelocity right)
+		{
+			return new(
+				(uint)(left.X + right.X),
+				(uint)(left.Y + right.Y)
+				);
+		}
+
 	}
 
 

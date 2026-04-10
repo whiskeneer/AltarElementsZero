@@ -9,6 +9,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
     sealed class GameObject
     {
+        // Delete later, only for testing
+        public static InputHandler? inputHandler = null;
+
+
+        // For new physics implementation
+        public bool PushingUp = false;
+        public bool PushingDown = false;
+        public bool PushingLeft = false;
+        public bool PushingRight = false;
+        //
+
         public IBehaviour behaviour = EmptyObject.Instance;
         public byte spawnValue = 0;
      
@@ -66,12 +77,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public static GameObject GetMovingPlatform1()
         {
-            return new GameObject()
+            GameObject movingPlatform =  new()
             {
                 Size = new PxSize(32, 16).ToSubpx(),
                 SpriteOffset = new PxSize(0, 16),
                 behaviour = MovingPlatform1.Instance,
             };
+            movingPlatform.Init();
+            return movingPlatform;
         }
 
 		public SubpxPosition Position;

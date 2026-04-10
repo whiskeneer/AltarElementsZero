@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
+using AltarElementsZero.src.states.intro;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -31,9 +33,9 @@ namespace AltarElementsZero.src.states.gameplay
 
         private readonly GameObject _camera = new();
 
-        private readonly GameObject _testObject = GameObject.GetTestObject();
-        private int _remainingJumpFrames = 0;
-        private int _attackCooldown = 0;
+        //private readonly GameObject _testObject = GameObject.GetTestObject();
+        //private int _remainingJumpFrames = 0;
+        //private int _attackCooldown = 0;
 
         private readonly GameObject[] _objectPool = new GameObject[64];
 
@@ -41,37 +43,16 @@ namespace AltarElementsZero.src.states.gameplay
 
         public override void Enter()
         {
+            GameObject.inputHandler = _inputHandler;
+
             base.Enter();
 
-            Random rnd = new();
-    //        _level.SetAll(new Tile(Tile.Families.Ground, 0));
-    //        for (int j = 1; j <= 6; j++)
-    //        {
-    //            for(int i = 1; i <= 10; i++)
-    //            {
-    //                _level.SetTile(i, j, new Tile(Tile.Families.None, 0));
-				//}
-    //        }
+            //Random rnd = new();
 
             for(int o = 0; o < _objectPool.Length; o++)
             {
                 _objectPool[o] = new();
             }
-
-            _testObject.Position = new TilePosition(1,1).ToPx().ToSubpx();
-
-            //for(int o = 0; o < 1; o++)
-            //{
-            //    _objectPool[o] = GameObject.GetToki();
-            //    _objectPool[o].Init();
-            //    _objectPool[o].Position = new PxPosition((uint)rnd.Next(32,100), (uint)rnd.Next(32,80)).ToSubpx();
-
-            //}
-
-
-            //_objectPool[1] = GameObject.GetMovingPlatform1();
-            //_objectPool[1].Init();
-            //_objectPool[1].Position = new TilePosition(5, 5).ToPx().ToSubpx();
 
             int nextAssignableObject = 0;
             for (int j = 0; j < Configuration.Level.Tile.Height && nextAssignableObject < _objectPool.Length; j++)
@@ -95,8 +76,22 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							nextAssignableObject++;
                         }
+                        else if(tile.Family == Tile.Families.DebugBox)
+                        {
+							_objectPool[nextAssignableObject].behaviour = DebugBox.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							nextAssignableObject++;
+						}
+						else if (tile.Family == Tile.Families.DebugPusher)
+						{
+							_objectPool[nextAssignableObject].behaviour = DebugPusher.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							nextAssignableObject++;
+						}
 
-                    }
+					}
                 }
             }
 
@@ -105,163 +100,6 @@ namespace AltarElementsZero.src.states.gameplay
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-
-            // Checking medium velocity should be done after moving the object
-            _testObject.MediumVelocity = new(0, 0);
-            //
-
-
-
-
-            if (_inputHandler.IsDown(Input.Left))
-            {
-                _testObject.ApplyWingVelocity(new SubpxVelocity(-64 * 3, 0));
-                _testObject.FeetVelocity = new(-64 * 2, 0);
-            }
-            else if (_inputHandler.IsDown(Input.Right))
-            {
-                _testObject.ApplyWingVelocity(new SubpxVelocity(64 * 3, 0));
-				_testObject.FeetVelocity = new(64 * 2, 0);
-            }
-            else {
-				_testObject.ApplyWingVelocity(new SubpxVelocity(0, 0));
-				_testObject.FeetVelocity = new(0, 0);
-            }
-
-
-			//      STEP 1: directly applied forces and fluid medium friction forces
-
-			//      RESETTING PREVIOUSLY APPLIED FORCES
-
-			_testObject.ResetForces();
-
-			//      DIRECTLY APPLIED FORCES
-			// e.g.: gravity, magnetism, etc.
-
-			if (_inputHandler.IsPressed(Input.Jump) && _testObject.Grounded)
-			{
-				_remainingJumpFrames = 12;
-                _testObject.ApplyForce(new Force(0, -150));
-			}
-			if (_inputHandler.IsReleased(Input.Jump))
-			{
-				_remainingJumpFrames = 0;
-			}
-
-            if(_remainingJumpFrames == 0)
-            {
-                // GRAVITY!
-			    _testObject.ApplyForce(new Force(0, 12));
-            }
-            else
-            {
-                _remainingJumpFrames--;
-            }
-
-            if(_inputHandler.IsPressed(Input.Attack) && _attackCooldown == 0)
-            {
-				_remainingJumpFrames = 0;
-
-				if (_inputHandler.IsDown(Input.Up))
-                {
-					_testObject.ApplyForce(new Force(0, -64));
-				}
-                else if (_inputHandler.IsDown(Input.Down))
-                {
-					_testObject.ApplyForce(new Force(0, 64));
-				}
-				else if (_inputHandler.IsDown(Input.Left))
-                {
-                    _testObject.ApplyForce(new Force(-64, 0));
-                }
-                else if (_inputHandler.IsDown(Input.Right))
-                {
-					_testObject.ApplyForce(new Force(64, 0));
-				}
-				_attackCooldown = 30;
-			}
-            else if (_attackCooldown > 0)
-            {
-                _attackCooldown--;
-            }
-
-			//      FLUID MEDIUM FRICTION FORCES
-			// e.g.: air, water, etc.
-			// - They depend on the relative velocity of the object to the medium!
-			//   ( proportional to relative_velocity ^ 2 )
-
-			// TODO: Get fluid velocity from medium!
-			_testObject.ApplyFluidFriction(0, _testObject.Velocity - _testObject.MediumVelocity);// (16,0));
-
-            //      UPDATING VELOCITY
-            SubpxVelocity velocityBeforeFirstForces = _testObject.Velocity;
-			_testObject.UpdateVelocity();
-
-            //      Step 2: terrain friction forces
-
-            //      RESETTING PREVIOUSLY APPLIED FORCES
-            Force forcesBeforeTerrainFriction = _testObject.AppliedForces;
-            _testObject.ResetForces();
-
-			//      TERRAIN FRICTION FORCES
-			// e.g.: ground, ice, moving platforms, etc.
-			// - They depend on the relative velocity of the object to the terrain!
-			//   ( if prev_relative_velocity = 0 => capped at max static friction force and (target)relative_velocity )
-			//   ( if prev_relative_velocity!= 0 => capped at (target)relative_velocity )
-			//   ( in both cases, max is proportional to normal force )
-
-			// previousRelativeVelocity: used for determine whether the friction is Kinematic or Static
-			SubpxVelocity previousRelativeVelocity = velocityBeforeFirstForces - _testObject.GroundVelocity - _testObject.FeetVelocity;
-			// targetRelativeVelocity: used for capping friction force (so that it doesn't start going "backwards" just by friction
-			SubpxVelocity targetRelativeVelocity = _testObject.Velocity - _testObject.GroundVelocity - _testObject.FeetVelocity;
-            if (_testObject.Grounded && forcesBeforeTerrainFriction.Y > 0)
-            {
-                if(previousRelativeVelocity.X == 0) // STATIC FRICTION
-                {
-                    int staticFriction = Math.Min(
-                        Math.Abs(targetRelativeVelocity.X),
-                        (_testObject.GroundMuSta * forcesBeforeTerrainFriction.Y) >> 8
-                        );
-                    _testObject.ApplyForce(new Force(
-                        staticFriction * -Math.Sign(targetRelativeVelocity.X),
-                        0
-                        ));
-
-					_testObject.UpdateVelocity();
-				}
-				else // KINEMATIC FRICTION
-                {
-					int kinematicFriction = Math.Min(
-						Math.Abs(targetRelativeVelocity.X),
-						(_testObject.GroundMuKin * forcesBeforeTerrainFriction.Y) >> 8
-						);
-					_testObject.ApplyForce(new Force(
-						kinematicFriction * -Math.Sign(targetRelativeVelocity.X),
-						0
-						));
-
-					_testObject.UpdateVelocity();
-				}
-			}
-
-
-			MoveAndApplyCollision(_testObject);
-
-            // CAMERA UPDATE
-
-   //         SubpxPosition cameraPosition = _testObject.Position;
-   //         cameraPosition.X -= (uint)(Configuration.VisibleScreen.Px.Width << (Configuration.Px.SubpxPower-1));
-			//cameraPosition.Y -= (uint)(Configuration.VisibleScreen.Px.Height << (Configuration.Px.SubpxPower-1));
-   //         if (cameraPosition.X > Configuration.Level.Subpx.Width)
-   //         {
-   //             cameraPosition.X = 0;
-   //         }
-   //         if(cameraPosition.Y > Configuration.Level.Subpx.Height)
-   //         {
-   //             cameraPosition.Y = 0;
-   //         }
-
-   //         _camera.Position = cameraPosition;
 
 
             //
@@ -326,13 +164,19 @@ namespace AltarElementsZero.src.states.gameplay
                     else
                     {
 						gameObject.Update();
+                        gameObject.Position = gameObject.Position + gameObject.Velocity;
 
-						MoveAndApplyCollision(gameObject);
+						//MoveAndApplyCollision(gameObject);
 					}
 
 				}
 			}
             //
+
+            if (_inputHandler.IsPressed(Input.Pause))
+            {
+                _manager.RequestTransition(new IntroPayload("IM BACK"));
+            }
 
 		}
 		public override void Draw(SpriteBatch spriteBatch)
@@ -346,6 +190,8 @@ namespace AltarElementsZero.src.states.gameplay
         }
         public override void Exit()
         {
+            GameObject.inputHandler = null;
+
             // if allocating on Enter, dispose here
             base.Exit();
         }
@@ -642,22 +488,6 @@ namespace AltarElementsZero.src.states.gameplay
                 _assets.AnimatedSpritesheet!
                 );
 
-
-            PxPosition testObjectPxPosition = _testObject.Position.ToPx();
-            spriteBatch.Draw(
-                texture: _assets.StaticSpritesheet,
-                position: new Vector2(
-                    testObjectPxPosition.X - cameraPxPosition.X, 
-                    testObjectPxPosition.Y - cameraPxPosition.Y
-					),
-                sourceRectangle: new(
-                    Configuration.Tile.Px.Width * 4,
-                    Configuration.Tile.Px.Height * 0,
-                    Configuration.Tile.Px.Width,
-                    Configuration.Tile.Px.Height
-                    ),
-                color: Color.White
-                );
 
             for(int o = 0; o < _objectPool.Length; o++)
             {
