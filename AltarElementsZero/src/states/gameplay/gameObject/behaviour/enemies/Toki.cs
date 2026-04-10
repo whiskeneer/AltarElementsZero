@@ -19,11 +19,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
         public void Init(GameObject gameObject)
         {
-            gameObject.exists = true;
-            gameObject.isSolid = true;
-            gameObject.hurtsPlayer = true;
-            gameObject.isFixed = false;
-            gameObject.isAffectedByGravity = true;
+            //gameObject.exists = true;
+            //gameObject.isSolid = true;
+            //gameObject.hurtsPlayer = true;
+            //gameObject.isFixed = false;
+            //gameObject.isAffectedByGravity = true;
 
             gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0;

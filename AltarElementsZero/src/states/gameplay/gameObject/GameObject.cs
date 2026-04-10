@@ -23,13 +23,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public IBehaviour behaviour = EmptyObject.Instance;
         public byte spawnValue = 0;
      
-        public bool exists = false;
-        public bool isSolid = false;
-        public bool hurtsPlayer = false;
-        public bool canCrushPlayer = false;
-        public bool isFixed = false;
-        public bool isAffectedByGravity = false;
-        public bool isSelfMoving = false;
+        //public bool exists = false;
+        //public bool isSolid = false;
+        //public bool hurtsPlayer = false;
+        //public bool canCrushPlayer = false;
+        //public bool isFixed = false;
+        //public bool isAffectedByGravity = false;
+        //public bool isSelfMoving = false;
 
         public bool isVisible = false;
         public uint spritesheetIndex = 0;

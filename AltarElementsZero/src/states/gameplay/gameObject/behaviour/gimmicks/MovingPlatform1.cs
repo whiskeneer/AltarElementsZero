@@ -46,11 +46,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 
         public void Init(GameObject gameObject)
         {
-            gameObject.exists = true;
-            gameObject.isSolid = true;
-            gameObject.hurtsPlayer = false;
-            gameObject.isFixed = false;
-            gameObject.isAffectedByGravity = false;
+            //gameObject.exists = true;
+            //gameObject.isSolid = true;
+            //gameObject.hurtsPlayer = false;
+            //gameObject.isFixed = false;
+            //gameObject.isAffectedByGravity = false;
 
             gameObject.isVisible = true;
             gameObject.spritesheetIndex = 8;
@@ -59,7 +59,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 
             gameObject.Size = new PxSize(32, 16).ToSubpx();
 
-            gameObject.isSelfMoving = true;
+            //gameObject.isSelfMoving = true;
 
             StartMovingLeft(gameObject);
             gameObject.Timer++;

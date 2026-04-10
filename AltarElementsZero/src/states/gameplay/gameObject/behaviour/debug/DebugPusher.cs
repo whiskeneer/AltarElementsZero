@@ -9,11 +9,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
 
         public void Init(GameObject gameObject)
         {
-            gameObject.exists = true;
-            gameObject.isSolid = true;
-            gameObject.hurtsPlayer = false;
-            gameObject.isFixed = false;
-            gameObject.isAffectedByGravity = false;
+            //gameObject.exists = true;
+            //gameObject.isSolid = true;
+            //gameObject.hurtsPlayer = false;
+            //gameObject.isFixed = false;
+            //gameObject.isAffectedByGravity = false;
 
             gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0x2f;
@@ -21,7 +21,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
             gameObject.spriteEffects = SpriteEffects.None;
 
             gameObject.Size = new PxSize(16,16).ToSubpx();
-            gameObject.isSelfMoving = true;
+            //gameObject.isSelfMoving = true;
         }
 
         public void Update(GameObject gameObject)
