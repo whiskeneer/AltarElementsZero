@@ -150,7 +150,7 @@ namespace AltarElementsZero.src.states.gameplay
             {
                 GameObject go1 = _objectPool[o];
                 if (go1.Type == GameObject.Types.NONEXISTENT) continue;
-                go1.CleanPushFlags();
+                go1.CleanHorizontalPushFlags();
                 for (int u = o+1;  u < _objectPool.Length; u++)
                 {
                     GameObject go2 = _objectPool[u];
@@ -160,7 +160,31 @@ namespace AltarElementsZero.src.states.gameplay
                 }
             }
 
-            if(frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject gameObject = _objectPool[o];
+				if (gameObject.Type != GameObject.Types.NONEXISTENT)
+				{
+					gameObject.ApplyVerticalDesiredVelocity();
+				}
+			}
+
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject go1 = _objectPool[o];
+				if (go1.Type == GameObject.Types.NONEXISTENT) continue;
+				go1.CleanVerticalPushFlags();
+				for (int u = o + 1; u < _objectPool.Length; u++)
+				{
+					GameObject go2 = _objectPool[u];
+					if (go2.Type == GameObject.Types.NONEXISTENT) continue;
+
+					GameObject.CheckVerticalCollisions(go1, go2);
+				}
+			}
+
+
+			if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
             {
                 for(int o = 0; o < _objectPool.Length; o++)
                 {

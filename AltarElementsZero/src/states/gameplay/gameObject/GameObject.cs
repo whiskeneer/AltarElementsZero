@@ -30,19 +30,26 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public bool PushedPreviouslyLeft = false;
         public bool PushedPreviouslyRight = false;
 
-        public void CleanPushFlags()
+
+        public void CleanHorizontalPushFlags()
         {
-            PushedPreviouslyUp = PushedUp;
-            PushedPreviouslyDown = PushedDown;
             PushedPreviouslyLeft = PushedLeft;
             PushedPreviouslyRight = PushedRight;
 
-			PushedUp = false;
-            PushedDown = false;
             PushedLeft = false;
             PushedRight = false;
         }
-        public void SavePreviousValues()
+
+        public void CleanVerticalPushFlags()
+        {
+            PushedPreviouslyUp = PushedUp;
+            PushedPreviouslyDown = PushedDown;
+
+            PushedUp = false;
+            PushedDown = false;
+        }
+
+		public void SavePreviousValues()
         {
             previousBoundingBox = currentBoundingBox;
             previousVelocity = currentVelocity;
@@ -55,6 +62,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public void ApplyHorizontalDesiredVelocity()
         {
             currentBoundingBox += currentVelocity.Horizontal();
+        }
+
+        public void ApplyVerticalDesiredVelocity()
+        {
+            currentBoundingBox += currentVelocity.Vertical();
         }
 
         public static void CheckHorizontalCollisions(GameObject go1, GameObject go2)
@@ -113,29 +125,150 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             }
         }
 
-        public static void HorizontalTie(GameObject go1, GameObject go2)
+		public static void CheckVerticalCollisions(GameObject go1, GameObject go2)
+		{
+			if (go1.currentBoundingBox & go2.currentBoundingBox)
+			{
+				switch (go1.Type)
+				{
+					case Types.UNSTOPPABLE:
+						switch (go2.Type)
+						{
+							case Types.UNSTOPPABLE:
+								break;
+							case Types.PUSHABLE:
+								VerticalPush(go1, go2);
+								break;
+							case Types.IMMOBILE:
+								break;
+							default:
+								break;
+						}
+						break;
+					case Types.PUSHABLE:
+						switch (go2.Type)
+						{
+							case Types.UNSTOPPABLE:
+								VerticalPush(go2, go1);
+								break;
+							case Types.PUSHABLE:
+								VerticalTie(go1, go2);
+								break;
+							case Types.IMMOBILE:
+								VerticalPush(go2, go1);
+								break;
+							default:
+								break;
+						}
+						break;
+					case Types.IMMOBILE:
+						switch (go2.Type)
+						{
+							case Types.UNSTOPPABLE:
+								break;
+							case Types.PUSHABLE:
+								VerticalPush(go1, go2);
+								break;
+							case Types.IMMOBILE:
+								break;
+							default:
+								break;
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+		public static void HorizontalTie(GameObject go1, GameObject go2)
         {
             if(go1.currentVelocity.X > go2.currentVelocity.X)
             {// go1 at left of go2
-                if (go1.PushedPreviouslyRight || go1.PushedRight)
+                if ((go1.PushedPreviouslyRight || go1.PushedRight) && !(go2.PushedPreviouslyRight || go2.PushedRight))
                 {
                     HorizontalPush(go1, go2);
                 }
-                else if (go2.PushedPreviouslyLeft || go2.PushedLeft)
+                else if ((go2.PushedPreviouslyLeft || go2.PushedLeft) && !(go1.PushedPreviouslyLeft || go1.PushedLeft))
                 {
                     HorizontalPush(go2, go1);
                 }
+
+
+                //else if (!(go2.PushedPreviouslyRight || go2.PushedRight))
+                //{
+                //    HorizontalPush(go1, go2);
+                //}
+                //else if (!(go1.PushedPreviouslyLeft || go1.PushedLeft))
+                //{
+                //    HorizontalPush(go2, go1);
+                //}
             }
-            else //if(go1.currentVelocity.X < go2.currentVelocity.X)
+            else if(go1.currentVelocity.X < go2.currentVelocity.X)
             {// go2 at left of go1
-                if (go1.PushedPreviouslyLeft || go1.PushedLeft)
+                if ((go1.PushedPreviouslyLeft || go1.PushedLeft) && !(go2.PushedPreviouslyLeft || go2.PushedLeft))
                 {
                     HorizontalPush(go1, go2);
                 }
-                else if (go2.PushedPreviouslyRight || go2.PushedRight)
+                else if ((go2.PushedPreviouslyRight || go2.PushedRight) && !(go1.PushedPreviouslyRight || go1.PushedRight))
                 {
                     HorizontalPush(go2, go1);
                 }
+
+
+                //else if (!(go2.PushedPreviouslyLeft || go2.PushedLeft))
+                //{
+                //    HorizontalPush(go1, go2);
+                //}
+                //else if (!(go1.PushedPreviouslyRight || go1.PushedRight))
+                //{
+                //    HorizontalPush(go2, go1);
+                //}
+            }
+        }
+
+        public static void VerticalTie(GameObject go1, GameObject go2)
+        {
+            if(go1.currentVelocity.Y > go2.currentVelocity.Y)
+            { // go1 above go2
+                if((go1.PushedPreviouslyDown || go1.PushedDown) && !(go2.PushedPreviouslyDown || go2.PushedDown))
+                {
+                    VerticalPush(go1, go2);
+                }
+                else if((go2.PushedPreviouslyUp || go2.PushedUp) && !(go1.PushedPreviouslyUp || go1.PushedUp))
+                {
+                    VerticalPush(go2, go1);
+                }
+
+                //else if (!(go2.PushedPreviouslyDown || go2.PushedDown))
+                //{
+                //    VerticalPush(go1, go2);
+                //}
+                //else if (!(go1.PushedPreviouslyUp || go1.PushedUp))
+                //{
+                //    VerticalPush(go2, go1);
+                //}
+
+            }
+            else //if(go1.currentVelocity.Y < go2.currentVelocity.Y)
+            { // go2 above go1
+                if((go1.PushedPreviouslyUp || go1.PushedUp) && !(go2.PushedPreviouslyUp || go2.PushedUp))
+                {
+                    VerticalPush(go1, go2);
+                }
+                else if((go2.PushedPreviouslyDown || go2.PushedDown) && !(go1.PushedPreviouslyDown || go1.PushedDown))
+                {
+                    VerticalPush(go2, go1);
+                }
+
+                //else if (!(go2.PushedPreviouslyUp || go2.PushedUp))
+                //{
+                //    VerticalPush(go1, go2);
+                //}
+                //else if (!(go1.PushedPreviouslyDown || go1.PushedDown))
+                //{
+                //    VerticalPush(go2, go1);
+                //}
             }
         }
 
@@ -154,9 +287,29 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             pushee.FixHorizontalVelocity();
         }
 
+        public static void VerticalPush(GameObject pusher, GameObject pushee)
+        {
+            if(pusher.currentVelocity.Y > pushee.currentVelocity.Y)
+            {
+                pushee.currentBoundingBox.LeanBelow(pusher.currentBoundingBox);
+                pushee.PushedDown = true;
+            }
+            else
+            {
+                pushee.currentBoundingBox.LeanAbove(pusher.currentBoundingBox);
+                pushee.PushedUp = true;
+            }
+            pushee.FixVerticalVelocity();
+        }
+
         public void FixHorizontalVelocity()
         {
             currentVelocity.X = (int)currentBoundingBox.Position.X - (int)previousBoundingBox.Position.X;
+        }
+
+        public void FixVerticalVelocity()
+        {
+            currentVelocity.Y = (int)currentBoundingBox.Position.Y - (int)previousBoundingBox.Position.Y;
         }
 
 
