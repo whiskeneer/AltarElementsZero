@@ -13,5 +13,13 @@
 				);
 		}
 
+		public readonly SubpxVelocity Horizontal()
+		{
+			return new(X, 0);
+		}
+		public readonly SubpxVelocity Vertical() {
+			return new(0, Y); 
+		}
+
 	}
 }

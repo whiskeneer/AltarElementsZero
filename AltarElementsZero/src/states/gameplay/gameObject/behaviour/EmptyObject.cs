@@ -6,7 +6,7 @@
 
         public void Init(GameObject gameObject)
         {
-            gameObject.exists = false;
+            //gameObject.exists = false;
             gameObject.isVisible = false;
             return;
         }

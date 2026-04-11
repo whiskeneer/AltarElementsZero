@@ -1,0 +1,276 @@
+﻿
+		public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+
+            if (_inputHandler.IsPressed(Input.Pause))
+            {
+                _manager.RequestTransition(new IntroPayload("IM BACK"));
+            }
+            _drawIndices = _inputHandler.IsDown(Input.Dash);
+
+            //Console.WriteLine("CLEANED PUSHING");
+			for (int o = 0; o < _objectPool.Length; o++)
+            {
+				GameObject gameObject = _objectPool[o];
+                if(gameObject.Type == GameObject.Types.PUSHABLE)
+                {
+                    gameObject.PushingUp = false;
+                    gameObject.PushingDown = false;
+                    gameObject.PushingLeft = false;
+                    gameObject.PushingRight = false;
+                }
+			}
+
+			for (int o = 0; o < _objectPool.Length; o++)
+            {
+                GameObject gameObject = _objectPool[o];
+                switch (gameObject.Type)
+                {
+                    case GameObject.Types.IMMOBILE:
+                        break;
+                    case GameObject.Types.PUSHABLE:
+                        gameObject.Update(); // behaviour modifies gameObject.Velocity
+
+                        gameObject.boundingBox.Position.X += (uint)gameObject.Velocity.X;
+                        for(int u = 0; u < _objectPool.Length; u++)
+                        {
+                            if (u == o) continue;
+
+                            GameObject otherGameObject = _objectPool[u];
+
+                            if (otherGameObject.Type == GameObject.Types.NONEXISTENT) continue;
+
+                            if(gameObject.boundingBox & otherGameObject.boundingBox)
+                            {
+                                HorizontalLean(gameObject, otherGameObject);
+                                //if(otherGameObject.Type == GameObject.Types.UNSTOPPABLE)
+                                //{
+                                //}
+                                //else
+                                //{
+                                //    HorizontalPush(gameObject, otherGameObject);
+                                //}
+							}
+                        }
+
+						gameObject.boundingBox.Position.Y += (uint)gameObject.Velocity.Y;
+						for (int u = 0; u < _objectPool.Length; u++)
+						{
+							if (u == o) continue;
+
+							GameObject otherGameObject = _objectPool[u];
+
+							if (otherGameObject.Type == GameObject.Types.NONEXISTENT) continue;
+
+							if (gameObject.boundingBox & otherGameObject.boundingBox)
+							{
+                                VerticalLean(gameObject, otherGameObject);
+                                //if(otherGameObject.Type == GameObject.Types.UNSTOPPABLE)
+                                //{
+                                //}
+                                //else
+                                //{
+                                //    VerticalPush(gameObject, otherGameObject);
+                                //}
+							}
+						}
+
+						break;
+
+                    case GameObject.Types.UNSTOPPABLE:
+                        gameObject.Update(); // behaviour modifies gameObject.Velocity
+
+						gameObject.boundingBox.Position.X += (uint)gameObject.Velocity.X;
+						for (int u = 0; u < _objectPool.Length; u++)
+						{
+							if (u == o) continue;
+
+							GameObject otherGameObject = _objectPool[u];
+
+							if (otherGameObject.Type != GameObject.Types.PUSHABLE) continue;
+
+							if (gameObject.boundingBox & otherGameObject.boundingBox)
+							{
+								HorizontalPush(gameObject, otherGameObject);
+							}
+						}
+
+						gameObject.boundingBox.Position.Y += (uint)gameObject.Velocity.Y;
+						for (int u = 0; u < _objectPool.Length; u++)
+						{
+							if (u == o) continue;
+
+							GameObject otherGameObject = _objectPool[u];
+
+							if (otherGameObject.Type != GameObject.Types.PUSHABLE) continue;
+
+							if (gameObject.boundingBox & otherGameObject.boundingBox)
+							{
+								VerticalPush(gameObject, otherGameObject);
+							}
+						}
+						break;
+
+                    case GameObject.Types.NONEXISTENT:
+                        break;
+                    default:
+                        break;
+                }
+            }
+		}
+
+
+////////////////////////////////////////////////////////////////////////////
+
+
+		private static void HorizontalPush(GameObject gameObject, GameObject otherGameObject)
+        {
+			if (otherGameObject.Velocity.X > gameObject.Velocity.X)
+			{
+				otherGameObject.boundingBox.LeanAtLeft(gameObject.boundingBox);
+                otherGameObject.PushingLeft = true;
+			}
+			else
+			{
+				otherGameObject.boundingBox.LeanAtRight(gameObject.boundingBox);
+                otherGameObject.PushingRight = true;
+			}
+            otherGameObject.Velocity.X = gameObject.Velocity.X;
+
+		}
+        private static void VerticalPush(GameObject gameObject, GameObject otherGameObject)
+        {
+			if (otherGameObject.Velocity.Y > gameObject.Velocity.Y)
+			{
+				otherGameObject.boundingBox.LeanAbove(gameObject.boundingBox);
+                otherGameObject.PushingUp = true;
+			}
+			else
+			{
+				otherGameObject.boundingBox.LeanBelow(gameObject.boundingBox);
+                otherGameObject.PushingDown = true;
+			}
+			otherGameObject.Velocity.Y = gameObject.Velocity.Y;
+		}
+
+        private static void HorizontalLean(GameObject gameObject, GameObject otherGameObject)
+        {
+			if (gameObject.Velocity.X > otherGameObject.Velocity.X)
+			{
+				gameObject.boundingBox.LeanAtLeft(otherGameObject.boundingBox);
+				gameObject.PushingLeft = true;
+			}
+			else
+			{
+				gameObject.boundingBox.LeanAtRight(otherGameObject.boundingBox);
+                gameObject.PushingRight= true;
+			}
+            gameObject.Velocity.X = otherGameObject.Velocity.X;
+		}
+        private static void VerticalLean(GameObject gameObject, GameObject otherGameObject)
+        {
+			if (gameObject.Velocity.Y > otherGameObject.Velocity.Y)
+			{
+				gameObject.boundingBox.LeanAbove(otherGameObject.boundingBox);
+				gameObject.PushingUp = true;
+			}
+			else
+			{
+				gameObject.boundingBox.LeanBelow(otherGameObject.boundingBox);
+                gameObject.PushingDown = true;
+			}
+            gameObject.Velocity.Y = otherGameObject.Velocity.Y;
+		}
+
+
+		////////////////////////////////////////////////////////////////////
+		// Saved yet unused from previous version:
+		///////////////////////////////////////////////////////////////////
+
+		 //public SubpxPosition Position;
+        //public SubpxVelocity Velocity;
+
+
+        ////public SubpxSize Size;
+
+        //public SubpxVelocity MediumVelocity;
+        //public bool Grounded = false;
+        //public SubpxVelocity GroundVelocity;
+        //public int GroundMuKin;
+        //public int GroundMuSta;
+        //public SubpxVelocity FeetVelocity; // Refers to efforts to move on ground
+        //// public SubpxVelocity WingVelocity; // Refers to efforts to move on air ( + ground )
+
+        //      public Force AppliedForces;
+
+        //      public void ResetForces()
+        //      {
+        //          AppliedForces.X = 0;
+        //          AppliedForces.Y = 0;
+        //      }
+
+        //      public void ApplyWingVelocity(SubpxVelocity wingVelocity)
+        //      {
+        //          ResetForces();
+
+        //          SubpxVelocity targetAirVelocity = wingVelocity - MediumVelocity;
+        //          int deltaAirVelocity = targetAirVelocity.X - previousVelocity.X;
+
+        //	//if (!Grounded)
+        //	//{
+        //	// Air horizontal acceleration = acceleration on ice, with GroundMu = 0
+        //	ApplyForce(new Force(
+        //              // Should I add a vertical value to this vector, for symmetry?
+        //              Math.Sign(deltaAirVelocity)*(Math.Abs(deltaAirVelocity) >> 5),
+        //              0
+        //		));
+        //	//}
+
+        //	UpdateVelocity();
+
+        //      }
+
+        //      public void ApplyForce(Force force)
+        //      {
+        //          AppliedForces.X += force.X;
+        //          AppliedForces.Y += force.Y;
+        //      }
+        //      public void ApplyFluidFriction(int viscosity, SubpxVelocity velocityDifference)
+        //      {
+        //          ApplyForce(new Force(
+        //              - Math.Sign(velocityDifference.X)*(((velocityDifference.X * velocityDifference.X * viscosity) >> 16)),
+        //		- Math.Sign(velocityDifference.Y)*(((velocityDifference.Y * velocityDifference.Y * viscosity) >> 16))
+        //		));
+        //      }
+
+        //      public void UpdateVelocity()
+        //      {
+        //          Velocity.X += AppliedForces.X;
+        //          Velocity.Y += AppliedForces.Y;
+        //}
+        //      public SubpxPosition TargetPosition()
+        //      {
+        //	if (Velocity.X > Configuration.MaxMovement.Width)
+        //	{
+        //		Velocity.X = Configuration.MaxMovement.Width;
+        //	}
+        //	if (Velocity.X < -Configuration.MaxMovement.Width)
+        //	{
+        //		Velocity.X = -Configuration.MaxMovement.Width;
+        //	}
+
+        //	if (Velocity.Y > Configuration.MaxMovement.Height)
+        //	{
+        //		Velocity.Y = Configuration.MaxMovement.Height;
+        //	}
+        //	if (Velocity.Y < -Configuration.MaxMovement.Height)
+        //	{
+        //		Velocity.Y = -Configuration.MaxMovement.Height;
+        //	}
+
+        //	return new SubpxPosition(
+        //              (uint)(finalBoundingBox.Position.X + Velocity.X),
+        //		(uint)(finalBoundingBox.Position.Y + Velocity.Y)
+        //              );
+    //}

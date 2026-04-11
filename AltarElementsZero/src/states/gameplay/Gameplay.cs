@@ -6,7 +6,7 @@ using AltarElementsZero.src.renderer;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-using System;
+//using System;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.intro;
@@ -33,9 +33,13 @@ namespace AltarElementsZero.src.states.gameplay
 
         private readonly GameObject _camera = new();
 
+        private bool frameByFrameMode = false;
+
         //private readonly GameObject _testObject = GameObject.GetTestObject();
         //private int _remainingJumpFrames = 0;
         //private int _attackCooldown = 0;
+
+        private bool _drawIndices = false;
 
         private readonly GameObject[] _objectPool = new GameObject[64];
 
@@ -66,28 +70,28 @@ namespace AltarElementsZero.src.states.gameplay
                         {
                             _objectPool[nextAssignableObject].behaviour = Toki.Instance;
                             _objectPool[nextAssignableObject].Init();
-                            _objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+                            _objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							nextAssignableObject++;
 						}
 						else if(tile.Family == Tile.Families.MovingPlatform1)
                         {
 							_objectPool[nextAssignableObject].behaviour = MovingPlatform1.Instance;
 							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							nextAssignableObject++;
                         }
                         else if(tile.Family == Tile.Families.DebugBox)
                         {
 							_objectPool[nextAssignableObject].behaviour = DebugBox.Instance;
 							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							nextAssignableObject++;
 						}
 						else if (tile.Family == Tile.Families.DebugPusher)
 						{
 							_objectPool[nextAssignableObject].behaviour = DebugPusher.Instance;
 							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							nextAssignableObject++;
 						}
 
@@ -101,84 +105,208 @@ namespace AltarElementsZero.src.states.gameplay
         {
             base.Update(gameTime);
 
+            
 
-            //
-            for (int o = 0; o < _objectPool.Length; o++)
-            {
-                GameObject gameObject = _objectPool[o];
-                if (gameObject.exists && gameObject.isSolid && !gameObject.isFixed)
-                {
-                    if (!gameObject.isSelfMoving)
-                    {
-                        gameObject.ApplyWingVelocity(new SubpxVelocity());
-
-                        gameObject.ResetForces();
-
-                        if (gameObject.isAffectedByGravity)
-                        {
-                            gameObject.ApplyForce(new Force(0, 12));
-                        }
-
-                        gameObject.Update();
-
-                        gameObject.ApplyFluidFriction(0, gameObject.Velocity - gameObject.MediumVelocity);
-					    SubpxVelocity _velocityBeforeFirstForces = gameObject.Velocity;
-                        gameObject.UpdateVelocity();
-
-                        Force _forcesBeforeTerrainFriction = gameObject.AppliedForces;
-                        gameObject.ResetForces();
-					    SubpxVelocity _previousRelativeVelocity = _velocityBeforeFirstForces - gameObject.GroundVelocity - gameObject.FeetVelocity;
-					    SubpxVelocity _targetRelativeVelocity = gameObject.Velocity - gameObject.GroundVelocity - gameObject.FeetVelocity;
-					    if (gameObject.Grounded && _forcesBeforeTerrainFriction.Y > 0)
-                        {
-						    if (_previousRelativeVelocity.X == 0) // STATIC FRICTION
-						    {
-							    int staticFriction = Math.Min(
-								    Math.Abs(_targetRelativeVelocity.X),
-								    (gameObject.GroundMuSta * _forcesBeforeTerrainFriction.Y) >> 8
-								    );
-							    gameObject.ApplyForce(new Force(
-								    staticFriction * -Math.Sign(_targetRelativeVelocity.X),
-								    0
-								    ));
-
-							    gameObject.UpdateVelocity();
-						    }
-						    else // KINEMATIC FRICTION
-						    {
-							    int kinematicFriction = Math.Min(
-								    Math.Abs(_targetRelativeVelocity.X),
-								    (gameObject.GroundMuKin * _forcesBeforeTerrainFriction.Y) >> 8
-								    );
-							    gameObject.ApplyForce(new Force(
-								    kinematicFriction * -Math.Sign(_targetRelativeVelocity.X),
-								    0
-								    ));
-
-							    gameObject.UpdateVelocity();
-						    }
-					    }
-
-                        MoveAndApplyCollision(gameObject);
-                    }
-                    else
-                    {
-						gameObject.Update();
-                        gameObject.Position = gameObject.Position + gameObject.Velocity;
-
-						//MoveAndApplyCollision(gameObject);
-					}
-
-				}
-			}
-            //
 
             if (_inputHandler.IsPressed(Input.Pause))
             {
                 _manager.RequestTransition(new IntroPayload("IM BACK"));
             }
 
+            _drawIndices = _inputHandler.IsDown(Input.Dash);
+
+            if (_inputHandler.IsPressed(Input.Attack))
+            {
+                frameByFrameMode = !frameByFrameMode;
+            }
+
+            if(frameByFrameMode && !_inputHandler.IsPressed(Input.Jump))
+            {
+                return;
+            }
+
+
+            for (int o = 0; o < _objectPool.Length; o++)
+            {
+                GameObject gameObject = _objectPool[o];
+                if(gameObject.Type != GameObject.Types.NONEXISTENT)
+                {
+                    //gameObject.CleanPushFlags();
+					gameObject.SavePreviousValues();
+                    gameObject.CalculateDesiredOutcome();
+                }
+            }
+
+            for (int o = 0; o < _objectPool.Length; o++)
+            {
+                GameObject gameObject = _objectPool[o];
+                if (gameObject.Type != GameObject.Types.NONEXISTENT)
+                {
+                    gameObject.ApplyHorizontalDesiredVelocity();
+                }
+            }
+
+            for (int o = 0; o < _objectPool.Length; o++)
+            {
+                GameObject go1 = _objectPool[o];
+                if (go1.Type == GameObject.Types.NONEXISTENT) continue;
+                go1.CleanHorizontalPushFlags();
+                for (int u = o+1;  u < _objectPool.Length; u++)
+                {
+                    GameObject go2 = _objectPool[u];
+                    if (go2.Type == GameObject.Types.NONEXISTENT) continue;
+
+                    GameObject.CheckHorizontalCollisions(go1, go2);
+                }
+            }
+
+            //for (int o = 0; o < _objectPool.Length; o++)
+            //{
+            //    GameObject go1 = _objectPool[o];
+            //    if (go1.Type != GameObject.Types.PUSHABLE) continue;
+            //    for (int u = o + 1; u < _objectPool.Length; u++)
+            //    {
+            //        GameObject go2 = _objectPool[u];
+            //        if (go2.Type != GameObject.Types.PUSHABLE) continue;
+
+            //        if (go1.currentBoundingBox & go2.currentBoundingBox)
+            //        {
+            //            if (
+            //                !go1.PushedRight && !go1.PushedLeft &&
+            //                !go2.PushedRight && !go2.PushedLeft &&
+            //                !go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
+            //                !go2.PushedPreviouslyRight && !go2.PushedPreviouslyLeft &&
+            //                !go1.PushedDown && !go1.PushedUp &&
+            //                !go2.PushedDown && !go2.PushedUp &&
+            //                !go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp &&
+            //                !go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
+            //                )
+            //            {
+
+            //                GameObject.HorizontalSeparation(go1, go2);
+            //            }
+            //        }
+            //    }
+            //}
+
+            for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject gameObject = _objectPool[o];
+				if (gameObject.Type != GameObject.Types.NONEXISTENT)
+				{
+					gameObject.ApplyVerticalDesiredVelocity();
+				}
+			}
+
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject go1 = _objectPool[o];
+				if (go1.Type == GameObject.Types.NONEXISTENT) continue;
+				go1.CleanVerticalPushFlags();
+				for (int u = o + 1; u < _objectPool.Length; u++)
+				{
+					GameObject go2 = _objectPool[u];
+					if (go2.Type == GameObject.Types.NONEXISTENT) continue;
+
+					GameObject.CheckVerticalCollisions(go1, go2);
+				}
+			}
+
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject go1 = _objectPool[o];
+
+
+                if(object.ReferenceEquals(go1.behaviour, DebugPusher.Instance))
+                {
+                    _camera.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+                    _camera.currentBoundingBox.Position.X -= (uint)Configuration.Chunk.Subpx.Width / 2 - 64*8;
+					_camera.currentBoundingBox.Position.Y -= (uint)Configuration.Chunk.Subpx.Height / 2 - 64 * 8;
+				}
+
+
+				if (go1.Type != GameObject.Types.PUSHABLE) continue;
+				for (int u = o + 1; u < _objectPool.Length; u++)
+				{
+					GameObject go2 = _objectPool[u];
+					if (go2.Type != GameObject.Types.PUSHABLE) continue;
+
+                    if(go1.currentBoundingBox & go2.currentBoundingBox)
+                    {
+                        if (
+                            
+                            !go1.PushedRight && !go1.PushedLeft &&
+                            !go2.PushedRight && !go2.PushedLeft &&
+                            !go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
+                            !go2.PushedPreviouslyRight && !go2.PushedPreviouslyLeft &&
+                            !go1.PushedDown && !go1.PushedUp &&
+                            !go2.PushedDown && !go2.PushedUp &&
+                            !go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp &&
+                            !go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
+                            )
+						{
+                            GameObject.HorizontalSeparation(go1, go2);
+                            GameObject.VerticalSeparation(go1, go2);
+
+                            //GameObject.Separation(go1, go2);
+                        }
+                    }
+				}
+			}
+
+			if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
+            {
+                for(int o = 0; o < _objectPool.Length; o++)
+                {
+                    GameObject gameObject = _objectPool[o];
+                    if (gameObject.Type == GameObject.Types.NONEXISTENT) continue;
+                    Console.Write($"{o} : UP={gameObject.PushedUp} DN={gameObject.PushedDown} LF={gameObject.PushedLeft} RH={gameObject.PushedRight} ");
+                    Console.WriteLine($"P-UP={gameObject.PushedPreviouslyUp} P-DN={gameObject.PushedPreviouslyDown} P-LF={gameObject.PushedPreviouslyLeft} P-RH={gameObject.PushedPreviouslyRight}");
+                }
+            }
+
+
+			//for (int o = 0; o < _objectPool.Length; o++)
+   //         {
+			//	GameObject gameObject = _objectPool[o];
+   //             if(gameObject.Type == GameObject.Types.PUSHABLE)
+   //             {
+   //                 gameObject.PushingUp = false;
+   //                 gameObject.PushingDown = false;
+   //                 gameObject.PushingLeft = false;
+   //                 gameObject.PushingRight = false;
+   //             }
+			//}
+
+			//for (int o = 0; o < _objectPool.Length; o++)
+   //         {
+   //             GameObject gameObject = _objectPool[o];
+   //             switch (gameObject.Type)
+   //             {
+   //                 case GameObject.Types.IMMOBILE:
+   //                     break;
+   //                 case GameObject.Types.PUSHABLE:
+   //                     gameObject.Update(); // behaviour modifies gameObject.Velocity
+			//			break;
+
+   //                 case GameObject.Types.UNSTOPPABLE:
+   //                     gameObject.Update(); // behaviour modifies gameObject.Velocity
+			//			break;
+
+   //                 case GameObject.Types.NONEXISTENT:
+   //                     break;
+   //                 default:
+   //                     break;
+   //             }
+   //         }
+
+
+
 		}
+
+        
+
+
 		public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
@@ -196,286 +324,12 @@ namespace AltarElementsZero.src.states.gameplay
             base.Exit();
         }
 
-        private void MoveAndApplyCollision(GameObject gameObject)
-        {
-            // can collision calculations be optimized?
-            SubpxPosition targetPosition = gameObject.TargetPosition();
-
-            // Vertical collisions
-            SubpxPosition checkingVertex = new(
-                gameObject.Position.X,
-                targetPosition.Y
-                );
-
-            SubpxPosition oppositeVertex = new(
-                checkingVertex.X + gameObject.Size.X - 1,
-                checkingVertex.Y + gameObject.Size.Y - 1
-                );
-            TilePosition checkingTile = checkingVertex.ToPx().ToTile();
-            TilePosition oppositeTile = oppositeVertex.ToPx().ToTile();
-
-            uint top = checkingTile.Y;
-            uint left = checkingTile.X;
-            uint bottom = oppositeTile.Y;
-            uint right = oppositeTile.X;
-
-			uint currentTop = checkingVertex.Y;
-			uint currentBottom = oppositeVertex.Y;
-			uint currentLeft = checkingVertex.X;
-			uint currentRight = oppositeVertex.X;
-
-			gameObject.Grounded = false;
-
-            if (gameObject.Velocity.Y > 0) // going down
-            {
-                bool foundBelow = false;
-                uint foundAtY = 0;
-                for (uint row = top; !foundBelow && row <= bottom; row++)
-                {
-                    for (uint col = left; !foundBelow && col <= right; col++)
-                    {
-                        Tile tile = _level.GetTile((int)col, (int)row);
-
-						Tile.Families family = tile.Family;
-						if (family >= Tile.Families.Ground && tile.Family <= Tile.Families.ConveyorLeft)
-						{
-                            foundBelow = true;
-                            foundAtY = new TilePosition(0, row).ToPx().ToSubpx().Y;
-                            checkingVertex.Y = foundAtY - gameObject.Size.Y;
-
-                            gameObject.Velocity.Y = 0;
-
-                            gameObject.Grounded = true;
-
-                            if (tile.Family == Tile.Families.Ground)
-                            {
-                                gameObject.GroundMuKin = 200;
-                                gameObject.GroundMuSta =  400;
-                                gameObject.GroundVelocity = new SubpxVelocity(0,0);// (-100,0); // zero, because terrain is immobile ground
-                            }
-                            else if(tile.Family == Tile.Families.Ice)
-                            {
-								gameObject.GroundMuKin = 0;
-								gameObject.GroundMuSta = 0;
-								gameObject.GroundVelocity = new SubpxVelocity(0, 0);// (-100,0); // zero, because terrain is immobile ground
-							}
-                            else if (tile.Family == Tile.Families.ConveyorRight)
-                            {
-								gameObject.GroundMuKin = 200;
-								gameObject.GroundMuSta = 400;
-								gameObject.GroundVelocity = new SubpxVelocity(64<<(tile.Member & 0x3), 0);
-							}
-                            else if(tile.Family == Tile.Families.ConveyorLeft)
-                            {
-								gameObject.GroundMuKin = 200;
-								gameObject.GroundMuSta = 400;
-								gameObject.GroundVelocity = new SubpxVelocity(-(64<<(tile.Member & 0x3)), 0);
-							}
-                        }
-                    }
-                }
-
-				for (int o = 0; o < _objectPool.Length; o++)
-                {
-                    GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
-                    {
-                        SubpxPosition otherVertex = otherGameObject.Position;
-                        SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1,1);
-
-                        uint otherTop = otherVertex.Y;
-                        uint otherBottom = otherOppositeVertex.Y;
-                        uint otherLeft = otherVertex.X;
-                        uint otherRight = otherOppositeVertex.X;
-                    
-                        if((!foundBelow || otherTop < foundAtY) &&
-                            currentTop <= otherBottom && otherTop <= currentBottom &&
-                            currentLeft <= otherRight && otherLeft <= currentRight)
-                        {
-                            foundBelow = true;
-                            foundAtY = otherTop;
-                            checkingVertex.Y  = foundAtY - gameObject.Size.Y;
-
-							gameObject.Velocity.Y = 0;
-							gameObject.Grounded = true;
-							// TODO: get GroundMuKin and GroundMuSta
-							gameObject.GroundMuKin = 200;
-							gameObject.GroundMuSta = 400;
-                            gameObject.GroundVelocity = otherGameObject.Velocity;
-						}
-                    }
-                }
-
-            }
-            else // going up
-            {
-				bool foundAbove = false;
-				uint foundAtY = 0;
-                for (uint row = bottom; !foundAbove && row >= top; row--)
-                {
-                    for (uint col = left; !foundAbove && col <= right; col++)
-                    {
-						Tile tile = _level.GetTile((int)col, (int)row);
-
-						Tile.Families family = tile.Family;
-						if (family >= Tile.Families.Ground && tile.Family <= Tile.Families.ConveyorLeft)
-						{
-                            foundAbove = true;
-                            foundAtY = new TilePosition(0, row + 1).ToPx().ToSubpx().Y - 1;
-							checkingVertex.Y = foundAtY + 1;
-                            gameObject.Velocity.Y = 0;
-                        }
-                    }
-                }
-
-				for (int o = 0; o < _objectPool.Length; o++)
-				{
-					GameObject otherGameObject = _objectPool[o];
-					if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
-					{
-						SubpxPosition otherVertex = otherGameObject.Position;
-						SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
-
-						uint otherTop = otherVertex.Y;
-						uint otherBottom = otherOppositeVertex.Y;
-						uint otherLeft = otherVertex.X;
-						uint otherRight = otherOppositeVertex.X;
-
-						if ((!foundAbove || otherBottom > foundAtY) &&
-							currentTop <= otherBottom && otherTop <= currentBottom &&
-							currentLeft <= otherRight && otherLeft <= currentRight)
-						{
-							foundAbove = true;
-							foundAtY = otherBottom;
-							checkingVertex.Y = otherBottom + 1;
-
-							gameObject.Velocity.Y = 0;
-						}
-					}
-				}
-
-			}
-
-			// Horizontal collisions
-			checkingVertex.X = targetPosition.X;
-			oppositeVertex = new(
-                checkingVertex.X + gameObject.Size.X - 1,
-                checkingVertex.Y + gameObject.Size.Y - 1
-                );
-            checkingTile = checkingVertex.ToPx().ToTile();
-            oppositeTile = oppositeVertex.ToPx().ToTile();
-            top = checkingTile.Y;
-			left = checkingTile.X;
-			bottom = oppositeTile.Y;
-			right = oppositeTile.X;
-
-			currentTop = checkingVertex.Y;
-			currentBottom = oppositeVertex.Y;
-			currentLeft = checkingVertex.X;
-			currentRight = oppositeVertex.X;
-
-            if (gameObject.Velocity.X > 0) // going right
-            {
-                bool foundAtRight = false;
-                uint foundAtX = 0;
-                for (uint col = left; !foundAtRight && col <= right; col++)
-                {
-                    for (uint row = top; !foundAtRight && row <= bottom; row++)
-                    {
-						Tile tile = _level.GetTile((int)col, (int)row);
-
-                        Tile.Families family = tile.Family;
-						if (family >= Tile.Families.Ground && tile.Family <= Tile.Families.ConveyorLeft)
-						{
-                            foundAtRight = true;
-                            foundAtX = new TilePosition(col, 0).ToPx().ToSubpx().X;
-                            checkingVertex.X = foundAtX - gameObject.Size.X;
-                            gameObject.Velocity.X = 0;
-                        }
-                    }
-                }
-                for (int o = 0; o < _objectPool.Length; o++)
-                {
-                    GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
-                    {
-                        SubpxPosition otherVertex = otherGameObject.Position;
-                        SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
-
-                        uint otherTop = otherVertex.Y;
-                        uint otherBottom = otherOppositeVertex.Y;
-                        uint otherLeft = otherVertex.X;
-                        uint otherRight = otherOppositeVertex.X;
-
-                        if ((!foundAtRight || otherLeft < foundAtX) &&
-                            currentTop <= otherBottom && otherTop <= currentBottom &&
-                            currentLeft <= otherRight && otherLeft <= currentRight)
-                        {
-                            foundAtRight = true;
-                            foundAtX = otherLeft;
-                            checkingVertex.X = foundAtX - gameObject.Size.X;
-
-                            gameObject.Velocity.X = 0;
-                        }
-                    }
-                }
-            }
-            else // going left
-            {
-                bool foundAtLeft = false;
-                uint foundAtX = 0;
-                for (uint col = right; !foundAtLeft && col >= left; col--)
-                {
-                    for (uint row = top; !foundAtLeft && row <= bottom; row++)
-                    {
-                        Tile tile = _level.GetTile((int)col, (int)row);
-
-						Tile.Families family = tile.Family;
-						if (family >= Tile.Families.Ground && tile.Family <= Tile.Families.ConveyorLeft)
-						{
-                            foundAtLeft = true;
-                            foundAtX = new TilePosition(col + 1, 0).ToPx().ToSubpx().X - 1;
-                            checkingVertex.X = foundAtX + 1;
-                            gameObject.Velocity.X = 0;
-                        }
-                    }
-                }
-
-                for (int o = 0; o < _objectPool.Length; o++)
-                {
-                    GameObject otherGameObject = _objectPool[o];
-                    if (otherGameObject.exists && !object.ReferenceEquals(otherGameObject, gameObject))
-                    {
-                        SubpxPosition otherVertex = otherGameObject.Position;
-                        SubpxPosition otherOppositeVertex = otherGameObject.Position + otherGameObject.Size - new SubpxSize(1, 1);
-
-                        uint otherTop = otherVertex.Y;
-                        uint otherBottom = otherOppositeVertex.Y;
-                        uint otherLeft = otherVertex.X;
-                        uint otherRight = otherOppositeVertex.X;
-
-                        if ((!foundAtLeft || otherRight > foundAtX) &&
-                            currentTop <= otherBottom && otherTop <= currentBottom &&
-                            currentLeft <= otherRight && otherLeft <= currentRight)
-                        {
-                            foundAtLeft = true;
-                            foundAtX = otherRight;
-                            checkingVertex.X = otherRight + 1;
-
-                            gameObject.Velocity.X = 0;
-                        }
-                    }
-                }
-
-
-            }
-
-			gameObject.Position = checkingVertex;
-        }
+       
         private void Render(SpriteBatch spriteBatch)
         {
+            //Console.WriteLine("RENDER");
             // TODO: add SubpxPosition.ToVisualPx()
-            PxPosition cameraPxPosition = _camera.Position.ToPx();
+            PxPosition cameraPxPosition = _camera.currentBoundingBox.Position.ToVisualPx();
             //PxPosition cameraTileRemainder = cameraPxPosition.TileRemainder();
             //TilePosition cameraTilePosition = cameraPxPosition.ToTile();
 
@@ -492,10 +346,20 @@ namespace AltarElementsZero.src.states.gameplay
             for(int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject currentObject = _objectPool[o];
-                if (currentObject.exists && currentObject.isVisible)
+                //if (currentObject.exists && currentObject.isVisible)
+                if(currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.isVisible)
                 {
-                    PxPosition objectPosition = currentObject.Position.ToPx() - currentObject.SpriteOffset;
+                    PxPosition objectPosition = currentObject.currentBoundingBox.Position.ToVisualPx() - currentObject.SpriteOffset;
                     uint spritesheetIndex = currentObject.spritesheetIndex;
+
+                    if (object.ReferenceEquals(currentObject.behaviour, DebugBox.Instance))
+                    {
+                        if (currentObject.PushedPreviouslyUp) spritesheetIndex |= 0x1;
+                        if (currentObject.PushedPreviouslyDown) spritesheetIndex |= 0x2;
+                        if (currentObject.PushedPreviouslyLeft) spritesheetIndex |= 0x4;
+                        if (currentObject.PushedPreviouslyRight) spritesheetIndex |= 0x8;
+                    }
+
                     SpriteEffects spriteEffects = currentObject.spriteEffects;
                     spriteBatch.Draw(
                         texture: _assets.ObjectSpritesheet,
@@ -512,6 +376,33 @@ namespace AltarElementsZero.src.states.gameplay
                         color: Color.White, 
                         0f,Vector2.Zero,1f,spriteEffects,0f
                         );
+                    if (_drawIndices)
+                    {
+						spriteBatch.Draw(
+							texture: _assets.DebugSpritesheet,
+							position: new Vector2(
+								(int)objectPosition.X - cameraPxPosition.X,
+								(int)objectPosition.Y - cameraPxPosition.Y
+								),
+							sourceRectangle: new(
+                                4 * ((o>>4) & 0xf), 0, 4, 8
+								),
+							color: Color.White,
+							0f, Vector2.Zero, 1f, spriteEffects, 0f
+							);
+						spriteBatch.Draw(
+							texture: _assets.DebugSpritesheet,
+							position: new Vector2(
+								(int)objectPosition.X - cameraPxPosition.X + 4,
+								(int)objectPosition.Y - cameraPxPosition.Y
+								),
+							sourceRectangle: new(
+								4 * (o & 0xf), 0, 4, 8
+								),
+							color: Color.White,
+							0f, Vector2.Zero, 1f, spriteEffects, 0f
+							);
+					}
 				}
             }
 

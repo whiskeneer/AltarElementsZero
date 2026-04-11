@@ -19,18 +19,20 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
         public void Init(GameObject gameObject)
         {
-            gameObject.exists = true;
-            gameObject.isSolid = true;
-            gameObject.hurtsPlayer = true;
-            gameObject.isFixed = false;
-            gameObject.isAffectedByGravity = true;
+			gameObject.Type = GameObject.Types.PUSHABLE;
 
-            gameObject.isVisible = true;
+			//gameObject.exists = true;
+			//gameObject.isSolid = true;
+			//gameObject.hurtsPlayer = true;
+			//gameObject.isFixed = false;
+			//gameObject.isAffectedByGravity = true;
+
+			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0;
             gameObject.spriteEffects = SpriteEffects.None;
 
 
-			gameObject.Size = new PxSize(12, 12).ToSubpx();
+			gameObject.currentBoundingBox.Size = new PxSize(12, 12).ToSubpx();
 			gameObject.SpriteOffset = new PxSize(10, 20);
 
 			if(gameObject.spawnValue == 0)
@@ -47,6 +49,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
         public void Update(GameObject gameObject)
         {
+
+			gameObject.currentVelocity = 
+				//
+				//gameObject.previousVelocity;
+				new (gameObject.previousVelocity.X / 2, gameObject.previousVelocity.Y / 2);
+
             if (--gameObject.Timer == 0)
             {
                 switch ((State)gameObject.State)
@@ -73,17 +81,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			switch ((State)gameObject.State)
 			{
 				case State.GOING_LEFT:
-					gameObject.FeetVelocity = new(-16, 0);
+					//gameObject.FeetVelocity = new(-16, 0);
                     gameObject.spritesheetIndex = (gameObject.Timer>>4)&3;
                     gameObject.spriteEffects = SpriteEffects.None;
 					break;
 				case State.GOING_RIGHT:
-					gameObject.FeetVelocity = new(16, 0);
+					//gameObject.FeetVelocity = new(16, 0);
 					gameObject.spritesheetIndex = (gameObject.Timer >> 4) & 3;
 					gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
 					break;
                 case State.SHIFTING_TO_RIGHT:
-					gameObject.FeetVelocity = new(0, 0);
+					//gameObject.FeetVelocity = new(0, 0);
                     if(gameObject.Timer > 16)
                     {
 						gameObject.spritesheetIndex = 4;
@@ -102,7 +110,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
 					break;
                 case State.SHIFTING_TO_LEFT:
-					gameObject.FeetVelocity = new(0, 0);
+					//gameObject.FeetVelocity = new(0, 0);
 					if (gameObject.Timer > 16)
 					{
 						gameObject.spritesheetIndex = 4;
@@ -120,7 +128,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 					}
 					break;
 				default:
-					gameObject.FeetVelocity = new(0, 0);
+					//gameObject.FeetVelocity = new(0, 0);
 					break;
 			}
 		}
