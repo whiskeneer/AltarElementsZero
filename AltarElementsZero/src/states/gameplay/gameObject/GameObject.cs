@@ -14,12 +14,158 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
 
         // For new physics implementation
-        public BoundingBox boundingBox = new();
+        public SubpxVelocity previousVelocity = new();
+        public SubpxVelocity currentVelocity = new();
 
-        public bool PushingUp = false;
-        public bool PushingDown = false;
-        public bool PushingLeft = false;
-        public bool PushingRight = false;
+        public BoundingBox previousBoundingBox = new();
+        public BoundingBox currentBoundingBox = new();
+
+        public bool PushedUp = false;
+        public bool PushedDown = false;
+        public bool PushedLeft = false;
+        public bool PushedRight = false;
+
+        public bool PushedPreviouslyUp = false;
+        public bool PushedPreviouslyDown = false;
+        public bool PushedPreviouslyLeft = false;
+        public bool PushedPreviouslyRight = false;
+
+        public void CleanPushFlags()
+        {
+            PushedPreviouslyUp = PushedUp;
+            PushedPreviouslyDown = PushedDown;
+            PushedPreviouslyLeft = PushedLeft;
+            PushedPreviouslyRight = PushedRight;
+
+			PushedUp = false;
+            PushedDown = false;
+            PushedLeft = false;
+            PushedRight = false;
+        }
+        public void SavePreviousValues()
+        {
+            previousBoundingBox = currentBoundingBox;
+            previousVelocity = currentVelocity;
+        }
+        public void CalculateDesiredOutcome()
+        {
+            behaviour.Update(this); // updates currentVelocity
+        }
+
+        public void ApplyHorizontalDesiredVelocity()
+        {
+            currentBoundingBox += currentVelocity.Horizontal();
+        }
+
+        public static void CheckHorizontalCollisions(GameObject go1, GameObject go2)
+        {
+            if (go1.currentBoundingBox & go2.currentBoundingBox)
+            {
+                switch (go1.Type)
+                {
+                    case Types.UNSTOPPABLE:
+                        switch (go2.Type)
+                        {
+                            case Types.UNSTOPPABLE:
+                                break;
+                            case Types.PUSHABLE:
+                                HorizontalPush(go1, go2);
+                                break;
+                            case Types.IMMOBILE:
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case Types.PUSHABLE:
+						switch (go2.Type)
+						{
+							case Types.UNSTOPPABLE:
+								HorizontalPush(go2, go1);
+								break;
+							case Types.PUSHABLE:
+                                HorizontalTie(go1, go2);
+								break;
+							case Types.IMMOBILE:
+								HorizontalPush(go2, go1);
+								break;
+							default:
+								break;
+						}
+						break;
+                    case Types.IMMOBILE:
+						switch (go2.Type)
+						{
+							case Types.UNSTOPPABLE:
+								break;
+							case Types.PUSHABLE:
+								HorizontalPush(go1, go2);
+								break;
+							case Types.IMMOBILE:
+								break;
+							default:
+								break;
+						}
+						break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public static void HorizontalTie(GameObject go1, GameObject go2)
+        {
+            if(go1.currentVelocity.X > go2.currentVelocity.X)
+            {// go1 at left of go2
+                if (go1.PushedPreviouslyRight || go1.PushedRight)
+                {
+                    HorizontalPush(go1, go2);
+                }
+                else if (go2.PushedPreviouslyLeft || go2.PushedLeft)
+                {
+                    HorizontalPush(go2, go1);
+                }
+            }
+            else //if(go1.currentVelocity.X < go2.currentVelocity.X)
+            {// go2 at left of go1
+                if (go1.PushedPreviouslyLeft || go1.PushedLeft)
+                {
+                    HorizontalPush(go1, go2);
+                }
+                else if (go2.PushedPreviouslyRight || go2.PushedRight)
+                {
+                    HorizontalPush(go2, go1);
+                }
+            }
+        }
+
+        public static void HorizontalPush(GameObject pusher, GameObject pushee)
+        {
+            if(pusher.currentVelocity.X > pushee.currentVelocity.X)
+            {
+                pushee.currentBoundingBox.LeanAtRight(pusher.currentBoundingBox);
+                pushee.PushedRight = true;
+            }
+            else
+            {
+				pushee.currentBoundingBox.LeanAtLeft(pusher.currentBoundingBox);
+                pushee.PushedLeft = true;
+            }
+            pushee.FixHorizontalVelocity();
+        }
+
+        public void FixHorizontalVelocity()
+        {
+            currentVelocity.X = (int)currentBoundingBox.Position.X - (int)previousBoundingBox.Position.X;
+        }
+
+
+        //
+
+        //public bool PushingUp = false;
+        //public bool PushingDown = false;
+        //public bool PushingLeft = false;
+        //public bool PushingRight = false;
 
         public enum Types : byte
         {
@@ -30,29 +176,18 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         };
 
         public Types Type { get; set; }
-        //public bool Exists { get; set; }
 
-        //
 
         public IBehaviour behaviour = EmptyObject.Instance;
         public byte spawnValue = 0;
      
-        //public bool exists = false;
-        //public bool isSolid = false;
-        //public bool hurtsPlayer = false;
-        //public bool canCrushPlayer = false;
-        //public bool isFixed = false;
-        //public bool isAffectedByGravity = false;
-        //public bool isSelfMoving = false;
 
         public bool isVisible = false;
         public uint spritesheetIndex = 0;
         public SpriteEffects spriteEffects = SpriteEffects.None;
+        public PxSize SpriteOffset;
 
-        public void Update()
-        {
-            behaviour.Update(this);
-        }
+
         public void Init()
         {
             behaviour.Init(this);
@@ -61,13 +196,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public uint State = 0;
         public uint SubState = 0;
         public uint Timer = 0;
-        //public uint SpritesheetIndex = 0;
 
         public static GameObject GetToki()
         {
             return new GameObject()
             {
-                boundingBox = new BoundingBox(new SubpxPosition(), new PxSize(
+                currentBoundingBox = new BoundingBox(new SubpxPosition(), new PxSize(
 					12,
 					12
 					).ToSubpx()),
@@ -81,7 +215,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 		{
             GameObject testObject = new()
             {
-                boundingBox = new BoundingBox(new SubpxPosition(), new PxSize(
+                currentBoundingBox = new BoundingBox(new SubpxPosition(), new PxSize(
                     (uint)Configuration.Tile.Px.Width,
                     (uint)Configuration.Tile.Px.Height
                     ).ToSubpx()),
@@ -93,104 +227,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         {
             GameObject movingPlatform =  new()
             {
-				boundingBox = new BoundingBox(new SubpxPosition(), new PxSize(32, 16).ToSubpx()),
+				currentBoundingBox = new BoundingBox(new SubpxPosition(), new PxSize(32, 16).ToSubpx()),
                 SpriteOffset = new PxSize(0, 16),
                 behaviour = MovingPlatform1.Instance,
             };
             movingPlatform.Init();
             return movingPlatform;
         }
-
-		//public SubpxPosition Position;
-        public SubpxVelocity Velocity;
-
-        public PxSize SpriteOffset;
-        //public SubpxSize Size;
-
-        public SubpxVelocity MediumVelocity;
-        public bool Grounded = false;
-        public SubpxVelocity GroundVelocity;
-        public int GroundMuKin;
-        public int GroundMuSta;
-        public SubpxVelocity FeetVelocity; // Refers to efforts to move on ground
-        // public SubpxVelocity WingVelocity; // Refers to efforts to move on air ( + ground )
-
-        public Force AppliedForces;
-
-        public void ResetForces()
-        {
-            AppliedForces.X = 0;
-            AppliedForces.Y = 0;
-        }
-
-        public void ApplyWingVelocity(SubpxVelocity wingVelocity)
-        {
-            ResetForces();
-
-            SubpxVelocity targetAirVelocity = wingVelocity - MediumVelocity;
-            int deltaAirVelocity = targetAirVelocity.X - Velocity.X;
-
-			//if (!Grounded)
-			//{
-			// Air horizontal acceleration = acceleration on ice, with GroundMu = 0
-			ApplyForce(new Force(
-                // Should I add a vertical value to this vector, for symmetry?
-                Math.Sign(deltaAirVelocity)*(Math.Abs(deltaAirVelocity) >> 5),
-                0
-				));
-			//}
-
-			UpdateVelocity();
-
-        }
-
-        public void ApplyForce(Force force)
-        {
-            AppliedForces.X += force.X;
-            AppliedForces.Y += force.Y;
-        }
-        public void ApplyFluidFriction(int viscosity, SubpxVelocity velocityDifference)
-        {
-            ApplyForce(new Force(
-                - Math.Sign(velocityDifference.X)*(((velocityDifference.X * velocityDifference.X * viscosity) >> 16)),
-				- Math.Sign(velocityDifference.Y)*(((velocityDifference.Y * velocityDifference.Y * viscosity) >> 16))
-				));
-        }
-
-        public void UpdateVelocity()
-        {
-            Velocity.X += AppliedForces.X;
-            Velocity.Y += AppliedForces.Y;
-		}
-        public SubpxPosition TargetPosition()
-        {
-			if (Velocity.X > Configuration.MaxMovement.Width)
-			{
-				Velocity.X = Configuration.MaxMovement.Width;
-			}
-			if (Velocity.X < -Configuration.MaxMovement.Width)
-			{
-				Velocity.X = -Configuration.MaxMovement.Width;
-			}
-
-			if (Velocity.Y > Configuration.MaxMovement.Height)
-			{
-				Velocity.Y = Configuration.MaxMovement.Height;
-			}
-			if (Velocity.Y < -Configuration.MaxMovement.Height)
-			{
-				Velocity.Y = -Configuration.MaxMovement.Height;
-			}
-
-			return new SubpxPosition(
-                (uint)(boundingBox.Position.X + Velocity.X),
-				(uint)(boundingBox.Position.Y + Velocity.Y)
-                );
-        }
-
-
-
-
 
     }
 }

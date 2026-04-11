@@ -21,7 +21,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
             gameObject.spritesheetIndex = 0x30;
             gameObject.spriteEffects = SpriteEffects.None;
 
-            gameObject.boundingBox.Size = new PxSize(16,16).ToSubpx();
+            gameObject.currentBoundingBox.Size = new PxSize(16,16).ToSubpx();
             gameObject.SpriteOffset = new PxSize(0, 0);
         }
 
@@ -29,8 +29,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
         {
 		    gameObject.spritesheetIndex = 0x30;
 
-            gameObject.Velocity.X /= 2;
-            gameObject.Velocity.Y /= 2;
+            //gameObject.Velocity.X /= 2;
+            //gameObject.Velocity.Y /= 2;
+
+            gameObject.currentVelocity.X = gameObject.previousVelocity.X /= 2;
+            gameObject.currentVelocity.Y = gameObject.previousVelocity.Y /= 2;
 
 		}
 	}

@@ -22,25 +22,25 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
         private static void StartMovingLeft(GameObject gameObject)
         {
 			gameObject.State = (uint)State.GOING_LEFT;
-			gameObject.Velocity = new(-64, 0);
+			gameObject.currentVelocity = new(-64, 0);
 			gameObject.Timer = 16 * 4;
 		}
         private static void StartMovingUp(GameObject gameObject)
         {
 			gameObject.State = (uint)State.GOING_UP;
-			gameObject.Velocity = new(0, -64);
+			gameObject.currentVelocity = new(0, -64);
 			gameObject.Timer = 16 * 2;
 		}
 		private static void StartMovingRight(GameObject gameObject)
 		{
 			gameObject.State = (uint)State.GOING_RIGHT;
-			gameObject.Velocity = new(64, 0);
+			gameObject.currentVelocity = new(64, 0);
 			gameObject.Timer = 16 * 4;
 		}
 		private static void StartMovingDown(GameObject gameObject)
 		{
 			gameObject.State = (uint)State.GOING_DOWN;
-			gameObject.Velocity = new(0, 64);
+			gameObject.currentVelocity = new(0, 64);
 			gameObject.Timer = 16 * 2;
 		}
 
@@ -60,7 +60,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
             gameObject.SpriteOffset = new(0, 16);
             gameObject.spriteEffects = SpriteEffects.None;
 
-            gameObject.boundingBox.Size = new PxSize(32, 16).ToSubpx();
+            gameObject.currentBoundingBox.Size = new PxSize(32, 16).ToSubpx();
 
             //gameObject.isSelfMoving = true;
 
@@ -75,7 +75,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
                 switch ((State)gameObject.State)
                 {
                     case State.GOING_LEFT:
-                        gameObject.Velocity = new(0, 0);
+                        gameObject.currentVelocity = new(0, 0);
 						gameObject.State = (uint)State.WAIT1;
                         gameObject.Timer = 60;
                         break;
@@ -83,7 +83,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
                         StartMovingUp(gameObject);
                         break;
                     case State.GOING_UP:
-						gameObject.Velocity = new(0, 0);
+						gameObject.currentVelocity = new(0, 0);
 						gameObject.State = (uint)State.WAIT2;
 						gameObject.Timer = 60;
 						break;
@@ -91,7 +91,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
                         StartMovingRight(gameObject);
 						break;
 					case State.GOING_RIGHT:
-                        gameObject.Velocity = new(0, 0);
+                        gameObject.currentVelocity = new(0, 0);
 						gameObject.State = (uint)State.WAIT3;
 						gameObject.Timer = 60;
 						break;
@@ -99,7 +99,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
                         StartMovingDown(gameObject);
 						break;
 					case State.GOING_DOWN:
-                        gameObject.Velocity = new(0, 0);
+                        gameObject.currentVelocity = new(0, 0);
 						gameObject.State = (uint)State.WAIT4;
 						gameObject.Timer = 60;
 						break;

@@ -22,7 +22,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
             gameObject.SpriteOffset = new(0, 0);
             gameObject.spriteEffects = SpriteEffects.None;
 
-            gameObject.boundingBox.Size = new PxSize(16,16).ToSubpx();
+            gameObject.currentBoundingBox.Size = new PxSize(16,16).ToSubpx();
             //gameObject.isSelfMoving = true;
         }
 
@@ -33,28 +33,28 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
             {
                 if (inputHandler.IsDown(Input.Up))
                 {
-                    gameObject.Velocity.Y = -64;
+                    gameObject.currentVelocity.Y = -64;
                 }
                 else if (inputHandler.IsDown(Input.Down))
                 {
-                    gameObject.Velocity.Y = 64;
+                    gameObject.currentVelocity.Y = 64;
                 }
                 else
                 {
-                    gameObject.Velocity.Y = 0;
+                    gameObject.currentVelocity.Y = 0;
                 }
 
 				if (inputHandler.IsDown(Input.Left))
 				{
-					gameObject.Velocity.X = -64;
+					gameObject.currentVelocity.X = -64;
 				}
 				else if (inputHandler.IsDown(Input.Right))
 				{
-					gameObject.Velocity.X = 64;
+					gameObject.currentVelocity.X = 64;
 				}
 				else
 				{
-					gameObject.Velocity.X = 0;
+					gameObject.currentVelocity.X = 0;
 				}
 			}
         }

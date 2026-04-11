@@ -7,6 +7,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public SubpxPosition Position = position;
         public SubpxSize Size = size;
 
+        public static BoundingBox operator +(BoundingBox left, SubpxVelocity right)
+        {
+            return new(left.Position + right, left.Size);
+        }
         public static bool operator &(BoundingBox b1, BoundingBox b2)
         {
             if(b1.Size.X == 0 || b1.Size.Y == 0 || b2.Size.X == 0 || b2.Size.Y == 0)
