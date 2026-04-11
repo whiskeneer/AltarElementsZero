@@ -160,7 +160,36 @@ namespace AltarElementsZero.src.states.gameplay
                 }
             }
 
-			for (int o = 0; o < _objectPool.Length; o++)
+            //for (int o = 0; o < _objectPool.Length; o++)
+            //{
+            //    GameObject go1 = _objectPool[o];
+            //    if (go1.Type != GameObject.Types.PUSHABLE) continue;
+            //    for (int u = o + 1; u < _objectPool.Length; u++)
+            //    {
+            //        GameObject go2 = _objectPool[u];
+            //        if (go2.Type != GameObject.Types.PUSHABLE) continue;
+
+            //        if (go1.currentBoundingBox & go2.currentBoundingBox)
+            //        {
+            //            if (
+            //                !go1.PushedRight && !go1.PushedLeft &&
+            //                !go2.PushedRight && !go2.PushedLeft &&
+            //                !go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
+            //                !go2.PushedPreviouslyRight && !go2.PushedPreviouslyLeft &&
+            //                !go1.PushedDown && !go1.PushedUp &&
+            //                !go2.PushedDown && !go2.PushedUp &&
+            //                !go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp &&
+            //                !go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
+            //                )
+            //            {
+
+            //                GameObject.HorizontalSeparation(go1, go2);
+            //            }
+            //        }
+            //    }
+            //}
+
+            for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject gameObject = _objectPool[o];
 				if (gameObject.Type != GameObject.Types.NONEXISTENT)
@@ -183,6 +212,47 @@ namespace AltarElementsZero.src.states.gameplay
 				}
 			}
 
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject go1 = _objectPool[o];
+
+
+                if(object.ReferenceEquals(go1.behaviour, DebugPusher.Instance))
+                {
+                    _camera.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+                    _camera.currentBoundingBox.Position.X -= (uint)Configuration.Chunk.Subpx.Width / 2 - 64*8;
+					_camera.currentBoundingBox.Position.Y -= (uint)Configuration.Chunk.Subpx.Height / 2 - 64 * 8;
+				}
+
+
+				if (go1.Type != GameObject.Types.PUSHABLE) continue;
+				for (int u = o + 1; u < _objectPool.Length; u++)
+				{
+					GameObject go2 = _objectPool[u];
+					if (go2.Type != GameObject.Types.PUSHABLE) continue;
+
+                    if(go1.currentBoundingBox & go2.currentBoundingBox)
+                    {
+                        if (
+                            
+                            !go1.PushedRight && !go1.PushedLeft &&
+                            !go2.PushedRight && !go2.PushedLeft &&
+                            !go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
+                            !go2.PushedPreviouslyRight && !go2.PushedPreviouslyLeft &&
+                            !go1.PushedDown && !go1.PushedUp &&
+                            !go2.PushedDown && !go2.PushedUp &&
+                            !go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp &&
+                            !go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
+                            )
+						{
+                            GameObject.HorizontalSeparation(go1, go2);
+                            GameObject.VerticalSeparation(go1, go2);
+
+                            //GameObject.Separation(go1, go2);
+                        }
+                    }
+				}
+			}
 
 			if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
             {

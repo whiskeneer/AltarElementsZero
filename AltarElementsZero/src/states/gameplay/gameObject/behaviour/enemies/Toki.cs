@@ -50,7 +50,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
         public void Update(GameObject gameObject)
         {
 
-			gameObject.currentVelocity = gameObject.previousVelocity;
+			gameObject.currentVelocity = 
+				//
+				//gameObject.previousVelocity;
+				new (gameObject.previousVelocity.X / 2, gameObject.previousVelocity.Y / 2);
 
             if (--gameObject.Timer == 0)
             {

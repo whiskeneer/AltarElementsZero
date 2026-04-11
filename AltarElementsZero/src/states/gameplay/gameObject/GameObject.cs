@@ -183,6 +183,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
 		public static void HorizontalTie(GameObject go1, GameObject go2)
         {
+
+            //Console.WriteLine("HORIZONTAL TIE");
             if(go1.currentVelocity.X > go2.currentVelocity.X)
             {// go1 at left of go2
                 if ((go1.PushedPreviouslyRight || go1.PushedRight) && !(go2.PushedPreviouslyRight || go2.PushedRight))
@@ -192,6 +194,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 else if ((go2.PushedPreviouslyLeft || go2.PushedLeft) && !(go1.PushedPreviouslyLeft || go1.PushedLeft))
                 {
                     HorizontalPush(go2, go1);
+                }
+                else
+                {
+                    //HorizontalSeparation(go1, go2);
                 }
 
 
@@ -214,6 +220,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 {
                     HorizontalPush(go2, go1);
                 }
+				else
+				{
+                    //HorizontalSeparation(go1, go2);
+                }
 
 
                 //else if (!(go2.PushedPreviouslyLeft || go2.PushedLeft))
@@ -225,11 +235,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 //    HorizontalPush(go2, go1);
                 //}
             }
+            else
+            {
+                //HorizontalSeparation(go1, go2);
+            }
+
         }
 
         public static void VerticalTie(GameObject go1, GameObject go2)
         {
-            if(go1.currentVelocity.Y > go2.currentVelocity.Y)
+			//Console.WriteLine("VERTICAL TIE");
+			if (go1.currentVelocity.Y > go2.currentVelocity.Y)
             { // go1 above go2
                 if((go1.PushedPreviouslyDown || go1.PushedDown) && !(go2.PushedPreviouslyDown || go2.PushedDown))
                 {
@@ -239,18 +255,22 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 {
                     VerticalPush(go2, go1);
                 }
+				else
+				{
+                    //VerticalSeparation(go1, go2);
+                }
 
-                //else if (!(go2.PushedPreviouslyDown || go2.PushedDown))
-                //{
-                //    VerticalPush(go1, go2);
-                //}
-                //else if (!(go1.PushedPreviouslyUp || go1.PushedUp))
-                //{
-                //    VerticalPush(go2, go1);
-                //}
+				//else if (!(go2.PushedPreviouslyDown || go2.PushedDown))
+				//{
+				//    VerticalPush(go1, go2);
+				//}
+				//else if (!(go1.PushedPreviouslyUp || go1.PushedUp))
+				//{
+				//    VerticalPush(go2, go1);
+				//}
 
-            }
-            else //if(go1.currentVelocity.Y < go2.currentVelocity.Y)
+			}
+            else if(go1.currentVelocity.Y < go2.currentVelocity.Y)
             { // go2 above go1
                 if((go1.PushedPreviouslyUp || go1.PushedUp) && !(go2.PushedPreviouslyUp || go2.PushedUp))
                 {
@@ -260,16 +280,23 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 {
                     VerticalPush(go2, go1);
                 }
-
-                //else if (!(go2.PushedPreviouslyUp || go2.PushedUp))
-                //{
-                //    VerticalPush(go1, go2);
-                //}
-                //else if (!(go1.PushedPreviouslyDown || go1.PushedDown))
-                //{
-                //    VerticalPush(go2, go1);
-                //}
+				else
+				{
+                    //VerticalSeparation(go1, go2);
+                }
+				//else if (!(go2.PushedPreviouslyUp || go2.PushedUp))
+				//{
+				//    VerticalPush(go1, go2);
+				//}
+				//else if (!(go1.PushedPreviouslyDown || go1.PushedDown))
+				//{
+				//    VerticalPush(go2, go1);
+				//}
+			}
+            else {
+                //VerticalSeparation(go1, go2);
             }
+
         }
 
         public static void HorizontalPush(GameObject pusher, GameObject pushee)
@@ -302,7 +329,34 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             pushee.FixVerticalVelocity();
         }
 
-        public void FixHorizontalVelocity()
+        public static void HorizontalSeparation(GameObject go1, GameObject go2)
+        {
+            BoundingBox.SeparateHorizontally(ref go1.currentBoundingBox, ref go2.currentBoundingBox, (uint)Math.Abs(go1.currentVelocity.X - go2.currentVelocity.X) + 1 );
+            go1.FixHorizontalVelocity();
+            go2.FixHorizontalVelocity();
+
+            //Console.WriteLine($"HS! GO1: {go1.currentBoundingBox.Position.X} - GO2: {go2.currentBoundingBox.Position.X}");
+
+        }
+        public static void VerticalSeparation(GameObject go1, GameObject go2)
+        {
+			BoundingBox.SeparateVertically(ref go1.currentBoundingBox, ref go2.currentBoundingBox, (uint)Math.Abs(go1.currentVelocity.Y - go2.currentVelocity.Y) + 1);
+			go1.FixVerticalVelocity();
+			go2.FixVerticalVelocity();
+
+			//Console.WriteLine($"VS! GO1: {go1.currentBoundingBox.Position.Y} - GO2: {go2.currentBoundingBox.Position.Y}");
+
+		}
+
+        public static void Separation(GameObject go1, GameObject go2)
+        {
+            BoundingBox.Separate(ref go1.currentBoundingBox, ref go2.currentBoundingBox);
+            go1.FixVelocity();
+            go2.FixVelocity();
+        }
+        
+
+		public void FixHorizontalVelocity()
         {
             currentVelocity.X = (int)currentBoundingBox.Position.X - (int)previousBoundingBox.Position.X;
         }
@@ -312,6 +366,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             currentVelocity.Y = (int)currentBoundingBox.Position.Y - (int)previousBoundingBox.Position.Y;
         }
 
+        public void FixVelocity()
+        {
+            currentVelocity = currentBoundingBox.Position - previousBoundingBox.Position;
+        }
 
         //
 
