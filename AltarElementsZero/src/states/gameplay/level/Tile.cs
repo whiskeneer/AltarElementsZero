@@ -85,6 +85,7 @@ namespace AltarElementsZero.src.states.gameplay.level
             Toki = 128,
             MovingPlatform1,
 
+            DebugImmobile = 0xfd,
             DebugPusher = 0xfe,
             DebugBox = 0xff
 
@@ -142,7 +143,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","PUSHER","DEBUGBOX"
+			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","IMMOBILE","PUSHER",  "DEBUGBOX"
 			};
     }
 }

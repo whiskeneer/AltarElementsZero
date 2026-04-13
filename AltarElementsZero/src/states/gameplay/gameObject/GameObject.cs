@@ -2,6 +2,7 @@
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject
@@ -350,9 +351,25 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public static void Separation(GameObject go1, GameObject go2)
         {
-            ObjectBoundingBox.Separate(ref go1.currentBoundingBox, ref go2.currentBoundingBox);
+            ObjectBoundingBox.Separate(ref go1.currentBoundingBox, ref go2.currentBoundingBox,
+				(uint)Math.Abs(go1.currentVelocity.X - go2.currentVelocity.X) + 1,
+				(uint)Math.Abs(go1.currentVelocity.Y - go2.currentVelocity.Y) + 1);
             go1.FixVelocity();
             go2.FixVelocity();
+        }
+        public void SeparationFrom(ObjectBoundingBox other)
+        {
+            ObjectBoundingBox.SeparationDirection direction = currentBoundingBox.SeparateFrom(other);
+            switch (direction)
+            {
+                case ObjectBoundingBox.SeparationDirection.UP:    PushedUp = true; break;
+				case ObjectBoundingBox.SeparationDirection.DOWN: PushedDown = true; break;
+				case ObjectBoundingBox.SeparationDirection.LEFT: PushedLeft = true; break;
+				case ObjectBoundingBox.SeparationDirection.RIGHT: PushedRight = true; break;
+                default: break;
+
+			}
+			FixVelocity();
         }
         
 

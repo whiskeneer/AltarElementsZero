@@ -94,6 +94,13 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							nextAssignableObject++;
 						}
+						else if(tile.Family == Tile.Families.DebugImmobile)
+						{
+							_objectPool[nextAssignableObject].behaviour = DebugImmobile.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							nextAssignableObject++;
+						}
 
 					}
                 }
@@ -130,6 +137,7 @@ namespace AltarElementsZero.src.states.gameplay
             ApplyVerticalVelocities();
             CheckVerticalCollisions();
             SeparatePushables();
+			SeparatePushablesFromImmobile();
 			
 
 			if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
@@ -351,6 +359,7 @@ namespace AltarElementsZero.src.states.gameplay
 
 
 				if (go1.Type != GameObject.Types.PUSHABLE) continue;
+
 				for (int u = o + 1; u < _objectPool.Length; u++)
 				{
 					GameObject go2 = _objectPool[u];
@@ -370,12 +379,66 @@ namespace AltarElementsZero.src.states.gameplay
 							!go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
 							)
 						{
-							GameObject.HorizontalSeparation(go1, go2);
-							GameObject.VerticalSeparation(go1, go2);
+							//GameObject.HorizontalSeparation(go1, go2);
+							//GameObject.VerticalSeparation(go1, go2);
+							GameObject.Separation(go1, go2);
+						}
+
+					}
+				}
+			}
+		}
+
+		private void SeparatePushablesFromImmobile()
+		{
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject go1 = _objectPool[o];
+
+				if (go1.Type != GameObject.Types.PUSHABLE) continue;
+
+				for (int u = 0; u < _objectPool.Length; u++)
+				{
+					if (o == u) continue;
+					GameObject go2 = _objectPool[u];
+					if (go2.Type != GameObject.Types.IMMOBILE) continue;
+
+					if (go1.currentBoundingBox & go2.currentBoundingBox)
+					{
+						if (
+							true
+							//!go1.PushedRight && !go1.PushedLeft &&
+							//!go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
+							//!go1.PushedDown && !go1.PushedUp &&
+							//!go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp
+							)
+						{
+							go1.SeparationFrom(go2.currentBoundingBox);
+						}
+
+					}
+				}
+
+				TileSpan tileSpan = go1.currentBoundingBox.GetTileSpan();
+				for (int row = (int)tileSpan.Top;
+					row <= (int)tileSpan.Bottom;
+					row++)
+				{
+					for (int col = (int)tileSpan.Left;
+						col <= (int)tileSpan.Right;
+						col++)
+					{
+						Tile tile = _level.GetTile(col, row);
+						if (!tile.IsSolid()) continue;
+						ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
+						if (go1.currentBoundingBox & tileBoundingBox)
+						{
+							go1.SeparationFrom(tileBoundingBox);
 						}
 					}
 				}
 			}
+
 		}
 
 		public override void Draw(SpriteBatch spriteBatch)

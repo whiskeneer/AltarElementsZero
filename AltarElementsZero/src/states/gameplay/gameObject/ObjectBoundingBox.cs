@@ -103,6 +103,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 		}
 
 
+
         public static void SeparateHorizontally(ref ObjectBoundingBox b1,ref ObjectBoundingBox b2, uint maxDiff)
         {
             SubpxPosition c1 = b1.Center();
@@ -189,7 +190,143 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 			}
         }
 
-        public static void Separate(ref ObjectBoundingBox b1, ref ObjectBoundingBox b2)//, SubpxVelocity maxVelocity)
+		public enum SeparationDirection
+		{
+			UP,
+			DOWN,
+			LEFT,
+			RIGHT
+		}
+
+        public SeparationDirection SeparateFrom(ObjectBoundingBox other)
+        {
+			SubpxPosition c1 = Center();
+			SubpxPosition c2 = other.Center();
+
+			SubpxVelocity diff = c2 - c1;
+
+			if (diff.X > 0)
+			{
+				//if (diff.X > maxDiffX) diff.X = (int)maxDiffX;
+
+				if (diff.Y > 0)
+				{ // down right
+
+					//if(diff.Y > maxDiffY) diff.Y = (int)maxDiffY;
+
+					uint overlappingX = (uint)((Size.X >> 1) + (Size.X & 1) + (other.Size.X >> 1) - diff.X);
+					//uint ov1X = overlappingX >> 1;
+					//uint ov2X = overlappingX - ov1X;
+
+
+					uint overlappingY = (uint)((Size.Y >> 1) + (Size.Y & 1) + (other.Size.Y >> 1) - diff.Y);
+					//uint ov1Y = overlappingY >> 1;
+					//uint ov2Y = overlappingY - ov1Y;
+
+					if (overlappingX < overlappingY)
+					{
+						Position.X -= overlappingX;
+						return SeparationDirection.LEFT;
+						//b2.Position.X += ov2X;
+					}
+					else
+					{
+						Position.Y -= overlappingY;
+						return SeparationDirection.UP;
+						//b2.Position.Y += ov2Y;
+					}
+
+				}
+				else
+				{ // up right
+
+					//if (diff.Y < -maxDiffY) diff.Y = -(int)maxDiffY;
+
+					uint overlappingX = (uint)((Size.X >> 1) + (Size.X & 1) + (other.Size.X >> 1) - diff.X);
+					//uint ov1X = overlappingX >> 1;
+					//uint ov2X = overlappingX - ov1X;
+
+					uint overlappingY = (uint)((other.Size.Y >> 1) + (other.Size.Y & 1) + (Size.Y >> 1) + diff.Y);
+					//uint ov2Y = overlappingY >> 1;
+					//uint ov1Y = overlappingY - ov2Y;
+
+					if (overlappingX < overlappingY)
+					{
+						Position.X -= overlappingX;
+						return SeparationDirection.LEFT;
+						//b2.Position.X += ov2X;
+					}
+					else
+					{
+						//b2.Position.Y -= ov2Y;
+						Position.Y += overlappingY;
+						return SeparationDirection.DOWN;
+
+					}
+				}
+			}
+			else
+			{
+				//if (diff.X < -maxDiffX) diff.X = -(int)maxDiffX;
+
+				if (diff.Y > 0)
+				{ // down left
+
+					//if (diff.Y > maxDiffY) diff.Y = (int)maxDiffY;
+
+					uint overlappingX = (uint)((other.Size.X >> 1) + (other.Size.X & 1) + (Size.X >> 1) + diff.X);
+					//uint ov2X = overlappingX >> 1;
+					//uint ov1X = overlappingX - ov2X;
+
+					uint overlappingY = (uint)((Size.Y >> 1) + (Size.Y & 1) + (other.Size.Y >> 1) - diff.Y);
+					//uint ov1Y = overlappingY >> 1;
+					//uint ov2Y = overlappingY - ov1Y;
+
+					if (overlappingX < overlappingY)
+					{
+						//b2.Position.X -= ov2X;
+						Position.X += overlappingX;
+						return SeparationDirection.RIGHT;
+					}
+					else
+					{
+						Position.Y -= overlappingY;
+						return SeparationDirection.UP;
+						//b2.Position.Y += ov2Y;
+					}
+				}
+				else
+				{ // up left
+
+					//if (diff.Y < -maxDiffY) diff.Y = -(int)maxDiffY;
+
+					uint overlappingX = (uint)((other.Size.X >> 1) + (other.Size.X & 1) + (Size.X >> 1) + diff.X);
+					//uint ov2X = overlappingX >> 1;
+					//uint ov1X = overlappingX - ov2X;
+
+					uint overlappingY = (uint)((other.Size.Y >> 1) + (other.Size.Y & 1) + (Size.Y >> 1) + diff.Y);
+					//uint ov2Y = overlappingY >> 1;
+					//uint ov1Y = overlappingY - ov2Y;
+
+
+					if (overlappingX < overlappingY)
+					{
+						//b2.Position.X -= ov2X;
+						Position.X += overlappingX;
+						return SeparationDirection.RIGHT;
+					}
+					else
+					{
+						//b2.Position.Y -= ov2Y;
+						Position.Y += overlappingY;
+						return SeparationDirection.DOWN;
+					}
+				}
+			}
+
+		}
+
+		public static void Separate(ref ObjectBoundingBox b1, ref ObjectBoundingBox b2, uint maxDiffX, uint maxDiffY)
         {
             SubpxPosition c1 = b1.Center();
             SubpxPosition c2 = b2.Center();
@@ -198,8 +335,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
             if(diff.X > 0)
             {
+                //if (diff.X > maxDiffX) diff.X = (int)maxDiffX;
+
                 if (diff.Y > 0)
                 { // down right
+
+                    //if(diff.Y > maxDiffY) diff.Y = (int)maxDiffY;
+
                     uint overlappingX = (uint)((b1.Size.X >> 1) + (b1.Size.X & 1) + (b2.Size.X >> 1) - diff.X);
                     uint ov1X = overlappingX >> 1;
                     uint ov2X = overlappingX - ov1X;
@@ -223,6 +365,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 				}
                 else
                 { // up right
+
+					//if (diff.Y < -maxDiffY) diff.Y = -(int)maxDiffY;
+
 					uint overlappingX = (uint)((b1.Size.X >> 1) + (b1.Size.X & 1) + (b2.Size.X >> 1) - diff.X);
 					uint ov1X = overlappingX >> 1;
 					uint ov2X = overlappingX - ov1X;
@@ -245,8 +390,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             }
             else
             {
+				//if (diff.X < -maxDiffX) diff.X = -(int)maxDiffX;
+
 				if (diff.Y > 0)
 				{ // down left
+
+					//if (diff.Y > maxDiffY) diff.Y = (int)maxDiffY;
+
 					uint overlappingX = (uint)((b2.Size.X >> 1) + (b2.Size.X & 1) + (b1.Size.X >> 1) + diff.X);
 					uint ov2X = overlappingX >> 1;
 					uint ov1X = overlappingX - ov2X;
@@ -268,7 +418,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 				}
 				else
 				{ // up left
-                    uint overlappingX = (uint)((b2.Size.X >> 1) + (b2.Size.X & 1) + (b1.Size.X >> 1) + diff.X);
+
+					//if (diff.Y < -maxDiffY) diff.Y = -(int)maxDiffY;
+
+					uint overlappingX = (uint)((b2.Size.X >> 1) + (b2.Size.X & 1) + (b1.Size.X >> 1) + diff.X);
                     uint ov2X = overlappingX >> 1;
                     uint ov1X = overlappingX - ov2X;
 
