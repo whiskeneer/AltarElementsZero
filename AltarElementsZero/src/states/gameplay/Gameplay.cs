@@ -105,8 +105,6 @@ namespace AltarElementsZero.src.states.gameplay
         {
             base.Update(gameTime);
 
-            
-
 
             if (_inputHandler.IsPressed(Input.Pause))
             {
@@ -126,70 +124,73 @@ namespace AltarElementsZero.src.states.gameplay
             }
 
 
-            for (int o = 0; o < _objectPool.Length; o++)
+            CalculateDesiredOutcomes();
+            ApplyHorizontalVelocities();
+            CheckHorizontalCollisions();
+            ApplyVerticalVelocities();
+            CheckVerticalCollisions();
+            SeparatePushables();
+			
+
+			if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
             {
-                GameObject gameObject = _objectPool[o];
-                if(gameObject.Type != GameObject.Types.NONEXISTENT)
+                for(int o = 0; o < _objectPool.Length; o++)
                 {
-                    //gameObject.CleanPushFlags();
+                    GameObject gameObject = _objectPool[o];
+                    if (gameObject.Type == GameObject.Types.NONEXISTENT) continue;
+                    Console.Write($"{o} : UP={gameObject.PushedUp} DN={gameObject.PushedDown} LF={gameObject.PushedLeft} RH={gameObject.PushedRight} ");
+                    Console.WriteLine($"P-UP={gameObject.PushedPreviouslyUp} P-DN={gameObject.PushedPreviouslyDown} P-LF={gameObject.PushedPreviouslyLeft} P-RH={gameObject.PushedPreviouslyRight}");
+                }
+            }
+
+		}
+
+        
+        private void CalculateDesiredOutcomes()
+        {
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject gameObject = _objectPool[o];
+				if (gameObject.Type != GameObject.Types.NONEXISTENT)
+				{
 					gameObject.SavePreviousValues();
-                    gameObject.CalculateDesiredOutcome();
-                }
-            }
+					gameObject.CalculateDesiredOutcome();
+				}
+			}
+		}
 
-            for (int o = 0; o < _objectPool.Length; o++)
-            {
-                GameObject gameObject = _objectPool[o];
-                if (gameObject.Type != GameObject.Types.NONEXISTENT)
-                {
-                    gameObject.ApplyHorizontalDesiredVelocity();
-                }
-            }
+        private void ApplyHorizontalVelocities()
+        {
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject gameObject = _objectPool[o];
+				if (gameObject.Type != GameObject.Types.NONEXISTENT)
+				{
+					gameObject.ApplyHorizontalDesiredVelocity();
+				}
+			}
+		}
 
-            for (int o = 0; o < _objectPool.Length; o++)
-            {
-                GameObject go1 = _objectPool[o];
-                if (go1.Type == GameObject.Types.NONEXISTENT) continue;
-                go1.CleanHorizontalPushFlags();
-                for (int u = o+1;  u < _objectPool.Length; u++)
-                {
-                    GameObject go2 = _objectPool[u];
-                    if (go2.Type == GameObject.Types.NONEXISTENT) continue;
+        private void CheckHorizontalCollisions()
+        {
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject go1 = _objectPool[o];
+				if (go1.Type == GameObject.Types.NONEXISTENT) continue;
+				go1.CleanHorizontalPushFlags();
+				for (int u = o + 1; u < _objectPool.Length; u++)
+				{
+					GameObject go2 = _objectPool[u];
+					if (go2.Type == GameObject.Types.NONEXISTENT) continue;
 
-                    GameObject.CheckHorizontalCollisions(go1, go2);
-                }
-            }
+					GameObject.CheckHorizontalCollisions(go1, go2);
+				}
+			}
+		}
 
-            //for (int o = 0; o < _objectPool.Length; o++)
-            //{
-            //    GameObject go1 = _objectPool[o];
-            //    if (go1.Type != GameObject.Types.PUSHABLE) continue;
-            //    for (int u = o + 1; u < _objectPool.Length; u++)
-            //    {
-            //        GameObject go2 = _objectPool[u];
-            //        if (go2.Type != GameObject.Types.PUSHABLE) continue;
-
-            //        if (go1.currentBoundingBox & go2.currentBoundingBox)
-            //        {
-            //            if (
-            //                !go1.PushedRight && !go1.PushedLeft &&
-            //                !go2.PushedRight && !go2.PushedLeft &&
-            //                !go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
-            //                !go2.PushedPreviouslyRight && !go2.PushedPreviouslyLeft &&
-            //                !go1.PushedDown && !go1.PushedUp &&
-            //                !go2.PushedDown && !go2.PushedUp &&
-            //                !go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp &&
-            //                !go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
-            //                )
-            //            {
-
-            //                GameObject.HorizontalSeparation(go1, go2);
-            //            }
-            //        }
-            //    }
-            //}
-
-            for (int o = 0; o < _objectPool.Length; o++)
+        private void ApplyVerticalVelocities()
+        {
+			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject gameObject = _objectPool[o];
 				if (gameObject.Type != GameObject.Types.NONEXISTENT)
@@ -197,7 +198,10 @@ namespace AltarElementsZero.src.states.gameplay
 					gameObject.ApplyVerticalDesiredVelocity();
 				}
 			}
+		}
 
+        private void CheckVerticalCollisions()
+        {
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject go1 = _objectPool[o];
@@ -211,16 +215,19 @@ namespace AltarElementsZero.src.states.gameplay
 					GameObject.CheckVerticalCollisions(go1, go2);
 				}
 			}
+		}
 
+        private void SeparatePushables()
+        {
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject go1 = _objectPool[o];
 
 
-                if(object.ReferenceEquals(go1.behaviour, DebugPusher.Instance))
-                {
-                    _camera.currentBoundingBox.Position = go1.currentBoundingBox.Position;
-                    _camera.currentBoundingBox.Position.X -= (uint)Configuration.Chunk.Subpx.Width / 2 - 64*8;
+				if (object.ReferenceEquals(go1.behaviour, DebugPusher.Instance))
+				{
+					_camera.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+					_camera.currentBoundingBox.Position.X -= (uint)Configuration.Chunk.Subpx.Width / 2 - 64 * 8;
 					_camera.currentBoundingBox.Position.Y -= (uint)Configuration.Chunk.Subpx.Height / 2 - 64 * 8;
 				}
 
@@ -231,81 +238,27 @@ namespace AltarElementsZero.src.states.gameplay
 					GameObject go2 = _objectPool[u];
 					if (go2.Type != GameObject.Types.PUSHABLE) continue;
 
-                    if(go1.currentBoundingBox & go2.currentBoundingBox)
-                    {
-                        if (
-                            
-                            !go1.PushedRight && !go1.PushedLeft &&
-                            !go2.PushedRight && !go2.PushedLeft &&
-                            !go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
-                            !go2.PushedPreviouslyRight && !go2.PushedPreviouslyLeft &&
-                            !go1.PushedDown && !go1.PushedUp &&
-                            !go2.PushedDown && !go2.PushedUp &&
-                            !go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp &&
-                            !go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
-                            )
-						{
-                            GameObject.HorizontalSeparation(go1, go2);
-                            GameObject.VerticalSeparation(go1, go2);
+					if (go1.currentBoundingBox & go2.currentBoundingBox)
+					{
+						if (
 
-                            //GameObject.Separation(go1, go2);
-                        }
-                    }
+							!go1.PushedRight && !go1.PushedLeft &&
+							!go2.PushedRight && !go2.PushedLeft &&
+							!go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
+							!go2.PushedPreviouslyRight && !go2.PushedPreviouslyLeft &&
+							!go1.PushedDown && !go1.PushedUp &&
+							!go2.PushedDown && !go2.PushedUp &&
+							!go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp &&
+							!go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
+							)
+						{
+							GameObject.HorizontalSeparation(go1, go2);
+							GameObject.VerticalSeparation(go1, go2);
+						}
+					}
 				}
 			}
-
-			if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
-            {
-                for(int o = 0; o < _objectPool.Length; o++)
-                {
-                    GameObject gameObject = _objectPool[o];
-                    if (gameObject.Type == GameObject.Types.NONEXISTENT) continue;
-                    Console.Write($"{o} : UP={gameObject.PushedUp} DN={gameObject.PushedDown} LF={gameObject.PushedLeft} RH={gameObject.PushedRight} ");
-                    Console.WriteLine($"P-UP={gameObject.PushedPreviouslyUp} P-DN={gameObject.PushedPreviouslyDown} P-LF={gameObject.PushedPreviouslyLeft} P-RH={gameObject.PushedPreviouslyRight}");
-                }
-            }
-
-
-			//for (int o = 0; o < _objectPool.Length; o++)
-   //         {
-			//	GameObject gameObject = _objectPool[o];
-   //             if(gameObject.Type == GameObject.Types.PUSHABLE)
-   //             {
-   //                 gameObject.PushingUp = false;
-   //                 gameObject.PushingDown = false;
-   //                 gameObject.PushingLeft = false;
-   //                 gameObject.PushingRight = false;
-   //             }
-			//}
-
-			//for (int o = 0; o < _objectPool.Length; o++)
-   //         {
-   //             GameObject gameObject = _objectPool[o];
-   //             switch (gameObject.Type)
-   //             {
-   //                 case GameObject.Types.IMMOBILE:
-   //                     break;
-   //                 case GameObject.Types.PUSHABLE:
-   //                     gameObject.Update(); // behaviour modifies gameObject.Velocity
-			//			break;
-
-   //                 case GameObject.Types.UNSTOPPABLE:
-   //                     gameObject.Update(); // behaviour modifies gameObject.Velocity
-			//			break;
-
-   //                 case GameObject.Types.NONEXISTENT:
-   //                     break;
-   //                 default:
-   //                     break;
-   //             }
-   //         }
-
-
-
 		}
-
-        
-
 
 		public override void Draw(SpriteBatch spriteBatch)
         {
@@ -327,11 +280,8 @@ namespace AltarElementsZero.src.states.gameplay
        
         private void Render(SpriteBatch spriteBatch)
         {
-            //Console.WriteLine("RENDER");
-            // TODO: add SubpxPosition.ToVisualPx()
+
             PxPosition cameraPxPosition = _camera.currentBoundingBox.Position.ToVisualPx();
-            //PxPosition cameraTileRemainder = cameraPxPosition.TileRemainder();
-            //TilePosition cameraTilePosition = cameraPxPosition.ToTile();
 
             Renderer.RenderTiles(
                 spriteBatch,

@@ -1,4 +1,6 @@
-﻿namespace AltarElementsZero.src.states.gameplay.level
+﻿using static AltarElementsZero.src.Configuration;
+
+namespace AltarElementsZero.src.states.gameplay.level
 {
     struct Tile(
         Tile.Families family,
@@ -7,6 +9,52 @@
     {
         public Families Family { get; set; } = family;
         public byte Member { get; set; } = member;
+
+        public struct FrictionCoefficients(int staticMu, int kinematicMu)
+        {
+            public int StaticMu = staticMu;
+            public int KinematicMu = kinematicMu;
+        }
+
+        readonly public bool IsSolid()
+        {
+            return Family >= Families.Ground && Family <= Families.ConveyorLeft;
+        }
+
+        readonly public FrictionCoefficients GetFrictionCoefficients()
+        {
+            if (IsSolid())
+            {
+                if( Family == Families.Ice)
+                {
+                    return new FrictionCoefficients(0, 0);
+                }
+                else
+                {
+                    return new FrictionCoefficients(400, 200);
+                }
+            }
+            else
+            {
+                return new FrictionCoefficients(0, 0);
+            }
+        }
+
+        readonly public int GetSurfaceVelocityAbove()
+        {
+            if (Family == Families.ConveyorLeft)
+            {
+				return -(64 << (Member & 0x3));
+			}
+            else if (Family == Families.ConveyorRight)
+            {
+                return 64 << (Member & 0x3);
+			}
+            else
+            {
+                return 0;
+            }
+        }
 
         readonly public bool IsStaticTile()
         {
