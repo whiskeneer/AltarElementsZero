@@ -102,6 +102,13 @@ namespace AltarElementsZero.src.states.gameplay
 							nextAssignableObject++;
 						}
 
+						else if(tile.Family == Tile.Families.FanUp)
+						{
+							_objectPool[nextAssignableObject].behaviour = CurrentUp.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j-2).ToPx().ToSubpx();
+							nextAssignableObject++;
+						}
 					}
                 }
             }
@@ -170,6 +177,7 @@ namespace AltarElementsZero.src.states.gameplay
 					gameObject.FrictionCoefficientAround = 0;
 
 					gameObject.AppliedForces = new();
+
 				}
 			}
 		}
@@ -412,6 +420,13 @@ namespace AltarElementsZero.src.states.gameplay
 				{
 					if (o == u) continue;
 					GameObject go2 = _objectPool[u];
+
+					if(go2.Type == GameObject.Types.FLUID && go1.currentBoundingBox & go2.currentBoundingBox)
+					{
+						go1.VelocityAround = go2.FluidVelocity;
+						go1.FrictionCoefficientAround = go2.FluidCoefficient;
+					}
+
 					if (go2.Type != GameObject.Types.IMMOBILE && go2.Type != GameObject.Types.UNSTOPPABLE) continue;
 
 					if (go1.currentBoundingBox & go2.currentBoundingBox)

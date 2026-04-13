@@ -44,35 +44,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
         public void Update(GameObject gameObject)
         {
 
-			//gameObject.currentVelocity =
-			//	//
-			//	//gameObject.previousVelocity;
-			//	//new (gameObject.previousVelocity.X / 2, gameObject.previousVelocity.Y / 2);
-			//	new(gameObject.previousVelocity.X - (gameObject.previousVelocity.X / 8),
-			//		gameObject.previousVelocity.Y - (gameObject.previousVelocity.Y / 8));
-
-			gameObject.currentVelocity = gameObject.previousVelocity;
-
-			gameObject.ApplyAirImpulse(new SubpxVelocity());
-			gameObject.ApplyMediumFriction();
-			gameObject.AppliedForces += new Force(0, 12); // gravity
-
-			Force ForcesBeforeGroundFriction = gameObject.AppliedForces;
-
-			gameObject.TransformForcesIntoVelocity();
-
-			if (gameObject.PushedPreviouslyUp)
-			{
-				gameObject.ApplyGroundImpulse(ForcesBeforeGroundFriction.Y);
-				gameObject.TransformForcesIntoVelocity();
-			}
-
-			gameObject.CapDesiredVelocity();
-
-			
-
-
-            if (--gameObject.Timer == 0)
+			if (--gameObject.Timer == 0)
             {
                 switch ((State)gameObject.State)
                 {
@@ -148,6 +120,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 					gameObject.GroundImpulse = 0;
 					break;
 			}
+
+			gameObject.SimulateRegularObjectPhysics();
 		}
 
 	}

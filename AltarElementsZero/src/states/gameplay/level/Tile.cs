@@ -19,7 +19,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 
         readonly public bool IsSolid()
         {
-            return Family >= Families.Ground && Family <= Families.ConveyorLeft;
+            return Family >= Families.Ground && Family <= Families.FanRight;
         }
         readonly public FrictionCoefficients GetFrictionCoefficients()
         {
@@ -62,11 +62,13 @@ namespace AltarElementsZero.src.states.gameplay.level
         }
         readonly public bool IsAnimatedTile()
         {
-            return Family >= Families.ConveyorRight && Family <= Families.ConveyorLeft;
+            return Family >= Families.ConveyorRight && Family <= Families.FanRight;
         }
         readonly public bool IsObjectSpawn()
         {
-            return Family >= Families.Toki && Family <= Families.DebugBox;
+            return (Family >= Families.Toki && Family <= Families.DebugBox)
+                || (Family >= Families.FanUp  && Family <= Families.FanRight);
+                ;
         }
 
         public enum Families : byte
@@ -79,6 +81,13 @@ namespace AltarElementsZero.src.states.gameplay.level
 
             ConveyorRight,  //  6msb animated spritesheet index | 2lsb animation & physic speed
             ConveyorLeft,   //  6msb animated spritesheet index | 2lsb animation & physic speed
+
+            FanUp,
+            FanDown,
+            FanLeft,
+            FanRight,
+            
+
                             // Spring,         //  6msb animated spritesheet index | direction
 
             // GameObjects spawn points
@@ -101,10 +110,13 @@ namespace AltarElementsZero.src.states.gameplay.level
             "CNVRIGHT",
             "CNVLEFT",
 
-            "UNASSIGN",
-			"UNASSIGN",
+            "FAN UP",
+			"FAN DOWN",
+			
+            "FAN LEFT",
+            "FANRIGHT",
 
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+            "UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 

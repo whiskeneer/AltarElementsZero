@@ -27,4 +27,19 @@
 				);
 		}
 	}
+
+	public struct TileSize(uint x, uint y)
+	{
+		public uint X = x;
+		public uint Y = y;
+
+		public readonly PxSize ToPx()
+		{
+			return new PxSize(
+				X << Configuration.Tile.PxPower, 
+				Y << Configuration.Tile.PxPower
+				);
+		}
+	}
+
 }

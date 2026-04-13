@@ -11,12 +11,6 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
         {
 			gameObject.Type = GameObject.Types.PUSHABLE;
 
-			//gameObject.exists = true;
-			//gameObject.isSolid = true;
-			//gameObject.hurtsPlayer = false;
-			//gameObject.isFixed = false;
-			//gameObject.isAffectedByGravity = false;
-
 			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0x30;
             gameObject.spriteEffects = SpriteEffects.None;
@@ -29,11 +23,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
         {
 		    gameObject.spritesheetIndex = 0x30;
 
-            //gameObject.Velocity.X /= 2;
-            //gameObject.Velocity.Y /= 2;
-
-            gameObject.currentVelocity.X = gameObject.previousVelocity.X /= 2;
-            gameObject.currentVelocity.Y = gameObject.previousVelocity.Y /= 2;
+            gameObject.SimulateRegularObjectPhysics();
 
 		}
 	}

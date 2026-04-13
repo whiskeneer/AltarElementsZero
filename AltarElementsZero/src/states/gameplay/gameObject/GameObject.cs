@@ -40,12 +40,38 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         // Self impulse
         public int GroundImpulse;
+        public SubpxVelocity AirImpulse;
 
         public Force AppliedForces;
 
+        // For fluids
+        public SubpxVelocity FluidVelocity;
+        public uint FluidCoefficient;
+
         //////////////////////////////////////////////////
 
+        public void SimulateRegularObjectPhysics()
+        {
+			currentVelocity = previousVelocity;
 
+			ApplyAirImpulse();
+			ApplyMediumFriction();
+			AppliedForces += new Force(0, 12); // gravity
+
+			Force ForcesBeforeGroundFriction = AppliedForces;
+
+			TransformForcesIntoVelocity();
+
+			if (PushedPreviouslyUp)
+			{
+				ApplyGroundImpulse(ForcesBeforeGroundFriction.Y);
+				TransformForcesIntoVelocity();
+			}
+
+			CapDesiredVelocity();
+		}
+
+        
         public void ApplyGroundImpulse(int pushingForce)
         {
             if (pushingForce <= 0) return;
@@ -77,9 +103,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 			}
         }
 
-        public void ApplyAirImpulse(SubpxVelocity targetVelocity)
+        public void ApplyAirImpulse()
         {
-            SubpxVelocity netTargetVelocity = targetVelocity - VelocityAround;
+            SubpxVelocity netTargetVelocity = AirImpulse - VelocityAround;
             SubpxVelocity remainingVelocity = netTargetVelocity - currentVelocity;
             AppliedForces += new Force(
                 Math.Sign(remainingVelocity.X) * (Math.Abs(remainingVelocity.X) >> 5),
@@ -456,9 +482,23 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public static void Separation(GameObject go1, GameObject go2)
         {
-            ObjectBoundingBox.Separate(ref go1.currentBoundingBox, ref go2.currentBoundingBox,
+			ObjectBoundingBox.SeparationDirection direction = ObjectBoundingBox.Separate(ref go1.currentBoundingBox, ref go2.currentBoundingBox,
 				(uint)Math.Abs(go1.currentVelocity.X - go2.currentVelocity.X) + 1,
 				(uint)Math.Abs(go1.currentVelocity.Y - go2.currentVelocity.Y) + 1);
+            switch (direction)
+            {
+                case ObjectBoundingBox.SeparationDirection.UP:
+                    go1.FrictionCoefficientsBelow = new(400, 200);
+                    go1.VelocityBelow = go2.currentVelocity.X;
+                    go1.PushedUp = true;
+					break;
+                case ObjectBoundingBox.SeparationDirection.DOWN:
+					go2.FrictionCoefficientsBelow = new(400, 200);
+					go2.VelocityBelow = go1.currentVelocity.X;
+					go2.PushedUp = true;
+					break;
+				default: break;
+            }
             go1.FixVelocity();
             go2.FixVelocity();
         }
@@ -505,7 +545,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             NONEXISTENT,
             IMMOBILE,
             UNSTOPPABLE,
-            PUSHABLE
+            PUSHABLE,
+            FLUID
         };
 
         public Types Type { get; set; }

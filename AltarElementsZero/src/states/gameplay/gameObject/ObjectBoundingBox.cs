@@ -346,7 +346,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
 		}
 
-		public static void Separate(ref ObjectBoundingBox b1, ref ObjectBoundingBox b2, uint maxDiffX, uint maxDiffY)
+		public static SeparationDirection Separate(ref ObjectBoundingBox b1, ref ObjectBoundingBox b2, uint maxDiffX, uint maxDiffY)
         {
             SubpxPosition c1 = b1.Center();
             SubpxPosition c2 = b2.Center();
@@ -375,11 +375,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                     {
 						b1.Position.X -= ov1X;
 						b2.Position.X += ov2X;
+						return SeparationDirection.LEFT;
                     }
                     else
                     {
 						b1.Position.Y -= ov1Y;
 						b2.Position.Y += ov2Y;
+						return SeparationDirection.UP;
 					}
                     
 				}
@@ -400,11 +402,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 					{
 						b1.Position.X -= ov1X;
 						b2.Position.X += ov2X;
+						return SeparationDirection.LEFT;
 					}
 					else
 					{
 						b2.Position.Y -= ov2Y;
 						b1.Position.Y += ov1Y;
+						return SeparationDirection.DOWN;
 					}
 				}
             }
@@ -429,11 +433,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 					{
 						b2.Position.X -= ov2X;
 						b1.Position.X += ov1X;
+						return SeparationDirection.RIGHT;
 					}
 					else
 					{
 						b1.Position.Y -= ov1Y;
 						b2.Position.Y += ov2Y;
+						return SeparationDirection.UP;
 					}
 				}
 				else
@@ -454,11 +460,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 					{
 						b2.Position.X -= ov2X;
 						b1.Position.X += ov1X;
+						return SeparationDirection.RIGHT;
 					}
 					else
 					{
 						b2.Position.Y -= ov2Y;
 						b1.Position.Y += ov1Y;
+						return SeparationDirection.DOWN;
 					}
 				}
 			}
