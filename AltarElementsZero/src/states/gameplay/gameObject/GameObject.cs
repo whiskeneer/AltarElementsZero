@@ -17,8 +17,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public SubpxVelocity previousVelocity = new();
         public SubpxVelocity currentVelocity = new();
 
-        public BoundingBox previousBoundingBox = new();
-        public BoundingBox currentBoundingBox = new();
+        public ObjectBoundingBox previousBoundingBox = new();
+        public ObjectBoundingBox currentBoundingBox = new();
 
         public bool PushedUp = false;
         public bool PushedDown = false;
@@ -331,7 +331,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public static void HorizontalSeparation(GameObject go1, GameObject go2)
         {
-            BoundingBox.SeparateHorizontally(ref go1.currentBoundingBox, ref go2.currentBoundingBox, (uint)Math.Abs(go1.currentVelocity.X - go2.currentVelocity.X) + 1 );
+            ObjectBoundingBox.SeparateHorizontally(ref go1.currentBoundingBox, ref go2.currentBoundingBox, (uint)Math.Abs(go1.currentVelocity.X - go2.currentVelocity.X) + 1 );
             go1.FixHorizontalVelocity();
             go2.FixHorizontalVelocity();
 
@@ -340,7 +340,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         }
         public static void VerticalSeparation(GameObject go1, GameObject go2)
         {
-			BoundingBox.SeparateVertically(ref go1.currentBoundingBox, ref go2.currentBoundingBox, (uint)Math.Abs(go1.currentVelocity.Y - go2.currentVelocity.Y) + 1);
+			ObjectBoundingBox.SeparateVertically(ref go1.currentBoundingBox, ref go2.currentBoundingBox, (uint)Math.Abs(go1.currentVelocity.Y - go2.currentVelocity.Y) + 1);
 			go1.FixVerticalVelocity();
 			go2.FixVerticalVelocity();
 
@@ -350,7 +350,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public static void Separation(GameObject go1, GameObject go2)
         {
-            BoundingBox.Separate(ref go1.currentBoundingBox, ref go2.currentBoundingBox);
+            ObjectBoundingBox.Separate(ref go1.currentBoundingBox, ref go2.currentBoundingBox);
             go1.FixVelocity();
             go2.FixVelocity();
         }
@@ -412,7 +412,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         {
             return new GameObject()
             {
-                currentBoundingBox = new BoundingBox(new SubpxPosition(), new PxSize(
+                currentBoundingBox = new ObjectBoundingBox(new SubpxPosition(), new PxSize(
 					12,
 					12
 					).ToSubpx()),
@@ -426,7 +426,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 		{
             GameObject testObject = new()
             {
-                currentBoundingBox = new BoundingBox(new SubpxPosition(), new PxSize(
+                currentBoundingBox = new ObjectBoundingBox(new SubpxPosition(), new PxSize(
                     (uint)Configuration.Tile.Px.Width,
                     (uint)Configuration.Tile.Px.Height
                     ).ToSubpx()),
@@ -438,7 +438,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         {
             GameObject movingPlatform =  new()
             {
-				currentBoundingBox = new BoundingBox(new SubpxPosition(), new PxSize(32, 16).ToSubpx()),
+				currentBoundingBox = new ObjectBoundingBox(new SubpxPosition(), new PxSize(32, 16).ToSubpx()),
                 SpriteOffset = new PxSize(0, 16),
                 behaviour = MovingPlatform1.Instance,
             };

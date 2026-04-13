@@ -1,4 +1,5 @@
-﻿using static AltarElementsZero.src.Configuration;
+﻿using AltarElementsZero.src.states.gameplay.gameObject;
+using static AltarElementsZero.src.Configuration;
 
 namespace AltarElementsZero.src.states.gameplay.level
 {
@@ -20,7 +21,6 @@ namespace AltarElementsZero.src.states.gameplay.level
         {
             return Family >= Families.Ground && Family <= Families.ConveyorLeft;
         }
-
         readonly public FrictionCoefficients GetFrictionCoefficients()
         {
             if (IsSolid())

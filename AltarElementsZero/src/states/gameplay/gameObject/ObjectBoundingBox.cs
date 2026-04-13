@@ -2,10 +2,32 @@
 
 namespace AltarElementsZero.src.states.gameplay.gameObject
 {
-    struct BoundingBox(SubpxPosition position, SubpxSize size)
+    struct TileSpan(uint top, uint bottom, uint left, uint right)
+    {
+        public uint Top = top; 
+        public uint Bottom = bottom; 
+        public uint Left = left; 
+        public uint Right = right;
+    }
+
+    struct ObjectBoundingBox(SubpxPosition position, SubpxSize size)
     {
         public SubpxPosition Position = position;
         public SubpxSize Size = size;
+
+        public static ObjectBoundingBox FromTile(uint col, uint row)
+        {
+            return new(
+                position: new SubpxPosition(
+                    col << Configuration.Tile.SubpxPower, 
+                    row << Configuration.Tile.SubpxPower
+					),
+                size: new SubpxSize(
+                    (uint)Configuration.Tile.Subpx.Width,
+					(uint)Configuration.Tile.Subpx.Height
+                    )
+                );
+        }
 
         public readonly SubpxPosition Center()
         {
@@ -15,11 +37,26 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 );
         }
 
-        public static BoundingBox operator +(BoundingBox left, SubpxVelocity right)
+        public readonly TileSpan GetTileSpan()
+        {
+			uint up = Position.Y;
+			uint down = up + Size.Y - 1;
+			uint left = Position.X;
+			uint right = left + Size.X - 1;
+
+            return new TileSpan(
+                top: up >> Configuration.Tile.SubpxPower,
+                bottom: down >> Configuration.Tile.SubpxPower,
+                left: left >> Configuration.Tile.SubpxPower,
+                right: right >> Configuration.Tile.SubpxPower
+				);
+		}
+
+        public static ObjectBoundingBox operator +(ObjectBoundingBox left, SubpxVelocity right)
         {
             return new(left.Position + right, left.Size);
         }
-        public static bool operator &(BoundingBox b1, BoundingBox b2)
+        public static bool operator &(ObjectBoundingBox b1, ObjectBoundingBox b2)
         {
             if(b1.Size.X == 0 || b1.Size.Y == 0 || b2.Size.X == 0 || b2.Size.Y == 0)
             {
@@ -44,29 +81,29 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 );
         }
 
-        public void LeanAbove(BoundingBox other)
+        public void LeanAbove(ObjectBoundingBox other)
         {
             Position.Y = other.Position.Y - Size.Y;
             //Console.WriteLine("LEAN ABOVE");
         }
-        public void LeanBelow(BoundingBox other)
+        public void LeanBelow(ObjectBoundingBox other)
         {
             Position.Y = other.Position.Y + other.Size.Y;
             //Console.WriteLine("LEAN BELOW");
 		}
-		public void LeanAtLeft(BoundingBox other)
+		public void LeanAtLeft(ObjectBoundingBox other)
         {
             Position.X = other.Position.X - Size.X;
             //Console.WriteLine("LEAN AT LEFT");
 		}
-		public void LeanAtRight(BoundingBox other)
+		public void LeanAtRight(ObjectBoundingBox other)
         {
             Position.X = other.Position.X + other.Size.X;
             //Console.WriteLine("LEAN AT RIGHT");
 		}
 
 
-        public static void SeparateHorizontally(ref BoundingBox b1,ref BoundingBox b2, uint maxDiff)
+        public static void SeparateHorizontally(ref ObjectBoundingBox b1,ref ObjectBoundingBox b2, uint maxDiff)
         {
             SubpxPosition c1 = b1.Center();
             SubpxPosition c2 = b2.Center();
@@ -109,7 +146,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         }
 
-        public static void SeparateVertically(ref BoundingBox b1,ref BoundingBox b2, uint maxDiff)
+        public static void SeparateVertically(ref ObjectBoundingBox b1,ref ObjectBoundingBox b2, uint maxDiff)
         {
             SubpxPosition c1 = b1.Center();
             SubpxPosition c2 = b2.Center();
@@ -152,7 +189,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 			}
         }
 
-        public static void Separate(ref BoundingBox b1, ref BoundingBox b2)//, SubpxVelocity maxVelocity)
+        public static void Separate(ref ObjectBoundingBox b1, ref ObjectBoundingBox b2)//, SubpxVelocity maxVelocity)
         {
             SubpxPosition c1 = b1.Center();
             SubpxPosition c2 = b2.Center();

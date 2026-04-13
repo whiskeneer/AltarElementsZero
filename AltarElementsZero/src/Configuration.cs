@@ -14,6 +14,7 @@ namespace AltarElementsZero.src
         public static class Tile
         {
             public static readonly int PxPower = 4;
+            public static readonly int SubpxPower = PxPower + Configuration.Px.SubpxPower;
             public static readonly Dimensions Px = new(1 << PxPower, 1 << PxPower);
             public static readonly Dimensions Subpx = new(
                 Px.Width * Configuration.Px.Subpx.Width,

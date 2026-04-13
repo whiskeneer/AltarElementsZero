@@ -185,6 +185,66 @@ namespace AltarElementsZero.src.states.gameplay
 
 					GameObject.CheckHorizontalCollisions(go1, go2);
 				}
+
+				if (go1.Type != GameObject.Types.PUSHABLE) continue;
+
+				TileSpan tileSpan = go1.currentBoundingBox.GetTileSpan();
+                if(go1.currentVelocity.X > 0)
+                { // going right
+                    bool foundCollision = false;
+
+                    for(int col = (int)tileSpan.Left;
+                        col <= (int)tileSpan.Right && !foundCollision;
+                        col++)
+                    {
+                        for(int row  = (int)tileSpan.Top;
+                            row <= (int)tileSpan.Bottom && !foundCollision;
+                            row++)
+                        {
+                            Tile tile = _level.GetTile(col,row);
+                            if (!tile.IsSolid()) continue;
+
+                            ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
+                            if (go1.currentBoundingBox & tileBoundingBox)
+                            {
+                                go1.currentBoundingBox.LeanAtLeft(tileBoundingBox);
+								go1.FixHorizontalVelocity();
+								go1.PushedLeft = true;
+								foundCollision = true;
+                            }
+
+                        }
+                    }
+                }
+                else
+                { // going left (or idle)
+					bool foundCollision = false;
+
+					for (int col = (int)tileSpan.Right;
+						col >= (int)tileSpan.Left && !foundCollision;
+						col--)
+					{
+						for (int row = (int)tileSpan.Top;
+							row <= (int)tileSpan.Bottom && !foundCollision;
+							row++)
+						{
+							Tile tile = _level.GetTile(col, row);
+							if (!tile.IsSolid()) continue;
+
+							ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
+							if (go1.currentBoundingBox & tileBoundingBox)
+							{
+								go1.currentBoundingBox.LeanAtRight(tileBoundingBox);
+								go1.FixHorizontalVelocity();
+								go1.PushedRight = true;
+								foundCollision = true;
+							}
+
+						}
+					}
+				}
+
+
 			}
 		}
 
@@ -213,6 +273,64 @@ namespace AltarElementsZero.src.states.gameplay
 					if (go2.Type == GameObject.Types.NONEXISTENT) continue;
 
 					GameObject.CheckVerticalCollisions(go1, go2);
+				}
+
+				if (go1.Type != GameObject.Types.PUSHABLE) continue;
+
+				TileSpan tileSpan = go1.currentBoundingBox.GetTileSpan();
+				if (go1.currentVelocity.Y > 0)
+				{ // going down
+					bool foundCollision = false;
+
+					for (int row = (int)tileSpan.Top;
+						row <= (int)tileSpan.Bottom && !foundCollision;
+						row++)
+					{
+						for (int col = (int)tileSpan.Left;
+							col <= (int)tileSpan.Right && !foundCollision;
+							col++)
+						{
+							Tile tile = _level.GetTile(col, row);
+							if (!tile.IsSolid()) continue;
+
+							ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
+							if (go1.currentBoundingBox & tileBoundingBox)
+							{
+								go1.currentBoundingBox.LeanAbove(tileBoundingBox);
+								go1.FixVerticalVelocity();
+								go1.PushedUp = true;
+								foundCollision = true;
+							}
+
+						}
+					}
+				}
+				else
+				{ // going up (or idle)
+					bool foundCollision = false;
+
+					for (int row = (int)tileSpan.Bottom;
+						row >= (int)tileSpan.Top && !foundCollision;
+						row--)
+					{
+						for (int col = (int)tileSpan.Left;
+							col <= (int)tileSpan.Right && !foundCollision;
+							col++)
+						{
+							Tile tile = _level.GetTile(col, row);
+							if (!tile.IsSolid()) continue;
+
+							ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
+							if (go1.currentBoundingBox & tileBoundingBox)
+							{
+								go1.currentBoundingBox.LeanBelow(tileBoundingBox);
+								go1.FixVerticalVelocity();
+								go1.PushedDown = true;
+								foundCollision = true;
+							}
+
+						}
+					}
 				}
 			}
 		}
