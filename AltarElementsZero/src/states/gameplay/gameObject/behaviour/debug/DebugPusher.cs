@@ -11,19 +11,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
         {
 			gameObject.Type = GameObject.Types.UNSTOPPABLE;
 
-			//gameObject.exists = true;
-			//gameObject.isSolid = true;
-			//gameObject.hurtsPlayer = false;
-			//gameObject.isFixed = false;
-			//gameObject.isAffectedByGravity = false;
-
 			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0x2f;
             gameObject.SpriteOffset = new(0, 0);
             gameObject.spriteEffects = SpriteEffects.None;
 
             gameObject.currentBoundingBox.Size = new PxSize(16,16).ToSubpx();
-            //gameObject.isSelfMoving = true;
         }
 
         public void Update(GameObject gameObject)

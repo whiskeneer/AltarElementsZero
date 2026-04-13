@@ -1,6 +1,7 @@
 ﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
+using AltarElementsZero.src.states.gameplay.level;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,7 +13,6 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
     {
         // Delete later, only for testing
         public static InputHandler? inputHandler = null;
-
 
         // For new physics implementation
         public SubpxVelocity previousVelocity = new();
@@ -31,6 +31,100 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public bool PushedPreviouslyLeft = false;
         public bool PushedPreviouslyRight = false;
 
+        // Friction with the ground
+        public int VelocityBelow;
+        public Tile.FrictionCoefficients FrictionCoefficientsBelow;
+        // Friction with the medium
+        public SubpxVelocity VelocityAround;
+        public uint FrictionCoefficientAround;
+
+        // Self impulse
+        public int GroundImpulse;
+
+        public Force AppliedForces;
+
+        //////////////////////////////////////////////////
+
+
+        public void ApplyGroundImpulse(int pushingForce)
+        {
+            if (pushingForce <= 0) return;
+
+            int currentNetVelocity = previousVelocity.X - VelocityBelow - GroundImpulse;
+            int targetNetVelocity = currentVelocity.X - VelocityBelow - GroundImpulse;
+
+            if(currentNetVelocity == 0)
+            {// STATIC FRICTION
+                int staticFriction = Math.Min(
+                    Math.Abs(targetNetVelocity),
+                    (FrictionCoefficientsBelow.StaticMu * pushingForce) >> 8
+                    );
+                AppliedForces += new Force(
+                    staticFriction * -Math.Sign(targetNetVelocity),
+                    0
+                    );
+            }
+            else
+            {// KINEMATIC FRICTION
+				int kinematicFriction = Math.Min(
+	                Math.Abs(targetNetVelocity),
+	                (FrictionCoefficientsBelow.KinematicMu * pushingForce) >> 8
+	                );
+				AppliedForces += new Force(
+					kinematicFriction * -Math.Sign(targetNetVelocity),
+					0
+					);
+			}
+        }
+
+        public void ApplyAirImpulse(SubpxVelocity targetVelocity)
+        {
+            SubpxVelocity netTargetVelocity = targetVelocity - VelocityAround;
+            SubpxVelocity remainingVelocity = netTargetVelocity - currentVelocity;
+            AppliedForces += new Force(
+                Math.Sign(remainingVelocity.X) * (Math.Abs(remainingVelocity.X) >> 5),
+                Math.Sign(remainingVelocity.Y) * (Math.Abs(remainingVelocity.Y) >> 5)
+                );
+        }
+
+        public void ApplyMediumFriction()
+        {
+            SubpxVelocity netVelocity = currentVelocity - VelocityAround;
+            AppliedForces += new Force(
+                -Math.Sign(netVelocity.X) * ((netVelocity.X * netVelocity.X * (int)FrictionCoefficientAround) >> 16),
+                -Math.Sign(netVelocity.Y) * ((netVelocity.Y * netVelocity.Y * (int)FrictionCoefficientAround) >> 16)
+				);
+        }
+
+        public void TransformForcesIntoVelocity()
+        {
+            currentVelocity += AppliedForces;
+            AppliedForces = new();
+        }
+
+        public void CapDesiredVelocity()
+        {
+            if(currentVelocity.X > Configuration.Tile.Subpx.Width)
+            {
+                currentVelocity.X = Configuration.Tile.Subpx.Width;
+            }
+            if(currentVelocity.X < -Configuration.Tile.Subpx.Width)
+            {
+                currentVelocity.X = -Configuration.Tile.Subpx.Width;
+            }
+
+            if(currentVelocity.Y > Configuration.Tile.Subpx.Height)
+            {
+                currentVelocity.Y = Configuration.Tile.Subpx.Height;
+            }
+            if(currentVelocity.Y < -Configuration.Tile.Subpx.Height)
+            {
+                currentVelocity.Y = -Configuration.Tile.Subpx.Height;
+            }
+
+        }
+
+        //////////////////////////////////////////////////
 
         public void CleanHorizontalPushFlags()
         {
@@ -251,11 +345,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 if((go1.PushedPreviouslyDown || go1.PushedDown) && !(go2.PushedPreviouslyDown || go2.PushedDown))
                 {
                     VerticalPush(go1, go2);
+                    go1.FrictionCoefficientsBelow = new(400, 200);
+                    go1.VelocityBelow = go2.currentVelocity.X;
                 }
                 else if((go2.PushedPreviouslyUp || go2.PushedUp) && !(go1.PushedPreviouslyUp || go1.PushedUp))
                 {
                     VerticalPush(go2, go1);
-                }
+				}
 				else
 				{
                     //VerticalSeparation(go1, go2);
@@ -276,11 +372,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 if((go1.PushedPreviouslyUp || go1.PushedUp) && !(go2.PushedPreviouslyUp || go2.PushedUp))
                 {
                     VerticalPush(go1, go2);
-                }
+				}
                 else if((go2.PushedPreviouslyDown || go2.PushedDown) && !(go1.PushedPreviouslyDown || go1.PushedDown))
                 {
                     VerticalPush(go2, go1);
-                }
+					go2.FrictionCoefficientsBelow = new(400, 200);
+					go2.VelocityBelow = go1.currentVelocity.X;
+				}
 				else
 				{
                     //VerticalSeparation(go1, go2);
@@ -304,30 +402,37 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         {
             if(pusher.currentVelocity.X > pushee.currentVelocity.X)
             {
-                pushee.currentBoundingBox.LeanAtRight(pusher.currentBoundingBox);
+                pushee.currentBoundingBox.LeanAtRight(pusher.currentBoundingBox, (uint)Math.Abs(pusher.currentVelocity.X - pushee.currentVelocity.X));
                 pushee.PushedRight = true;
             }
             else
             {
-				pushee.currentBoundingBox.LeanAtLeft(pusher.currentBoundingBox);
+				pushee.currentBoundingBox.LeanAtLeft(pusher.currentBoundingBox, (uint)Math.Abs(pusher.currentVelocity.X - pushee.currentVelocity.X));
                 pushee.PushedLeft = true;
             }
             pushee.FixHorizontalVelocity();
         }
 
-        public static void VerticalPush(GameObject pusher, GameObject pushee)
+        public static ObjectBoundingBox.SeparationDirection VerticalPush(GameObject pusher, GameObject pushee)
         {
             if(pusher.currentVelocity.Y > pushee.currentVelocity.Y)
             {
-                pushee.currentBoundingBox.LeanBelow(pusher.currentBoundingBox);
+                pushee.currentBoundingBox.LeanBelow(pusher.currentBoundingBox, (uint)Math.Abs(pusher.currentVelocity.Y - pushee.currentVelocity.Y));
                 pushee.PushedDown = true;
+				pushee.FixVerticalVelocity();
+				return ObjectBoundingBox.SeparationDirection.DOWN;
             }
             else
             {
-                pushee.currentBoundingBox.LeanAbove(pusher.currentBoundingBox);
+                pushee.currentBoundingBox.LeanAbove(pusher.currentBoundingBox, (uint)Math.Abs(pusher.currentVelocity.Y - pushee.currentVelocity.Y));
                 pushee.PushedUp = true;
+                pushee.FixVerticalVelocity();
+
+                pushee.FrictionCoefficientsBelow = new(400, 200);
+                pushee.VelocityBelow = pusher.currentVelocity.X;
+
+                return ObjectBoundingBox.SeparationDirection.UP;
             }
-            pushee.FixVerticalVelocity();
         }
 
         public static void HorizontalSeparation(GameObject go1, GameObject go2)
@@ -424,44 +529,6 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public uint State = 0;
         public uint SubState = 0;
         public uint Timer = 0;
-
-        public static GameObject GetToki()
-        {
-            return new GameObject()
-            {
-                currentBoundingBox = new ObjectBoundingBox(new SubpxPosition(), new PxSize(
-					12,
-					12
-					).ToSubpx()),
-				SpriteOffset = new PxSize(10,20),
-				behaviour = Toki.Instance,
-			};
-        }
-
-
-		public static GameObject GetTestObject()
-		{
-            GameObject testObject = new()
-            {
-                currentBoundingBox = new ObjectBoundingBox(new SubpxPosition(), new PxSize(
-                    (uint)Configuration.Tile.Px.Width,
-                    (uint)Configuration.Tile.Px.Height
-                    ).ToSubpx()),
-            };
-            return testObject;
-		}
-
-        public static GameObject GetMovingPlatform1()
-        {
-            GameObject movingPlatform =  new()
-            {
-				currentBoundingBox = new ObjectBoundingBox(new SubpxPosition(), new PxSize(32, 16).ToSubpx()),
-                SpriteOffset = new PxSize(0, 16),
-                behaviour = MovingPlatform1.Instance,
-            };
-            movingPlatform.Init();
-            return movingPlatform;
-        }
 
     }
 }

@@ -5,6 +5,14 @@
 		public int X = x;
 		public int Y = y;
 
+		public static SubpxVelocity operator +(SubpxVelocity v, Force f)
+		{
+			return new SubpxVelocity(
+				v.X + f.X,
+				v.Y + f.Y
+				);
+		}
+
 		public static SubpxVelocity operator -(SubpxVelocity v1, SubpxVelocity v2)
 		{
 			return new SubpxVelocity(

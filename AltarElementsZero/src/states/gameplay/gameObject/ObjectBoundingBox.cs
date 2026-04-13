@@ -81,24 +81,44 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 );
         }
 
-        public void LeanAbove(ObjectBoundingBox other)
+        public void LeanAbove(ObjectBoundingBox other, uint maxDiff)
         {
-            Position.Y = other.Position.Y - Size.Y;
+			int desiredPosition = (int)(other.Position.Y - Size.Y);
+			int currentPosition = (int)Position.Y;
+			int diff = desiredPosition - currentPosition;
+			if (diff < -(int)maxDiff) diff = -(int)maxDiff;
+
+			Position.Y += (uint)diff; // = other.Position.Y - Size.Y;
             //Console.WriteLine("LEAN ABOVE");
         }
-        public void LeanBelow(ObjectBoundingBox other)
+        public void LeanBelow(ObjectBoundingBox other, uint maxDiff)
         {
-            Position.Y = other.Position.Y + other.Size.Y;
+			int desiredPosition = (int)(other.Position.Y + other.Size.Y);
+			int currentPosition = (int)Position.Y;
+			int diff = desiredPosition - currentPosition;
+			if (diff > (int)maxDiff) diff = (int)maxDiff;
+
+			Position.Y += (uint)diff; // = other.Position.Y + other.Size.Y;
             //Console.WriteLine("LEAN BELOW");
 		}
-		public void LeanAtLeft(ObjectBoundingBox other)
+		public void LeanAtLeft(ObjectBoundingBox other, uint maxDiff)
         {
-            Position.X = other.Position.X - Size.X;
+			int desiredPosition = (int)(other.Position.X - Size.X);
+			int currentPosition = (int)Position.X;
+			int diff = desiredPosition - currentPosition;
+			if (diff < -(int)maxDiff) diff = -(int)maxDiff;
+
+			Position.X += (uint)diff; // = other.Position.X - Size.X;
             //Console.WriteLine("LEAN AT LEFT");
 		}
-		public void LeanAtRight(ObjectBoundingBox other)
+		public void LeanAtRight(ObjectBoundingBox other, uint maxDiff)
         {
-            Position.X = other.Position.X + other.Size.X;
+			int desiredPosition = (int)(other.Position.X + other.Size.X);
+			int currentPosition = (int)Position.X;
+			int diff = desiredPosition - currentPosition;
+			if (diff > (int)maxDiff) diff = (int)maxDiff;
+
+			Position.X += (uint)diff; // = other.Position.X + other.Size.X;
             //Console.WriteLine("LEAN AT RIGHT");
 		}
 

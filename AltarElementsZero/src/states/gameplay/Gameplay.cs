@@ -163,6 +163,13 @@ namespace AltarElementsZero.src.states.gameplay
 				{
 					gameObject.SavePreviousValues();
 					gameObject.CalculateDesiredOutcome();
+
+					gameObject.VelocityBelow = 0;
+					gameObject.FrictionCoefficientsBelow = new();
+					gameObject.VelocityAround = new();
+					gameObject.FrictionCoefficientAround = 0;
+
+					gameObject.AppliedForces = new();
 				}
 			}
 		}
@@ -215,7 +222,7 @@ namespace AltarElementsZero.src.states.gameplay
                             ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
                             if (go1.currentBoundingBox & tileBoundingBox)
                             {
-                                go1.currentBoundingBox.LeanAtLeft(tileBoundingBox);
+                                go1.currentBoundingBox.LeanAtLeft(tileBoundingBox, (uint)Configuration.Tile.Subpx.Width);
 								go1.FixHorizontalVelocity();
 								go1.PushedLeft = true;
 								foundCollision = true;
@@ -242,7 +249,7 @@ namespace AltarElementsZero.src.states.gameplay
 							ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
 							if (go1.currentBoundingBox & tileBoundingBox)
 							{
-								go1.currentBoundingBox.LeanAtRight(tileBoundingBox);
+								go1.currentBoundingBox.LeanAtRight(tileBoundingBox, (uint)Configuration.Tile.Subpx.Width);
 								go1.FixHorizontalVelocity();
 								go1.PushedRight = true;
 								foundCollision = true;
@@ -304,10 +311,14 @@ namespace AltarElementsZero.src.states.gameplay
 							ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
 							if (go1.currentBoundingBox & tileBoundingBox)
 							{
-								go1.currentBoundingBox.LeanAbove(tileBoundingBox);
+								go1.currentBoundingBox.LeanAbove(tileBoundingBox, (uint)Configuration.Tile.Subpx.Height);
 								go1.FixVerticalVelocity();
 								go1.PushedUp = true;
 								foundCollision = true;
+
+								go1.VelocityBelow = tile.GetSurfaceVelocityAbove();
+								go1.FrictionCoefficientsBelow = tile.GetFrictionCoefficients();
+
 							}
 
 						}
@@ -331,7 +342,7 @@ namespace AltarElementsZero.src.states.gameplay
 							ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
 							if (go1.currentBoundingBox & tileBoundingBox)
 							{
-								go1.currentBoundingBox.LeanBelow(tileBoundingBox);
+								go1.currentBoundingBox.LeanBelow(tileBoundingBox, (uint)Configuration.Tile.Subpx.Height);
 								go1.FixVerticalVelocity();
 								go1.PushedDown = true;
 								foundCollision = true;
@@ -367,17 +378,17 @@ namespace AltarElementsZero.src.states.gameplay
 
 					if (go1.currentBoundingBox & go2.currentBoundingBox)
 					{
-						if (
+						//if (
 
-							!go1.PushedRight && !go1.PushedLeft &&
-							!go2.PushedRight && !go2.PushedLeft &&
-							!go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
-							!go2.PushedPreviouslyRight && !go2.PushedPreviouslyLeft &&
-							!go1.PushedDown && !go1.PushedUp &&
-							!go2.PushedDown && !go2.PushedUp &&
-							!go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp &&
-							!go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
-							)
+						//	!go1.PushedRight && !go1.PushedLeft &&
+						//	!go2.PushedRight && !go2.PushedLeft &&
+						//	!go1.PushedPreviouslyRight && !go1.PushedPreviouslyLeft &&
+						//	!go2.PushedPreviouslyRight && !go2.PushedPreviouslyLeft &&
+						//	!go1.PushedDown && !go1.PushedUp &&
+						//	!go2.PushedDown && !go2.PushedUp &&
+						//	!go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp &&
+						//	!go2.PushedPreviouslyDown && !go2.PushedPreviouslyUp
+						//	)
 						{
 							//GameObject.HorizontalSeparation(go1, go2);
 							//GameObject.VerticalSeparation(go1, go2);
@@ -401,7 +412,7 @@ namespace AltarElementsZero.src.states.gameplay
 				{
 					if (o == u) continue;
 					GameObject go2 = _objectPool[u];
-					if (go2.Type != GameObject.Types.IMMOBILE) continue;
+					if (go2.Type != GameObject.Types.IMMOBILE && go2.Type != GameObject.Types.UNSTOPPABLE) continue;
 
 					if (go1.currentBoundingBox & go2.currentBoundingBox)
 					{
