@@ -91,8 +91,13 @@ namespace AltarElementsZero.src.states.gameplay.level
                             // Spring,         //  6msb animated spritesheet index | direction
 
             // GameObjects spawn points
+
+
+
             Toki = 128,
             MovingPlatform1,
+
+            Ora = 0xf0,
 
             DebugImmobile = 0xfd,
             DebugPusher = 0xfe,
@@ -154,7 +159,8 @@ namespace AltarElementsZero.src.states.gameplay.level
 
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+
+			"ORA",     "UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","IMMOBILE","PUSHER",  "DEBUGBOX"
 			};
     }

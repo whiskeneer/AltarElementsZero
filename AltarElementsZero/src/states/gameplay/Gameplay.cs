@@ -11,6 +11,7 @@ using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.intro;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -107,6 +108,13 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].behaviour = CurrentUp.Instance;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j-2).ToPx().ToSubpx();
+							nextAssignableObject++;
+						}
+						else if(tile.Family == Tile.Families.Ora)
+						{
+							_objectPool[nextAssignableObject].behaviour = Ora.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							nextAssignableObject++;
 						}
 					}
@@ -369,12 +377,7 @@ namespace AltarElementsZero.src.states.gameplay
 				GameObject go1 = _objectPool[o];
 
 
-				if (object.ReferenceEquals(go1.behaviour, DebugPusher.Instance))
-				{
-					_camera.currentBoundingBox.Position = go1.currentBoundingBox.Position;
-					_camera.currentBoundingBox.Position.X -= (uint)Configuration.Chunk.Subpx.Width / 2 - 64 * 8;
-					_camera.currentBoundingBox.Position.Y -= (uint)Configuration.Chunk.Subpx.Height / 2 - 64 * 8;
-				}
+
 
 
 				if (go1.Type != GameObject.Types.PUSHABLE) continue;
@@ -413,6 +416,13 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject go1 = _objectPool[o];
+
+				if (object.ReferenceEquals(go1.behaviour, DebugPusher.Instance) || object.ReferenceEquals(go1.behaviour, Ora.Instance))
+				{
+					_camera.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+					_camera.currentBoundingBox.Position.X -= (uint)Configuration.Chunk.Subpx.Width / 2 - 64 * 8;
+					_camera.currentBoundingBox.Position.Y -= (uint)Configuration.Chunk.Subpx.Height / 2 - 64 * 8;
+				}
 
 				if (go1.Type != GameObject.Types.PUSHABLE) continue;
 
@@ -517,9 +527,15 @@ namespace AltarElementsZero.src.states.gameplay
                         if (currentObject.PushedPreviouslyRight) spritesheetIndex |= 0x8;
                     }
 
+					Texture2D objectTexture = _assets.ObjectSpritesheet!;
+					if(object.ReferenceEquals(currentObject.behaviour, Ora.Instance))
+					{
+						objectTexture = _assets.OraSpritesheet!;
+					}
+
                     SpriteEffects spriteEffects = currentObject.spriteEffects;
                     spriteBatch.Draw(
-                        texture: _assets.ObjectSpritesheet,
+                        texture: objectTexture,
                         position: new Vector2(
                             (int)objectPosition.X - cameraPxPosition.X,
                             (int)objectPosition.Y - cameraPxPosition.Y
