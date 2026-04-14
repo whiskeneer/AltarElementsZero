@@ -500,7 +500,46 @@ namespace AltarElementsZero.src.states.gameplay
 
             PxPosition cameraPxPosition = _camera.currentBoundingBox.Position.ToVisualPx();
 
-            Renderer.RenderTiles(
+			int waterPosition = 16*6 - (int)(cameraPxPosition.Y >> 4);
+			int waterHorizonPosition = -(int)((cameraPxPosition.X >> 4) & (Configuration.VisibleScreen.Px.Width-1));
+
+			int smallCloudsX = -(int)((cameraPxPosition.X >> 3) & (Configuration.VisibleScreen.Px.Width - 1));
+			int smallCloudsY = 16 * 3 - (int)(cameraPxPosition.Y >> 3);
+
+			int bigCloudsX = -(int)((cameraPxPosition.X >> 2) & (Configuration.VisibleScreen.Px.Width - 1));
+			int bigCloudsY = 16 * 4 - (int)(cameraPxPosition.Y >> 2);
+
+			spriteBatch.Draw(
+				texture: _assets.SkyBackground,
+				position: new Vector2(),
+				color: Color.White
+				);
+
+			spriteBatch.Draw(
+				texture: _assets.WaterHorizon,
+				position: new Vector2(waterHorizonPosition, Math.Max(0, waterPosition - 32)),
+				color: Color.White
+				);
+			spriteBatch.Draw(
+				texture: _assets.SkyCloudsSmall,
+				position: new Vector2(smallCloudsX, smallCloudsY),
+				color: Color.White
+				);
+
+			spriteBatch.Draw(
+				texture: _assets.SkyCloudsBig,
+				position: new Vector2(bigCloudsX, bigCloudsY),
+				color: Color.White
+				);
+
+			spriteBatch.Draw(
+				texture: _assets.WaterBackground,
+				position: new Vector2(0, Math.Max(0, waterPosition + 16)),
+				color: Color.White
+				);
+
+
+			Renderer.RenderTiles(
                 spriteBatch,
                 _level,
                 cameraPxPosition,

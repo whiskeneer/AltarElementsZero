@@ -10,9 +10,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
         {
             gameObject.Type = GameObject.Types.FLUID;
 
-            gameObject.isVisible = true;
-            gameObject.SpriteOffset = new PxSize();
-            gameObject.spritesheetIndex = 0x2d;
+            gameObject.isVisible = false;
+            //gameObject.SpriteOffset = new PxSize();
+            //gameObject.spritesheetIndex = 0x2d;
 
 
 			gameObject.currentBoundingBox.Size = new TileSize(1, 2).ToPx().ToSubpx();
