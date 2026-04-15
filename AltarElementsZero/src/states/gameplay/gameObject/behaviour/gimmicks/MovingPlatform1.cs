@@ -48,14 +48,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
         {
             //gameObject.Exists = true;
             gameObject.Type = GameObject.Types.UNSTOPPABLE;
+			gameObject.isPersistentAcrossChunks = false;
 
-            //gameObject.exists = true;
-            //gameObject.isSolid = true;
-            //gameObject.hurtsPlayer = false;
-            //gameObject.isFixed = false;
-            //gameObject.isAffectedByGravity = false;
+			//gameObject.exists = true;
+			//gameObject.isSolid = true;
+			//gameObject.hurtsPlayer = false;
+			//gameObject.isFixed = false;
+			//gameObject.isAffectedByGravity = false;
 
-            gameObject.isVisible = true;
+			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 8;
             gameObject.SpriteOffset = new(0, 16);
             gameObject.spriteEffects = SpriteEffects.None;

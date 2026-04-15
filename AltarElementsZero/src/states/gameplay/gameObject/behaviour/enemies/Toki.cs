@@ -20,6 +20,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
         public void Init(GameObject gameObject)
         {
 			gameObject.Type = GameObject.Types.PUSHABLE;
+			gameObject.isPersistentAcrossChunks = false;
+
 
 			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0;

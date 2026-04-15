@@ -9,13 +9,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
         public void Init(GameObject gameObject)
         {
             gameObject.Type = GameObject.Types.FLUID;
-
-            gameObject.isVisible = false;
-            //gameObject.SpriteOffset = new PxSize();
-            //gameObject.spritesheetIndex = 0x2d;
+			gameObject.isPersistentAcrossChunks = false;
 
 
-			gameObject.currentBoundingBox.Size = new TileSize(1, 2).ToPx().ToSubpx();
+			gameObject.isVisible = true;
+            gameObject.SpriteOffset = new PxSize();
+            gameObject.spritesheetIndex = 0x2d;
+
+
+            gameObject.currentBoundingBox.Size = new TileSize(1, 2).ToPx().ToSubpx();
 
             gameObject.FluidVelocity = new SubpxVelocity(0, 64 * 10);// -64*40);
             gameObject.FluidCoefficient = 0;

@@ -10,6 +10,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
         public void Init(GameObject gameObject)
         {
 			gameObject.Type = GameObject.Types.UNSTOPPABLE;
+			gameObject.isPersistentAcrossChunks = false;
+
 
 			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0x2f;

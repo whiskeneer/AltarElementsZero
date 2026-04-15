@@ -10,6 +10,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
         public void Init(GameObject gameObject)
         {
 			gameObject.Type = GameObject.Types.PUSHABLE;
+            gameObject.isPersistentAcrossChunks = false;
 
 			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0x30;

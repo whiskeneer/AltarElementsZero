@@ -554,7 +554,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public IBehaviour behaviour = EmptyObject.Instance;
         public byte spawnValue = 0;
-     
+
+
+        public bool isPersistentAcrossChunks = false;
 
         public bool isVisible = false;
         public uint spritesheetIndex = 0;

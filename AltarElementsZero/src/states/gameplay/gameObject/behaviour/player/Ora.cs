@@ -14,8 +14,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
         public void Init(GameObject gameObject)
         {
             gameObject.Type = GameObject.Types.PUSHABLE;
+			gameObject.isPersistentAcrossChunks = true;
 
-            gameObject.isVisible = true;
+
+			gameObject.isVisible = true;
             gameObject.spritesheetIndex = 0x00;
             gameObject.SpriteOffset = new(10, 6);
             gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;

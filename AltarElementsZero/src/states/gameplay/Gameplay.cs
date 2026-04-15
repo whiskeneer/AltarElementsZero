@@ -12,6 +12,7 @@ using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.intro;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -50,6 +51,30 @@ namespace AltarElementsZero.src.states.gameplay
 		private uint ChunkLimitRight = 0;
 		private PxPosition CameraPosition = new();
 
+		
+		private int _assignableObjectAuxiliar = 0;
+		private void ResetAssignableObjects()
+		{
+			_assignableObjectAuxiliar = 0;
+		}
+		private int GetNextAssignableObject()
+		{
+			if (_assignableObjectAuxiliar >= _objectPool.Length) return -1;
+
+			for (int i = _assignableObjectAuxiliar; i < _objectPool.Length; i++)
+			{
+				if (_objectPool[i].Type == GameObject.Types.NONEXISTENT)
+				{
+					_assignableObjectAuxiliar = i + 1;
+					return i;
+				}
+			}
+
+			_assignableObjectAuxiliar = _objectPool.Length;
+			return -1;
+
+		}
+
 		private void UpdateChunk(Chunk chunk)
 		{
 			if (chunk.BackgroundIndex == 0) return;
@@ -59,7 +84,90 @@ namespace AltarElementsZero.src.states.gameplay
 			ChunkLimitLeft = (uint)(chunk.Left) * (uint)Configuration.Chunk.Subpx.Width;
 			ChunkLimitRight = (uint)(chunk.Right + 1) * (uint)Configuration.Chunk.Subpx.Width - 1;
 
-			// Loading of objects goes here
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject go = _objectPool[o];
+				if(go.Type != GameObject.Types.NONEXISTENT && go.isPersistentAcrossChunks == false)
+				{
+					go.behaviour = EmptyObject.Instance;
+					go.Init();
+				}
+			}
+
+			ResetAssignableObjects();
+			bool objectPoolIsFull = false;
+			for(int j = chunk.Top * Configuration.Chunk.Tile.Height;
+				!objectPoolIsFull &&
+				j <= (chunk.Bottom + 1) * Configuration.Chunk.Tile.Height - 1;
+				j++)
+			{
+				for (int i = chunk.Left * Configuration.Chunk.Tile.Width;
+					!objectPoolIsFull &&
+					i <= (chunk.Right + 1) * Configuration.Chunk.Tile.Width - 1;
+					i++)
+				{
+					Tile tile = _level.GetTile(i, j);
+
+					if (tile.IsObjectSpawn())
+					{
+						int nextAssignableObject = GetNextAssignableObject();
+						if(nextAssignableObject == -1)
+						{
+							objectPoolIsFull = true;
+							break;
+						}
+
+						if (tile.Family == Tile.Families.Toki)
+						{
+							_objectPool[nextAssignableObject].behaviour = Toki.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.MovingPlatform1)
+						{
+							_objectPool[nextAssignableObject].behaviour = MovingPlatform1.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.DebugBox)
+						{
+							_objectPool[nextAssignableObject].behaviour = DebugBox.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.DebugPusher)
+						{
+							_objectPool[nextAssignableObject].behaviour = DebugPusher.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.DebugImmobile)
+						{
+							_objectPool[nextAssignableObject].behaviour = DebugImmobile.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
+
+						else if (tile.Family == Tile.Families.FanUp)
+						{
+							_objectPool[nextAssignableObject].behaviour = CurrentUp.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j - 2).ToPx().ToSubpx();
+						}
+					}
+				}
+			}
+
+			//int amountOfObjects = 0;
+			//for (int o = 0; o < _objectPool.Length; o++)
+			//{
+			//	if( _objectPool[o].Type != GameObject.Types.NONEXISTENT)
+			//	{
+			//		amountOfObjects++;
+			//	}
+			//}
+			//Console.Write("OBJECTS: ");
+			//Console.WriteLine(amountOfObjects);
 		}
 		private void UpdateCamera(SubpxPosition focusPosition)
 		{
@@ -107,50 +215,7 @@ namespace AltarElementsZero.src.states.gameplay
                     Tile tile = _level.GetTile(i, j);
                     if (tile.IsObjectSpawn())
                     {
-                        if(tile.Family == Tile.Families.Toki)
-                        {
-                            _objectPool[nextAssignableObject].behaviour = Toki.Instance;
-                            _objectPool[nextAssignableObject].Init();
-                            _objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							nextAssignableObject++;
-						}
-						else if(tile.Family == Tile.Families.MovingPlatform1)
-                        {
-							_objectPool[nextAssignableObject].behaviour = MovingPlatform1.Instance;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							nextAssignableObject++;
-                        }
-                        else if(tile.Family == Tile.Families.DebugBox)
-                        {
-							_objectPool[nextAssignableObject].behaviour = DebugBox.Instance;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							nextAssignableObject++;
-						}
-						else if (tile.Family == Tile.Families.DebugPusher)
-						{
-							_objectPool[nextAssignableObject].behaviour = DebugPusher.Instance;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							nextAssignableObject++;
-						}
-						else if(tile.Family == Tile.Families.DebugImmobile)
-						{
-							_objectPool[nextAssignableObject].behaviour = DebugImmobile.Instance;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							nextAssignableObject++;
-						}
-
-						else if(tile.Family == Tile.Families.FanUp)
-						{
-							_objectPool[nextAssignableObject].behaviour = CurrentUp.Instance;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j-2).ToPx().ToSubpx();
-							nextAssignableObject++;
-						}
-						else if(tile.Family == Tile.Families.Ora)
+						if(tile.Family == Tile.Families.Ora)
 						{
 							_objectPool[nextAssignableObject].behaviour = Ora.Instance;
 							_objectPool[nextAssignableObject].Init();
