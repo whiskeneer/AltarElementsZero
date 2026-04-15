@@ -30,22 +30,61 @@ namespace AltarElementsZero.src.states.gameplay
             globalAssets: globalAssets
             )
     {
-        private readonly Level _level = new("assets/lvl/DEBUG_LEVEL.json");
+        private readonly Level _level = new("assets/lvl/DEBUG_LEVEL.json", "assets/lvl/DEBUG_LEVEL_CHUNKS.json");
 
-        private readonly GameObject _camera = new();
-
+        //private readonly GameObject _camera = new();
         private bool frameByFrameMode = false;
 		private bool stopCamera = false;
-
-        //private readonly GameObject _testObject = GameObject.GetTestObject();
-        //private int _remainingJumpFrames = 0;
-        //private int _attackCooldown = 0;
-
         private bool _drawIndices = false;
 
-        private readonly GameObject[] _objectPool = new GameObject[64];
+ 
+		private readonly GameObject[] _objectPool = new GameObject[64];
 
         uint _animationFrame = 0;
+
+		//
+
+		private uint ChunkLimitTop = 0;
+		private uint ChunkLimitBottom = 0;
+		private uint ChunkLimitLeft = 0;
+		private uint ChunkLimitRight = 0;
+		private PxPosition CameraPosition = new();
+
+		private void UpdateChunk(Chunk chunk)
+		{
+			if (chunk.BackgroundIndex == 0) return;
+
+			ChunkLimitTop = (uint)(chunk.Top) * (uint)Configuration.Chunk.Subpx.Height;
+			ChunkLimitBottom = (uint)(chunk.Bottom + 1) * (uint)Configuration.Chunk.Subpx.Height - 1;
+			ChunkLimitLeft = (uint)(chunk.Left) * (uint)Configuration.Chunk.Subpx.Width;
+			ChunkLimitRight = (uint)(chunk.Right + 1) * (uint)Configuration.Chunk.Subpx.Width - 1;
+
+			// Loading of objects goes here
+		}
+		private void UpdateCamera(SubpxPosition focusPosition)
+		{
+			PxPosition focusPxPosition = focusPosition.ToVisualPx();
+			int targetY = (int)focusPxPosition.Y - (Configuration.VisibleScreen.Px.Height >> 1);
+			int targetX = (int)focusPxPosition.X - (Configuration.VisibleScreen.Px.Width >> 1);
+
+			int visualLimitTop = (int)(ChunkLimitTop >> Configuration.Px.SubpxPower);
+			int visualLimitBottom =
+				(int)((ChunkLimitBottom + 1) >> Configuration.Px.SubpxPower) - Configuration.VisibleScreen.Px.Height;
+			int visualLimitLeft = (int)(ChunkLimitLeft >> Configuration.Px.SubpxPower);
+			int visualLimitRight =
+				(int)((ChunkLimitRight + 1) >> Configuration.Px.SubpxPower) - Configuration.VisibleScreen.Px.Width;
+
+			if (targetY < visualLimitTop) targetY = visualLimitTop;
+			if (targetY > visualLimitBottom) targetY = visualLimitBottom;
+			if (targetX < visualLimitLeft) targetX = visualLimitLeft;
+			if (targetX > visualLimitRight) targetX = visualLimitRight;
+
+			CameraPosition = new PxPosition((uint)targetX, (uint)targetY);
+		}
+
+
+
+		//
 
         public override void Enter()
         {
@@ -117,6 +156,14 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							nextAssignableObject++;
+
+							// Avoid using division and modulo during gameplay (at enter is ok)
+							int chunkX = (i / Configuration.Chunk.Tile.Width);
+							int chunkY = (j / Configuration.Chunk.Tile.Height);
+
+							UpdateChunk(_level.GetChunk(chunkX,chunkY));
+							UpdateCamera(_objectPool[nextAssignableObject].currentBoundingBox.Center());
+
 						}
 					}
                 }
@@ -158,6 +205,30 @@ namespace AltarElementsZero.src.states.gameplay
             CheckVerticalCollisions();
             SeparatePushables();
 			SeparatePushablesFromImmobile();
+
+			for(int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject go = _objectPool[o];
+				if (!stopCamera)
+				{
+					if (object.ReferenceEquals(go.behaviour, DebugPusher.Instance) || object.ReferenceEquals(go.behaviour, Ora.Instance))
+					{
+						SubpxPosition focusCenter = go.currentBoundingBox.Center();
+
+						if ((int)focusCenter.X < (int)ChunkLimitLeft ||
+							(int)focusCenter.X > (int)ChunkLimitRight ||
+							(int)focusCenter.Y < (int)ChunkLimitTop ||
+							(int)focusCenter.Y > (int)ChunkLimitBottom
+							)
+						{// focus is outside of chunk!
+							ChunkPosition newChunk = focusCenter.ToPx().ToTile().ToChunk();
+							UpdateChunk(_level.GetChunk((int)newChunk.X, (int)newChunk.Y));
+						}
+
+						UpdateCamera(focusCenter);
+					}
+				}
+			}
 			
 
 			if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
@@ -422,16 +493,6 @@ namespace AltarElementsZero.src.states.gameplay
 			{
 				GameObject go1 = _objectPool[o];
 
-				if (!stopCamera)
-				{
-					if (object.ReferenceEquals(go1.behaviour, DebugPusher.Instance) || object.ReferenceEquals(go1.behaviour, Ora.Instance))
-					{
-						_camera.currentBoundingBox.Position = go1.currentBoundingBox.Position;
-						_camera.currentBoundingBox.Position.X -= (uint)Configuration.Chunk.Subpx.Width / 2 - 64 * 8;
-						_camera.currentBoundingBox.Position.Y -= (uint)Configuration.Chunk.Subpx.Height / 2 - 64 * 8;
-					}
-				}
-
 				if (go1.Type != GameObject.Types.PUSHABLE) continue;
 
 				for (int u = 0; u < _objectPool.Length; u++)
@@ -506,16 +567,16 @@ namespace AltarElementsZero.src.states.gameplay
         private void Render(SpriteBatch spriteBatch)
         {
 
-            PxPosition cameraPxPosition = _camera.currentBoundingBox.Position.ToVisualPx();
+            //PxPosition CameraPosition = _camera.currentBoundingBox.Position.ToVisualPx();
 
-			int waterPosition = 16*6 - (int)(cameraPxPosition.Y >> 4);
-			int waterHorizonPosition = -(int)((cameraPxPosition.X >> 4) & (Configuration.VisibleScreen.Px.Width-1));
+			int waterPosition = 16*6 - (int)(CameraPosition.Y >> 4);
+			int waterHorizonPosition = -(int)((CameraPosition.X >> 4) & (Configuration.VisibleScreen.Px.Width-1));
 
-			int smallCloudsX = -(int)((cameraPxPosition.X >> 3) & (Configuration.VisibleScreen.Px.Width - 1));
-			int smallCloudsY = 16 * 3 - (int)(cameraPxPosition.Y >> 3);
+			int smallCloudsX = -(int)((CameraPosition.X >> 3) & (Configuration.VisibleScreen.Px.Width - 1));
+			int smallCloudsY = 16 * 3 - (int)(CameraPosition.Y >> 3);
 
-			int bigCloudsX = -(int)((cameraPxPosition.X >> 2) & (Configuration.VisibleScreen.Px.Width - 1));
-			int bigCloudsY = 16 * 4 - (int)(cameraPxPosition.Y >> 2);
+			int bigCloudsX = -(int)((CameraPosition.X >> 2) & (Configuration.VisibleScreen.Px.Width - 1));
+			int bigCloudsY = 16 * 4 - (int)(CameraPosition.Y >> 2);
 
 			spriteBatch.Draw(
 				texture: _assets.SkyBackground,
@@ -550,7 +611,7 @@ namespace AltarElementsZero.src.states.gameplay
 			Renderer.RenderTiles(
                 spriteBatch,
                 _level,
-                cameraPxPosition,
+                CameraPosition,
                 _animationFrame,
                 _assets.StaticSpritesheet!,
                 _assets.AnimatedSpritesheet!
@@ -584,8 +645,8 @@ namespace AltarElementsZero.src.states.gameplay
                     spriteBatch.Draw(
                         texture: objectTexture,
                         position: new Vector2(
-                            (int)objectPosition.X - cameraPxPosition.X,
-                            (int)objectPosition.Y - cameraPxPosition.Y
+                            (int)objectPosition.X - CameraPosition.X,
+                            (int)objectPosition.Y - CameraPosition.Y
                             ),
                         sourceRectangle: new(
                             Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
@@ -601,8 +662,8 @@ namespace AltarElementsZero.src.states.gameplay
 						spriteBatch.Draw(
 							texture: _assets.DebugSpritesheet,
 							position: new Vector2(
-								(int)objectPosition.X - cameraPxPosition.X,
-								(int)objectPosition.Y - cameraPxPosition.Y
+								(int)objectPosition.X - CameraPosition.X,
+								(int)objectPosition.Y - CameraPosition.Y
 								),
 							sourceRectangle: new(
                                 4 * ((o>>4) & 0xf), 0, 4, 8
@@ -613,8 +674,8 @@ namespace AltarElementsZero.src.states.gameplay
 						spriteBatch.Draw(
 							texture: _assets.DebugSpritesheet,
 							position: new Vector2(
-								(int)objectPosition.X - cameraPxPosition.X + 4,
-								(int)objectPosition.Y - cameraPxPosition.Y
+								(int)objectPosition.X - CameraPosition.X + 4,
+								(int)objectPosition.Y - CameraPosition.Y
 								),
 							sourceRectangle: new(
 								4 * (o & 0xf), 0, 4, 8

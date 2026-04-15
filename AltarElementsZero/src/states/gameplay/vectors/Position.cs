@@ -92,6 +92,13 @@ namespace AltarElementsZero.src.states.gameplay.vectors
 				left.Y - right.Y
 				);
 		}
+		public static PxPosition operator +(PxPosition left, PxSize right)
+		{
+			return new(
+				left.X + right.X,
+				left.Y + right.Y
+				);
+		}
 
 		public static PxPosition operator -(PxPosition left, PxPosition right)
 		{
@@ -124,6 +131,27 @@ namespace AltarElementsZero.src.states.gameplay.vectors
 			return new PxPosition(
 				X << Configuration.Tile.PxPower,
 				Y << Configuration.Tile.PxPower
+				);
+		}
+		public readonly ChunkPosition ToChunk()
+		{
+			return new ChunkPosition(
+				(uint)(X / Configuration.Chunk.Tile.Width),
+				(uint)(Y / Configuration.Chunk.Tile.Height)
+				);
+		}
+	}
+
+	public struct ChunkPosition(uint x, uint y)
+	{
+		public uint X = x;
+		public uint Y = y;
+
+		public readonly PxPosition ToPx()
+		{
+			return new PxPosition(
+				(uint)(X * Configuration.Chunk.Tile.Width) << Configuration.Tile.PxPower,
+				(uint)(Y * Configuration.Chunk.Tile.Height) << Configuration.Tile.PxPower
 				);
 		}
 	}
