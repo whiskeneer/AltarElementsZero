@@ -1,9 +1,17 @@
-﻿using AltarElementsZero.src.states.gameplay.vectors;
+﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+using AltarElementsZero.src.states.gameplay.vectors;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 {
     class Ora : IBehaviour
     {
+        [Flags]
+        public enum FlagTypes
+        {
+            None = 0,
+            Hurt = 1 << 0,
+        }
+
         public static readonly Ora Instance = new();
 
         private const int GROUND_IMPULSE = 64;
@@ -119,7 +127,25 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             gameObject.SimulateRegularObjectPhysics();
 
-        }
+            //
 
-    }
+            if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
+            {
+                Console.WriteLine("Ouch!");
+            }
+
+        }
+		public void Interact(GameObject own, GameObject other)
+		{
+            IBehaviour otherBehaviour = other.behaviour;
+            // Can this be optimized?
+            // (I could use extra GameObject bools but I'm starting
+            //  to worry about the potential size of the objectPool)
+            if(otherBehaviour == Toki.Instance)
+            {
+                own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
+            }
+		}
+
+	}
 }

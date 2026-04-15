@@ -53,5 +53,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
 				}
 			}
         }
-    }
+		public void Interact(GameObject own, GameObject other)
+		{
+			return;
+		}
+	}
 }

@@ -178,6 +178,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public void CalculateDesiredOutcome()
         {
             behaviour.Update(this); // updates currentVelocity
+
+            InteractionFlags = 0; // flags were used on Update, now they are cleaned
         }
 
         public void ApplyHorizontalDesiredVelocity()
@@ -194,7 +196,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         {
             if (go1.currentBoundingBox & go2.currentBoundingBox)
             {
-                switch (go1.Type)
+				Interaction(go1, go2);
+
+				switch (go1.Type)
                 {
                     case Types.UNSTOPPABLE:
                         switch (go2.Type)
@@ -250,6 +254,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 		{
 			if (go1.currentBoundingBox & go2.currentBoundingBox)
 			{
+				Interaction(go1, go2);
+
 				switch (go1.Type)
 				{
 					case Types.UNSTOPPABLE:
@@ -533,12 +539,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             currentVelocity = currentBoundingBox.Position - previousBoundingBox.Position;
         }
 
-        //
 
-        //public bool PushingUp = false;
-        //public bool PushingDown = false;
-        //public bool PushingLeft = false;
-        //public bool PushingRight = false;
 
         public enum Types : byte
         {
@@ -554,6 +555,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public IBehaviour behaviour = EmptyObject.Instance;
         public byte spawnValue = 0;
+        public UInt32 InteractionFlags = 0;
+
+
+        public static void Interaction(GameObject go1, GameObject go2)
+        {
+            go1.behaviour.Interact(go1, go2);
+            go2.behaviour.Interact(go2, go1);
+        }
 
 
         public bool isPersistentAcrossChunks = false;

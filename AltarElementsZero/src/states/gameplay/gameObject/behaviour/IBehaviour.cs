@@ -7,5 +7,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
         void Init(GameObject gameObject);
         void Update(GameObject gameObject);
 
+        // Note: Interactions MUST be idempotent!!! 
+        void Interact(GameObject own, GameObject other);
+
     }
 }

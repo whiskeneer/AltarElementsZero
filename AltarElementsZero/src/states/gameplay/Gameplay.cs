@@ -171,7 +171,7 @@ namespace AltarElementsZero.src.states.gameplay
 		}
 		private void UpdateCamera(SubpxPosition focusPosition)
 		{
-			PxPosition focusPxPosition = focusPosition.ToVisualPx();
+			PxPosition focusPxPosition = focusPosition.ToPx();
 			int targetY = (int)focusPxPosition.Y - (Configuration.VisibleScreen.Px.Height >> 1);
 			int targetX = (int)focusPxPosition.X - (Configuration.VisibleScreen.Px.Width >> 1);
 
@@ -544,6 +544,7 @@ namespace AltarElementsZero.src.states.gameplay
 						{
 							//GameObject.HorizontalSeparation(go1, go2);
 							//GameObject.VerticalSeparation(go1, go2);
+							GameObject.Interaction(go1, go2);
 							GameObject.Separation(go1, go2);
 						}
 
@@ -583,6 +584,7 @@ namespace AltarElementsZero.src.states.gameplay
 							//!go1.PushedPreviouslyDown && !go1.PushedPreviouslyUp
 							)
 						{
+							GameObject.Interaction(go1, go2);
 							go1.SeparationFrom(go2.currentBoundingBox);
 						}
 

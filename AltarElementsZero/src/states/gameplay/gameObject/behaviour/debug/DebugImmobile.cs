@@ -23,5 +23,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
         {
             // Does nothing
         }
-    }
+		public void Interact(GameObject own, GameObject other)
+		{
+			return;
+		}
+	}
 }

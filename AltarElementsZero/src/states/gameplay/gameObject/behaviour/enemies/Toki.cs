@@ -126,5 +126,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			gameObject.SimulateRegularObjectPhysics();
 		}
 
+		public void Interact(GameObject own, GameObject other)
+		{
+			return;
+		}
+
 	}
 }

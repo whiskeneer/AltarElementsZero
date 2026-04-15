@@ -49,13 +49,18 @@
             gameObject.Timer = 0;
             gameObject.Timer2 = 0;
 
+            gameObject.InteractionFlags = 0;
+
 			return;
         }
         public void Update(GameObject gameObject)
         {
             return;
         }
-
+		public void Interact(GameObject own, GameObject other)
+        {
+            return;
+        }
 
 	}
 }

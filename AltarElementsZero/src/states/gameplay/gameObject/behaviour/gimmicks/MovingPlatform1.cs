@@ -113,5 +113,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
                 }
             }
         }
-    }
+
+		public void Interact(GameObject own, GameObject other)
+		{
+			return;
+		}
+	}
 }

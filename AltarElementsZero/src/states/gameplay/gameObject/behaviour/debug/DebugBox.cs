@@ -27,5 +27,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
             gameObject.SimulateRegularObjectPhysics();
 
 		}
+		public void Interact(GameObject own, GameObject other)
+		{
+			return;
+		}
 	}
 }
