@@ -41,6 +41,17 @@ namespace AltarElementsZero.src.states.editor
         {
             base.Enter();
 
+            for (int j = 0; j < Configuration.Level.Tile.Height; j++)
+            {
+                for(int i = 0; i < Configuration.Level.Tile.Width; i++)
+                {
+                    if(_level.GetTile(i,j).Family == Tile.Families.Ora)
+                    {
+                        _cursorPosition = new TilePosition((uint)i, (uint)j).ToPx();
+                    }
+                }
+            }
+
             //_level.SetAll(new Tile(Tile.Families.ConveyorRight,0));
         }
         public override void Update(GameTime gameTime)
@@ -135,7 +146,7 @@ namespace AltarElementsZero.src.states.editor
 
             if (_inputHandler.IsPressed(Input.Pause))
             {
-                _manager.RequestTransition(new IntroPayload("LEVEL\nMODIFIED"));
+                _manager.RequestTransition(new IntroPayload("ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
             }
 
 

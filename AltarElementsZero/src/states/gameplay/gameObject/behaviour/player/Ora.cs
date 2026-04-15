@@ -54,7 +54,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				gameObject.GroundImpulse = 0;
             }
 
-            if (gameObject.PushedUp && inputHandler.IsPressed(Input.Jump))
+            if ((gameObject.PushedUp || gameObject.PushedPreviouslyUp) && inputHandler.IsPressed(Input.Jump))
             {
                 jumpTimer = JUMP_TIME;
 				gameObject.AppliedForces += new Force(0, -12 -JUMP_FORCE);
@@ -73,7 +73,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             }
 
-            if (gameObject.PushedUp) // on ground
+            if (gameObject.PushedUp || gameObject.PushedPreviouslyUp) // on ground
             {
                 if (inputHandler.IsDown(Input.Left))
                 {

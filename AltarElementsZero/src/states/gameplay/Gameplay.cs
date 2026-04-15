@@ -35,6 +35,7 @@ namespace AltarElementsZero.src.states.gameplay
         private readonly GameObject _camera = new();
 
         private bool frameByFrameMode = false;
+		private bool stopCamera = false;
 
         //private readonly GameObject _testObject = GameObject.GetTestObject();
         //private int _remainingJumpFrames = 0;
@@ -130,10 +131,14 @@ namespace AltarElementsZero.src.states.gameplay
 
             if (_inputHandler.IsPressed(Input.Pause))
             {
-                _manager.RequestTransition(new IntroPayload("IM BACK"));
+                _manager.RequestTransition(new IntroPayload("ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
             }
 
             _drawIndices = _inputHandler.IsDown(Input.Dash);
+			if (_inputHandler.IsPressed(Input.Dash))
+			{
+				stopCamera = !stopCamera;
+			}
 
             if (_inputHandler.IsPressed(Input.Attack))
             {
@@ -417,11 +422,14 @@ namespace AltarElementsZero.src.states.gameplay
 			{
 				GameObject go1 = _objectPool[o];
 
-				if (object.ReferenceEquals(go1.behaviour, DebugPusher.Instance) || object.ReferenceEquals(go1.behaviour, Ora.Instance))
+				if (!stopCamera)
 				{
-					_camera.currentBoundingBox.Position = go1.currentBoundingBox.Position;
-					_camera.currentBoundingBox.Position.X -= (uint)Configuration.Chunk.Subpx.Width / 2 - 64 * 8;
-					_camera.currentBoundingBox.Position.Y -= (uint)Configuration.Chunk.Subpx.Height / 2 - 64 * 8;
+					if (object.ReferenceEquals(go1.behaviour, DebugPusher.Instance) || object.ReferenceEquals(go1.behaviour, Ora.Instance))
+					{
+						_camera.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+						_camera.currentBoundingBox.Position.X -= (uint)Configuration.Chunk.Subpx.Width / 2 - 64 * 8;
+						_camera.currentBoundingBox.Position.Y -= (uint)Configuration.Chunk.Subpx.Height / 2 - 64 * 8;
+					}
 				}
 
 				if (go1.Type != GameObject.Types.PUSHABLE) continue;
