@@ -17,9 +17,47 @@ namespace AltarElementsZero.src.states.gameplay.level
             public int KinematicMu = kinematicMu;
         }
 
+        // SubMember position in spritesheet
+        //        X0                X1                  X2              X3
+		// 0X   [none]           [right]             [left|right]    [left]
+		// 1X   [below]          [right|below]       ...
+		// 2X   [above|below]    [right|above|below]
+		// 3X   [above]          [right|above]
+
+
+		private static readonly byte[] SubMemberIndices = new byte[16]{
+            //      above   below   left    right
+            0x00, //
+            0x30, //  o       
+            0x10, //          o
+            0x20, //  o       o
+            0x03, //                  o
+            0x33, //  o               o
+            0x13, //          o       o
+            0x23, //  o       o       o
+            0x01, //                          o
+            0x31, //  o                       o
+            0x11, //          o               o
+            0x21, //  o       o               o
+            0x02, //                  o       o
+            0x32, //  o               o       o
+            0x12, //          o       o       o
+            0x22, //  o       o       o       o
+        };
+        public static byte GetSubMember(bool connectedAbove, bool connectedBelow, bool connectedAtLeft, bool connectedAtRight)
+        {
+            int index = 0;
+            if (connectedAbove) index |= 1;
+            if (connectedBelow) index |= 2;
+            if (connectedAtLeft) index |= 4;
+            if (connectedAtRight) index |= 8;
+            return SubMemberIndices[index];
+        }
+
         readonly public bool IsSolid()
         {
-            return Family >= Families.Ground && Family <= Families.FanRight;
+            return (Family >= Families.Ground && Family <= Families.FanRight) || (
+                Family == Families.AutomaticallyTiledGround);
         }
         readonly public FrictionCoefficients GetFrictionCoefficients()
         {
@@ -58,7 +96,8 @@ namespace AltarElementsZero.src.states.gameplay.level
 
         readonly public bool IsStaticTile()
         {
-            return Family >= Families.Ground && Family <= Families.Spikes;
+            return (Family >= Families.Ground && Family <= Families.Spikes) || 
+                (Family == Families.AutomaticallyTiledGround);
         }
         readonly public bool IsAnimatedTile()
         {
@@ -87,6 +126,7 @@ namespace AltarElementsZero.src.states.gameplay.level
             FanLeft,
             FanRight,
             
+            AutomaticallyTiledGround = 0x10, // static spritesheet index, where only bits 11001100 matter (masked by 0xcc)
 
                             // Spring,         //  6msb animated spritesheet index | direction
 
@@ -127,7 +167,8 @@ namespace AltarElementsZero.src.states.gameplay.level
             "FANRIGHT",
 
             "UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+
+			"AUTO GND","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",

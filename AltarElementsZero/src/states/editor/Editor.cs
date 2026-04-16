@@ -116,6 +116,10 @@ namespace AltarElementsZero.src.states.editor
 							);
                         //_cameraPosition = _currentChunk.ToPx();
                     }
+                    if (_inputHandler.IsPressed(Input.Attack))
+                    {
+                        _level.ReplaceAutomaticallyTiled();
+                    }
 
                     if (_inputHandler.IsPressed(Input.Left))
                     {

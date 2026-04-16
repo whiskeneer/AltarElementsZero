@@ -35,6 +35,68 @@ namespace AltarElementsZero.src.states.gameplay.level
 
 		}
 
+        public void ReplaceAutomaticallyTiled()
+        {
+            for (int row = 0; row < Configuration.Level.Tile.Height; row++)
+            {
+                for (int col = 0; col < Configuration.Level.Tile.Width; col++)
+                {
+                    Tile tile = GetTile(col, row);
+
+                    if(tile.Family == Tile.Families.AutomaticallyTiledGround)
+                    {
+                        byte metaMember = (byte)(tile.Member & 0xcc);
+                        bool foundAbove = false;
+                        bool foundBelow = false;
+                        bool foundAtLeft = false;
+                        bool foundAtRight = false;
+                        
+                        Tile tileAbove = GetTile(col, row - 1);
+                        Tile tileBelow = GetTile(col, row + 1);
+                        Tile tileAtLeft = GetTile(col - 1, row);
+                        Tile tileAtRight = GetTile(col + 1, row);
+
+                        if(tileAbove.Family == Tile.Families.AutomaticallyTiledGround)
+                        {
+                            foundAbove = (metaMember == (tileAbove.Member & 0xcc));  
+                        }
+						if (tileBelow.Family == Tile.Families.AutomaticallyTiledGround)
+						{
+							foundBelow = (metaMember == (tileBelow.Member & 0xcc));
+						}
+						if (tileAtLeft.Family == Tile.Families.AutomaticallyTiledGround)
+						{
+							foundAtLeft = (metaMember == (tileAtLeft.Member & 0xcc));
+						}
+						if (tileAtRight.Family == Tile.Families.AutomaticallyTiledGround)
+						{
+							foundAtRight = (metaMember == (tileAtRight.Member & 0xcc));
+						}
+
+                        byte subMember = Tile.GetSubMember(foundAbove, foundBelow, foundAtLeft, foundAtRight);
+                        
+                        tile.Member = (byte)(metaMember | subMember);
+
+                        SetTile(col, row, tile);
+					}
+                }
+            }
+            for (int row = 0; row < Configuration.Level.Tile.Height; row++)
+            {
+                for (int col = 0; col < Configuration.Level.Tile.Width; col++)
+                {
+                    Tile tile = GetTile(col, row);
+
+                    if (tile.Family == Tile.Families.AutomaticallyTiledGround)
+                    {
+                        tile.Family = Tile.Families.Ground;
+						SetTile(col, row, tile);
+					}
+                }
+            }
+
+		}
+
         public Tile GetTile(int x, int y)
         {
             // is there a more efficient way of checking this?
