@@ -11,6 +11,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
     sealed class GameObject
     {
+
+        public static ISignalFlags? signalFlags = null;
+
         // Delete later, only for testing
         public static InputHandler? inputHandler = null;
 
@@ -547,7 +550,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             IMMOBILE,
             UNSTOPPABLE,
             PUSHABLE,
-            FLUID
+            FLUID,
+            REGION, // Like fluid, but without physical properties
         };
 
         public Types Type { get; set; }

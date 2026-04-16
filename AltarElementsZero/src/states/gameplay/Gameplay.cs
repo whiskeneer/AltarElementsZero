@@ -16,6 +16,13 @@ using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 
 namespace AltarElementsZero.src.states.gameplay
 {
+	interface ISignalFlags
+	{
+		void SetSignalFlag(int flag, bool value);
+		bool GetSignalFlag(int flag);
+	}
+
+
     class Gameplay(
         GraphicsDevice graphicsDevice,
         GameServiceContainer gameServiceContainer,
@@ -29,9 +36,105 @@ namespace AltarElementsZero.src.states.gameplay
             assets: new GameplayAssets(graphicsDevice, gameServiceContainer),
             inputHandler: inputHandler,
             globalAssets: globalAssets
-            )
+            ), ISignalFlags
     {
-        private readonly Level _level = new("assets/lvl/DEBUG_LEVEL.json", "assets/lvl/DEBUG_LEVEL_CHUNKS.json");
+
+		private UInt32 PersistentSignalFlags4 = 0;
+		private UInt32 PersistentSignalFlags3 = 0;
+		private UInt32 PersistentSignalFlags2 = 0;
+		private UInt32 PersistentSignalFlags1 = 0;
+		private UInt32 SignalFlags4 = 0;
+		private UInt32 SignalFlags3 = 0;
+		private UInt32 SignalFlags2 = 0;
+		private UInt32 SignalFlags1 = 0;
+
+		public void SetSignalFlag(int flag, bool value)
+		{
+			if (flag < 0 || flag > 255) return;
+
+			if (flag < 32)
+			{
+				SignalFlags1 &= ~(1u << (int)flag);
+				SignalFlags1 |= (value ? 1u : 0u) << (int)flag;
+			}
+			else if (flag < 64)
+			{
+				SignalFlags2 &= ~(1u << (int)(flag - 32));
+				SignalFlags2 |= (value ? 1u : 0u) << (int)(flag - 32);
+			}
+			else if (flag < 96)
+			{
+				SignalFlags3 &= ~(1u << (int)(flag - 64));
+				SignalFlags3 |= (value ? 1u : 0u) << (int)(flag - 64);
+			}
+			else if (flag < 128)
+			{
+				SignalFlags4 &= ~(1u << (int)(flag - 96));
+				SignalFlags4 |= (value ? 1u : 0u) << (int)(flag - 96);
+			}
+			else if (flag < 160)
+			{
+				PersistentSignalFlags1 &= ~(1u << (int)(flag - 128));
+				PersistentSignalFlags1 |= (value ? 1u : 0u) << (int)(flag - 128);
+			}
+			else if (flag < 192)
+			{
+				PersistentSignalFlags2 &= ~(1u << (int)(flag - 160));
+				PersistentSignalFlags2 |= (value ? 1u : 0u) << (int)(flag - 160);
+			}
+			else if (flag < 224)
+			{
+				PersistentSignalFlags3 &= ~(1u << (int)(flag - 192));
+				PersistentSignalFlags3 |= (value ? 1u : 0u) << (int)(flag - 192);
+			}
+			else
+			{
+				PersistentSignalFlags4 &= ~(1u << (int)(flag - 224));
+				PersistentSignalFlags4 |= (value ? 1u : 0u) << (int)(flag - 224);
+			}
+		}
+
+		public bool GetSignalFlag(int flag)
+		{
+			if (flag < 0 || flag > 255) return false;
+
+			if (flag < 32)
+			{
+				return ((SignalFlags1 >> (int)flag) & 1) == 1;
+			}
+			else if (flag < 64)
+			{
+				return ((SignalFlags2 >> (int)(flag - 32)) & 1) == 1;
+			}
+			else if (flag < 96)
+			{
+				return ((SignalFlags3 >> (int)(flag - 64)) & 1) == 1;
+			}
+			else if (flag < 128)
+			{
+				return ((SignalFlags4 >> (int)(flag - 96)) & 1) == 1;
+			}
+			else if (flag < 160)
+			{
+				return ((PersistentSignalFlags1 >> (int)(flag - 128)) & 1) == 1;
+			}
+			else if (flag < 192)
+			{
+				return ((PersistentSignalFlags2 >> (int)(flag - 160)) & 1) == 1;
+			}
+			else if (flag < 224)
+			{
+				return ((PersistentSignalFlags3 >> (int)(flag - 192)) & 1) == 1;
+			}
+			else
+			{
+				return ((PersistentSignalFlags4 >> (int)(flag - 224)) & 1) == 1;
+			}
+		}
+
+
+
+		private readonly Level _level = new("assets/lvl/DEBUG_LEVEL.json", "assets/lvl/DEBUG_LEVEL_CHUNKS.json");
 
         //private readonly GameObject _camera = new();
         private bool frameByFrameMode = false;
@@ -94,6 +197,11 @@ namespace AltarElementsZero.src.states.gameplay
 				}
 			}
 
+			SignalFlags1 = 0;
+			SignalFlags2 = 0;
+			SignalFlags3 = 0;
+			SignalFlags4 = 0;
+
 			ResetAssignableObjects();
 			bool objectPoolIsFull = false;
 			for(int j = chunk.Top * Configuration.Chunk.Tile.Height;
@@ -117,35 +225,42 @@ namespace AltarElementsZero.src.states.gameplay
 							break;
 						}
 
+						// Is there a way to optimize this? 
+						// (for instance: indexed functions instead of long else-if chain)
 						if (tile.Family == Tile.Families.Toki)
 						{
 							_objectPool[nextAssignableObject].behaviour = Toki.Instance;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.MovingPlatform1)
 						{
 							_objectPool[nextAssignableObject].behaviour = MovingPlatform1.Instance;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.DebugBox)
 						{
 							_objectPool[nextAssignableObject].behaviour = DebugBox.Instance;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.DebugPusher)
 						{
 							_objectPool[nextAssignableObject].behaviour = DebugPusher.Instance;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.DebugImmobile)
 						{
 							_objectPool[nextAssignableObject].behaviour = DebugImmobile.Instance;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 
 						else if (tile.Family == Tile.Families.FanUp)
@@ -153,6 +268,21 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].behaviour = CurrentUp.Instance;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j - 2).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+						}
+						else if (tile.Family == Tile.Families.FloorButton)
+						{
+							_objectPool[nextAssignableObject].behaviour = FloorButton.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+						}
+						else if (tile.Family == Tile.Families.SwitchableDoor)
+						{
+							_objectPool[nextAssignableObject].behaviour = SwitchableDoor.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 					}
 				}
@@ -197,6 +327,7 @@ namespace AltarElementsZero.src.states.gameplay
         public override void Enter()
         {
             GameObject.inputHandler = _inputHandler;
+			GameObject.signalFlags = this;
 
             base.Enter();
 
@@ -625,6 +756,7 @@ namespace AltarElementsZero.src.states.gameplay
         public override void Exit()
         {
             GameObject.inputHandler = null;
+			GameObject.signalFlags = null;
 
             // if allocating on Enter, dispose here
             base.Exit();

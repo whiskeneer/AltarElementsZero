@@ -6,7 +6,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
     class Ora : IBehaviour
     {
         [Flags]
-        public enum FlagTypes
+		private enum FlagTypes : UInt32
         {
             None = 0,
             Hurt = 1 << 0,
@@ -131,7 +131,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
             {
-                Console.WriteLine("Ouch!");
+                //Console.WriteLine("Ouch!");
             }
 
         }
