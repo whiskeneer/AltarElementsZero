@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Data;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay
@@ -11,6 +12,7 @@ namespace AltarElementsZero.src.states.gameplay
             gameServiceContainer: gameServiceContainer
             )
     {
+
         public Texture2D? DebugSpritesheet {  get; private set; }
         public Texture2D? StaticSpritesheet { get; private set; }
         public Texture2D? AnimatedSpritesheet { get; private set; }
@@ -19,12 +21,19 @@ namespace AltarElementsZero.src.states.gameplay
         public Texture2D? OraSpritesheet { get; private set; }
 
 
+		// FOR BACKGROUND 1
         public RenderTarget2D? SkyBackground { get; private set; }
         public RenderTarget2D? SkyCloudsBig { get; private set; }
         public RenderTarget2D? SkyCloudsSmall { get; private set; }
 
         public RenderTarget2D? WaterBackground { get; private set; }
         public RenderTarget2D? WaterHorizon { get; private set; }
+
+
+		// FOR BACKGROUND 2
+		public RenderTarget2D? TempleBackground { get; private set; }
+		public RenderTarget2D? TemplePilarsBig { get; private set; }
+		public RenderTarget2D? TemplePilarsSmall { get; private set; }
 
 
         public override void Load()
@@ -94,6 +103,39 @@ namespace AltarElementsZero.src.states.gameplay
 				preferredMultiSampleCount: 0,
 				usage: RenderTargetUsage.DiscardContents
 				);
+
+
+			TempleBackground = new RenderTarget2D(
+				graphicsDevice: _graphicsDevice,
+				width: Configuration.VisibleScreen.Px.Width,
+				height: Configuration.VisibleScreen.Px.Height,
+				mipMap: false,
+				preferredFormat: SurfaceFormat.Color,
+				preferredDepthFormat: DepthFormat.None,
+				preferredMultiSampleCount: 0,
+				usage: RenderTargetUsage.DiscardContents
+				);
+			TemplePilarsBig = new RenderTarget2D(
+				graphicsDevice: _graphicsDevice,
+				width: Configuration.VisibleScreen.Px.Width * 2,
+				height: Configuration.VisibleScreen.Px.Height,
+				mipMap: false,
+				preferredFormat: SurfaceFormat.Color,
+				preferredDepthFormat: DepthFormat.None,
+				preferredMultiSampleCount: 0,
+				usage: RenderTargetUsage.DiscardContents
+				);
+			TemplePilarsSmall = new RenderTarget2D(
+				graphicsDevice: _graphicsDevice,
+				width: Configuration.VisibleScreen.Px.Width * 2,
+				height: Configuration.VisibleScreen.Px.Height,
+				mipMap: false,
+				preferredFormat: SurfaceFormat.Color,
+				preferredDepthFormat: DepthFormat.None,
+				preferredMultiSampleCount: 0,
+				usage: RenderTargetUsage.DiscardContents
+				);
+
 		}
 
         public override void Prerender(
@@ -107,6 +149,8 @@ namespace AltarElementsZero.src.states.gameplay
             GameplayPayload gameplayPayload = (payload as GameplayPayload)!;
 
             // Prerendering renderTargets
+
+			// BACKGROUND 1
             PrerenderBegin(spriteBatch, SkyBackground!);
             for(int i = 0; i < 12; i++)
             {
@@ -192,6 +236,62 @@ namespace AltarElementsZero.src.states.gameplay
 					);
 			}
 
+			// BACKGROUND 2
+
+			PrerenderSwitch(spriteBatch, TempleBackground!);
+			for (int i = 0; i < 12; i++)
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					spriteBatch.Draw(
+						texture: BackgroundSpritesheet,
+						position: new Vector2(i * 16, j * 16),
+						sourceRectangle: new Rectangle(128, 0, 16, 16),
+						color: Color.White
+						);
+				}
+			}
+
+			PrerenderSwitch(spriteBatch, TemplePilarsBig!);
+			for(int pilar = 0; pilar < 6; pilar++)
+			{
+				spriteBatch.Draw(
+					texture: BackgroundSpritesheet,
+					position: new Vector2(64 * pilar, 0),
+					sourceRectangle: new Rectangle(128, 16, 64, 48),
+					color: Color.White
+					);
+				for (int row = 0; row < 5; row++)
+				{
+					spriteBatch.Draw(
+						texture: BackgroundSpritesheet,
+						position: new Vector2(64 * pilar + 16, (row+3) * 16),
+						sourceRectangle: new Rectangle(128 + 16, 0, 16, 16),
+						color: Color.White
+						);
+				}
+			}
+
+			PrerenderSwitch(spriteBatch, TemplePilarsSmall!);
+			for (int pilar = 0; pilar < 12; pilar++)
+			{
+				spriteBatch.Draw(
+					texture: BackgroundSpritesheet,
+					position: new Vector2(32 * pilar, 48),
+					sourceRectangle: new Rectangle(192, 16, 32, 32),
+					color: Color.White
+					);
+				for (int row = 0; row < 3; row++)
+				{
+					spriteBatch.Draw(
+						texture: BackgroundSpritesheet,
+						position: new Vector2(32 * pilar, (row + 5) * 16),
+						sourceRectangle: new Rectangle(128 + 32, 0, 16, 16),
+						color: Color.White
+						);
+				}
+			}
+
 			PrerenderEnd(spriteBatch);
 
 		}
@@ -220,6 +320,13 @@ namespace AltarElementsZero.src.states.gameplay
             WaterBackground = null;
             WaterHorizon!.Dispose();
             WaterHorizon = null;
+
+			TempleBackground!.Dispose(); 
+			TempleBackground = null;
+			TemplePilarsBig!.Dispose(); 
+			TemplePilarsBig = null;
+			TemplePilarsSmall!.Dispose();
+			TemplePilarsSmall = null;
         }
     }
 }

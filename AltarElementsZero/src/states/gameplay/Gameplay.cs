@@ -148,6 +148,8 @@ namespace AltarElementsZero.src.states.gameplay
 
 		//
 
+		private byte CurrentBackground = 0;
+
 		private uint ChunkLimitTop = 0;
 		private uint ChunkLimitBottom = 0;
 		private uint ChunkLimitLeft = 0;
@@ -181,6 +183,8 @@ namespace AltarElementsZero.src.states.gameplay
 		private void UpdateChunk(Chunk chunk)
 		{
 			if (chunk.BackgroundIndex == 0) return;
+
+			CurrentBackground = chunk.BackgroundIndex;
 
 			ChunkLimitTop = (uint)(chunk.Top) * (uint)Configuration.Chunk.Subpx.Height;
 			ChunkLimitBottom = (uint)(chunk.Bottom + 1) * (uint)Configuration.Chunk.Subpx.Height - 1;
@@ -768,53 +772,75 @@ namespace AltarElementsZero.src.states.gameplay
 
             //PxPosition CameraPosition = _camera.currentBoundingBox.Position.ToVisualPx();
 
-			int waterPosition = 16*6 - (int)(CameraPosition.Y >> 4);
-			int waterHorizonPosition = -(int)((CameraPosition.X >> 4) & (Configuration.VisibleScreen.Px.Width-1));
+			if(CurrentBackground == 1)
+			{
+				int waterPosition = 16*6 - (int)(CameraPosition.Y >> 4);
+				int waterHorizonPosition = -(int)((CameraPosition.X >> 4) & (Configuration.VisibleScreen.Px.Width-1));
 
-			int smallCloudsX = -(int)((CameraPosition.X >> 3) & (Configuration.VisibleScreen.Px.Width - 1));
-			int smallCloudsY = 16 * 3 - (int)(CameraPosition.Y >> 3);
+				int smallCloudsX = -(int)((CameraPosition.X >> 3) & (Configuration.VisibleScreen.Px.Width - 1));
+				int smallCloudsY = 16 * 3 - (int)(CameraPosition.Y >> 3);
 
-			int bigCloudsX = -(int)((CameraPosition.X >> 2) & (Configuration.VisibleScreen.Px.Width - 1));
-			int bigCloudsY = 16 * 4 - (int)(CameraPosition.Y >> 2);
+				int bigCloudsX = -(int)((CameraPosition.X >> 2) & (Configuration.VisibleScreen.Px.Width - 1));
+				int bigCloudsY = 16 * 4 - (int)(CameraPosition.Y >> 2);
 
-			spriteBatch.Draw(
-				texture: _assets.SkyBackground,
-				position: new Vector2(),
-				color: Color.White
-				);
+				spriteBatch.Draw(
+					texture: _assets.SkyBackground,
+					position: new Vector2(),
+					color: Color.White
+					);
 
-			spriteBatch.Draw(
-				texture: _assets.WaterHorizon,
-				position: new Vector2(waterHorizonPosition, Math.Max(0, waterPosition - 32)),
-				color: Color.White
-				);
-			spriteBatch.Draw(
-				texture: _assets.SkyCloudsSmall,
-				position: new Vector2(smallCloudsX, smallCloudsY),
-				color: Color.White
-				);
+				spriteBatch.Draw(
+					texture: _assets.WaterHorizon,
+					position: new Vector2(waterHorizonPosition, Math.Max(0, waterPosition - 32)),
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: _assets.SkyCloudsSmall,
+					position: new Vector2(smallCloudsX, smallCloudsY),
+					color: Color.White
+					);
 
-			spriteBatch.Draw(
-				texture: _assets.SkyCloudsBig,
-				position: new Vector2(bigCloudsX, bigCloudsY),
-				color: Color.White
-				);
+				spriteBatch.Draw(
+					texture: _assets.SkyCloudsBig,
+					position: new Vector2(bigCloudsX, bigCloudsY),
+					color: Color.White
+					);
 
-			spriteBatch.Draw(
-				texture: _assets.WaterBackground,
-				position: new Vector2(0, Math.Max(0, waterPosition + 16)),
-				color: Color.White
-				);
+				spriteBatch.Draw(
+					texture: _assets.WaterBackground,
+					position: new Vector2(0, Math.Max(0, waterPosition + 16)),
+					color: Color.White
+					);
+			}
+			else if (CurrentBackground == 2)
+			{
+				spriteBatch.Draw(
+					texture: _assets.TempleBackground,
+					position: new Vector2(),
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: _assets.TemplePilarsSmall,
+					position: new Vector2(),
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: _assets.TemplePilarsBig,
+					position: new Vector2(),
+					color: Color.White
+					);
+			}
 
 
-			Renderer.RenderTiles(
-                spriteBatch,
-                _level,
-                CameraPosition,
-                _animationFrame,
-                _assets.StaticSpritesheet!,
-                _assets.AnimatedSpritesheet!
-                );
+
+				Renderer.RenderTiles(
+					spriteBatch,
+					_level,
+					CameraPosition,
+					_animationFrame,
+					_assets.StaticSpritesheet!,
+					_assets.AnimatedSpritesheet!
+					);
 
 
             for(int o = 0; o < _objectPool.Length; o++)
