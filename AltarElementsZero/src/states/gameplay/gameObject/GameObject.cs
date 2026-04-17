@@ -12,6 +12,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
     sealed class GameObject
     {
 
+        public enum DrawOrderTypes : Byte{
+            NONE,
+            BACK,
+            MIDDLE,
+            FRONT
+        }
+        public DrawOrderTypes drawOrder = DrawOrderTypes.NONE;
+
+
         public static ISignalFlags? signalFlags = null;
 
         // Delete later, only for testing
@@ -571,7 +580,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public bool isPersistentAcrossChunks = false;
 
-        public bool isVisible = false;
+        //public bool isVisible = false;
         public uint spritesheetIndex = 0;
         public SpriteEffects spriteEffects = SpriteEffects.None;
         public PxSize SpriteOffset;

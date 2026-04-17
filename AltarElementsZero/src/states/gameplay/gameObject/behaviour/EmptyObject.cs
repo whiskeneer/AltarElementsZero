@@ -11,7 +11,7 @@
 
             gameObject.spawnValue = 0;
 			gameObject.isPersistentAcrossChunks = false;
-            gameObject.isVisible = false;
+            gameObject.drawOrder = GameObject.DrawOrderTypes.NONE;
             gameObject.spritesheetIndex = 0;
             gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
             gameObject.SpriteOffset = new();

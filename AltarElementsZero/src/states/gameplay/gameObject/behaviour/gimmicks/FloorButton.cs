@@ -18,8 +18,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
             gameObject.Type = GameObject.Types.REGION;
             gameObject.isPersistentAcrossChunks = false;
 
-            gameObject.isVisible = true;
-            gameObject.spritesheetIndex = 9;
+            gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
+			gameObject.spritesheetIndex = 9;
             gameObject.SpriteOffset = new(0, 0);
             gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
 

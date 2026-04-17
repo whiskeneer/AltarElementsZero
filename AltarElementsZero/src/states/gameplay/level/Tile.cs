@@ -107,7 +107,7 @@ namespace AltarElementsZero.src.states.gameplay.level
         {
             return (Family >= Families.Toki && Family <= Families.DebugBox)
                 || (Family >= Families.FanUp  && Family <= Families.FanRight);
-                ;
+                
         }
 
         public enum Families : byte
@@ -143,6 +143,7 @@ namespace AltarElementsZero.src.states.gameplay.level
             SwitchableDoor,
 
             Ora = 0xf0,
+            Checkpoint,
 
             DebugImmobile = 0xfd,
             DebugPusher = 0xfe,
@@ -206,7 +207,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 			"BUTTON",  "SWITDOOR","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
-			"ORA",     "UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+			"ORA",     "CHECKPNT","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","IMMOBILE","PUSHER",  "DEBUGBOX"
 			};
     }

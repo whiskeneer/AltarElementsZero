@@ -56,8 +56,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 			//gameObject.isFixed = false;
 			//gameObject.isAffectedByGravity = false;
 
-			gameObject.isVisible = true;
-            gameObject.spritesheetIndex = 8;
+			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
+			gameObject.spritesheetIndex = 8;
             gameObject.SpriteOffset = new(0, 16);
             gameObject.spriteEffects = SpriteEffects.None;
 

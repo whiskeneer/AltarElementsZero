@@ -23,7 +23,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			gameObject.isPersistentAcrossChunks = false;
 
 
-			gameObject.isVisible = true;
+			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
             gameObject.spritesheetIndex = 0;
             gameObject.spriteEffects = SpriteEffects.None;
 

@@ -11,7 +11,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
             gameObject.Type = GameObject.Types.UNSTOPPABLE;
             gameObject.isPersistentAcrossChunks = false;
 
-            gameObject.isVisible = true;
+            gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
             gameObject.spritesheetIndex = 11;
             gameObject.SpriteOffset = new(0, 0);
             gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;

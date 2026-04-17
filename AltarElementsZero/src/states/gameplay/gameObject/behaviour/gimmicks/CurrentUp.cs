@@ -12,9 +12,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 			gameObject.isPersistentAcrossChunks = false;
 
 
-			gameObject.isVisible = true;
-            gameObject.SpriteOffset = new PxSize();
-            gameObject.spritesheetIndex = 0x2d;
+			gameObject.drawOrder = GameObject.DrawOrderTypes.NONE;
+			//gameObject.SpriteOffset = new PxSize();
+            //gameObject.spritesheetIndex = 0x2d;
 
 
             gameObject.currentBoundingBox.Size = new TileSize(1, 2).ToPx().ToSubpx();

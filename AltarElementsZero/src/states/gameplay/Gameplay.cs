@@ -16,10 +16,26 @@ using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 
 namespace AltarElementsZero.src.states.gameplay
 {
+	[Flags]
+	enum GameplayMessages : UInt32{
+		None = 0,
+		Exit = 1 << 0,
+		RestartFromCheckpoint = 1 << 1,
+		RestartFromBeginning = 1 << 2,
+	}
+
 	interface ISignalFlags
 	{
+		// Flags for communication among GameObjects
 		void SetSignalFlag(int flag, bool value);
 		bool GetSignalFlag(int flag);
+
+		// Flags for communicating with Gameplay
+		void EmitGameplayMessage(GameplayMessages gameplayMessage);
+
+		void SetCheckpoint(byte checkpointValue, TilePosition checkpointPosition);
+		byte GetCheckpointValue();
+
 	}
 
 
@@ -39,6 +55,39 @@ namespace AltarElementsZero.src.states.gameplay
             ), ISignalFlags
     {
 
+		private GameplayMessages gameplayMessages = GameplayMessages.None;
+
+		public void EmitGameplayMessage(GameplayMessages newGameplayMessage){
+			gameplayMessages |= newGameplayMessage;
+		}
+
+		private void ProcessGameplayMessages()
+		{
+			if((gameplayMessages & GameplayMessages.Exit) == GameplayMessages.Exit)
+			{
+				_manager.RequestTransition(new IntroPayload("HELLO"));
+			}
+			else if ((gameplayMessages & GameplayMessages.RestartFromBeginning) == GameplayMessages.RestartFromBeginning)
+			{
+				RestartFromBeginning();
+			}
+			else if((gameplayMessages & GameplayMessages.RestartFromCheckpoint) == GameplayMessages.RestartFromCheckpoint)
+			{
+				RestartFromCheckpoint();
+			}
+			
+			//
+			gameplayMessages = GameplayMessages.None;
+		}
+
+		public void SetCheckpoint(byte checkpointValue, TilePosition checkpointPosition){
+			LastActivatedCheckpoint = checkpointPosition;
+			LastActivatedCheckpointValue = checkpointValue;
+		}
+		public byte GetCheckpointValue(){
+			return LastActivatedCheckpointValue;
+		}
+
 		private UInt32 PersistentSignalFlags4 = 0;
 		private UInt32 PersistentSignalFlags3 = 0;
 		private UInt32 PersistentSignalFlags2 = 0;
@@ -47,6 +96,10 @@ namespace AltarElementsZero.src.states.gameplay
 		private UInt32 SignalFlags3 = 0;
 		private UInt32 SignalFlags2 = 0;
 		private UInt32 SignalFlags1 = 0;
+
+		private TilePosition BeginningCheckpoint = new(0, 0);
+		private byte LastActivatedCheckpointValue = 0;
+		private TilePosition LastActivatedCheckpoint = new(0, 0);
 
 		public void SetSignalFlag(int flag, bool value)
 		{
@@ -134,9 +187,8 @@ namespace AltarElementsZero.src.states.gameplay
 
 
 
-		private readonly Level _level = new("assets/lvl/DEBUG_LEVEL.json", "assets/lvl/DEBUG_LEVEL_CHUNKS.json");
+		private Level? _level; //= new("assets/lvl/DEBUG_LEVEL.json", "assets/lvl/DEBUG_LEVEL_CHUNKS.json");
 
-        //private readonly GameObject _camera = new();
         private bool frameByFrameMode = false;
 		private bool stopCamera = false;
         private bool _drawIndices = false;
@@ -218,7 +270,7 @@ namespace AltarElementsZero.src.states.gameplay
 					i <= (chunk.Right + 1) * Configuration.Chunk.Tile.Width - 1;
 					i++)
 				{
-					Tile tile = _level.GetTile(i, j);
+					Tile tile = _level!.GetTile(i, j);
 
 					if (tile.IsObjectSpawn())
 					{
@@ -288,6 +340,13 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
+						else if (tile.Family == Tile.Families.Checkpoint)
+						{
+							_objectPool[nextAssignableObject].behaviour = Checkpoint.Instance;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+						}
 					}
 				}
 			}
@@ -295,7 +354,7 @@ namespace AltarElementsZero.src.states.gameplay
 			//int amountOfObjects = 0;
 			//for (int o = 0; o < _objectPool.Length; o++)
 			//{
-			//	if( _objectPool[o].Type != GameObject.Types.NONEXISTENT)
+			//	if (_objectPool[o].Type != GameObject.Types.NONEXISTENT)
 			//	{
 			//		amountOfObjects++;
 			//	}
@@ -328,6 +387,65 @@ namespace AltarElementsZero.src.states.gameplay
 
 		//
 
+		private void LoadLevel(string tilesFileName, string chunksFileName)
+		{
+			_level = new Level(tilesFileName, chunksFileName);
+		}
+		private bool StartLevel()
+		{
+			if (_level == null) return false;
+
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				_objectPool[o] = new();
+				GameObject go = _objectPool[o];
+				go.behaviour = EmptyObject.Instance;
+				go.Init();
+			}
+
+			bool foundPlayer = false;
+
+			for (int j = 0; j < Configuration.Level.Tile.Height && !foundPlayer; j++)
+			{
+				for (int i = 0; i < Configuration.Level.Tile.Width && !foundPlayer; i++)
+				{
+					Tile tile = _level.GetTile(i, j);
+					if(tile.Family == Tile.Families.Ora){
+						foundPlayer = true;
+
+						BeginningCheckpoint = new TilePosition((uint)i, (uint)j);
+						RestartFromBeginning();
+					}
+				}
+			}
+
+			return foundPlayer;
+		}
+
+		private void RestartFromCheckpoint(){
+			GameObject player = _objectPool[0];
+			player.behaviour = Ora.Instance;
+			player.Init();
+			player.currentBoundingBox.Position = LastActivatedCheckpoint.ToPx().ToSubpx();
+
+			int chunkX = ((int)LastActivatedCheckpoint.X / Configuration.Chunk.Tile.Width);
+			int chunkY = ((int)LastActivatedCheckpoint.Y / Configuration.Chunk.Tile.Height);
+
+			UpdateChunk(_level!.GetChunk(chunkX, chunkY));
+			UpdateCamera(player.currentBoundingBox.Center());
+		}
+		private void RestartFromBeginning(){
+			LastActivatedCheckpoint = BeginningCheckpoint;
+			LastActivatedCheckpointValue = 0;
+			PersistentSignalFlags1 = 0;
+			PersistentSignalFlags2 = 0;
+			PersistentSignalFlags3 = 0;
+			PersistentSignalFlags4 = 0;
+			RestartFromCheckpoint();
+		}
+
+
+
         public override void Enter()
         {
             GameObject.inputHandler = _inputHandler;
@@ -335,78 +453,48 @@ namespace AltarElementsZero.src.states.gameplay
 
             base.Enter();
 
-            //Random rnd = new();
-
-            for(int o = 0; o < _objectPool.Length; o++)
-            {
-                _objectPool[o] = new();
-            }
-
-            int nextAssignableObject = 0;
-            for (int j = 0; j < Configuration.Level.Tile.Height && nextAssignableObject < _objectPool.Length; j++)
-            {
-                for (int i = 0; i < Configuration.Level.Tile.Width && nextAssignableObject < _objectPool.Length; i++)
-                {
-                    Tile tile = _level.GetTile(i, j);
-                    if (tile.IsObjectSpawn())
-                    {
-						if(tile.Family == Tile.Families.Ora)
-						{
-							_objectPool[nextAssignableObject].behaviour = Ora.Instance;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							nextAssignableObject++;
-
-							// Avoid using division and modulo during gameplay (at enter is ok)
-							int chunkX = (i / Configuration.Chunk.Tile.Width);
-							int chunkY = (j / Configuration.Chunk.Tile.Height);
-
-							UpdateChunk(_level.GetChunk(chunkX,chunkY));
-							UpdateCamera(_objectPool[nextAssignableObject].currentBoundingBox.Center());
-
-						}
-					}
-                }
-            }
-
+			LoadLevel("assets/lvl/DEBUG_LEVEL.json", "assets/lvl/DEBUG_LEVEL_CHUNKS.json");
+			if (!StartLevel()){
+				_manager.RequestTransition(new IntroPayload("ERROR"));
+			}
 
         }
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
+		public override void Update(GameTime gameTime)
+		{
+			base.Update(gameTime);
 
 
-            if (_inputHandler.IsPressed(Input.Pause))
-            {
-                _manager.RequestTransition(new IntroPayload("ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
-            }
+			//if (_inputHandler.IsPressed(Input.Pause))
+			//{
+			//    _manager.RequestTransition(new IntroPayload("ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
+			//}
 
-            _drawIndices = _inputHandler.IsDown(Input.Dash);
+			_drawIndices = _inputHandler.IsDown(Input.Dash);
 			if (_inputHandler.IsPressed(Input.Dash))
 			{
 				stopCamera = !stopCamera;
 			}
 
-            if (_inputHandler.IsPressed(Input.Attack))
-            {
-                frameByFrameMode = !frameByFrameMode;
-            }
+			if (_inputHandler.IsPressed(Input.Attack))
+			{
+				frameByFrameMode = !frameByFrameMode;
+			}
 
-            if(frameByFrameMode && !_inputHandler.IsPressed(Input.Jump))
-            {
-                return;
-            }
+			if (frameByFrameMode && !_inputHandler.IsPressed(Input.Jump))
+			{
+				return;
+			}
 
 
-            CalculateDesiredOutcomes();
-            ApplyHorizontalVelocities();
-            CheckHorizontalCollisions();
-            ApplyVerticalVelocities();
-            CheckVerticalCollisions();
-            SeparatePushables();
+			CalculateDesiredOutcomes();
+			ApplyHorizontalVelocities();
+			CheckHorizontalCollisions();
+			ApplyVerticalVelocities();
+			CheckVerticalCollisions();
+			SeparatePushables();
 			SeparatePushablesFromImmobile();
 
-			for(int o = 0; o < _objectPool.Length; o++)
+			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject go = _objectPool[o];
 				if (!stopCamera)
@@ -429,18 +517,20 @@ namespace AltarElementsZero.src.states.gameplay
 					}
 				}
 			}
-			
 
 			if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
-            {
-                for(int o = 0; o < _objectPool.Length; o++)
-                {
-                    GameObject gameObject = _objectPool[o];
-                    if (gameObject.Type == GameObject.Types.NONEXISTENT) continue;
-                    Console.Write($"{o} : UP={gameObject.PushedUp} DN={gameObject.PushedDown} LF={gameObject.PushedLeft} RH={gameObject.PushedRight} ");
-                    Console.WriteLine($"P-UP={gameObject.PushedPreviouslyUp} P-DN={gameObject.PushedPreviouslyDown} P-LF={gameObject.PushedPreviouslyLeft} P-RH={gameObject.PushedPreviouslyRight}");
-                }
-            }
+			{
+				for (int o = 0; o < _objectPool.Length; o++)
+				{
+					GameObject gameObject = _objectPool[o];
+					if (gameObject.Type == GameObject.Types.NONEXISTENT) continue;
+					Console.Write($"{o} : UP={gameObject.PushedUp} DN={gameObject.PushedDown} LF={gameObject.PushedLeft} RH={gameObject.PushedRight} ");
+					Console.WriteLine($"P-UP={gameObject.PushedPreviouslyUp} P-DN={gameObject.PushedPreviouslyDown} P-LF={gameObject.PushedPreviouslyLeft} P-RH={gameObject.PushedPreviouslyRight}");
+				}
+			}
+
+
+			ProcessGameplayMessages();
 
 		}
 
@@ -767,8 +857,31 @@ namespace AltarElementsZero.src.states.gameplay
         }
 
        
+		private void RenderObject(SpriteBatch spriteBatch, GameObject gameObject, Texture2D spritesheetTexture){
+			PxPosition objectPosition = gameObject.currentBoundingBox.Position.ToVisualPx() - gameObject.SpriteOffset;
+			uint spritesheetIndex = gameObject.spritesheetIndex;
+			SpriteEffects spriteEffects = gameObject.spriteEffects;
+
+			spriteBatch.Draw(
+				texture: spritesheetTexture,
+				position: new Vector2(
+					(int)objectPosition.X - CameraPosition.X,
+					(int)objectPosition.Y - CameraPosition.Y
+					),
+				sourceRectangle: new(
+					Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
+					Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
+					Configuration.Tile.Px.Width * 2,
+					Configuration.Tile.Px.Height * 2
+					),
+				color: Color.White,
+				0f, Vector2.Zero, 1f, spriteEffects, 0f
+				);
+
+		}
         private void Render(SpriteBatch spriteBatch)
         {
+			if(_level == null) return;
 
             //PxPosition CameraPosition = _camera.currentBoundingBox.Position.ToVisualPx();
 
@@ -846,71 +959,35 @@ namespace AltarElementsZero.src.states.gameplay
             for(int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject currentObject = _objectPool[o];
-                //if (currentObject.exists && currentObject.isVisible)
-                if(currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.isVisible)
+                if(currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.BACK)
                 {
-                    PxPosition objectPosition = currentObject.currentBoundingBox.Position.ToVisualPx() - currentObject.SpriteOffset;
-                    uint spritesheetIndex = currentObject.spritesheetIndex;
+					RenderObject(spriteBatch, currentObject, _assets.ObjectSpritesheet!);
+				}
+            }
 
-                    if (object.ReferenceEquals(currentObject.behaviour, DebugBox.Instance))
-                    {
-                        if (currentObject.PushedPreviouslyUp) spritesheetIndex |= 0x1;
-                        if (currentObject.PushedPreviouslyDown) spritesheetIndex |= 0x2;
-                        if (currentObject.PushedPreviouslyLeft) spritesheetIndex |= 0x4;
-                        if (currentObject.PushedPreviouslyRight) spritesheetIndex |= 0x8;
-                    }
-
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject currentObject = _objectPool[o];
+				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.MIDDLE)
+				{
 					Texture2D objectTexture = _assets.ObjectSpritesheet!;
-					if(object.ReferenceEquals(currentObject.behaviour, Ora.Instance))
+					if (object.ReferenceEquals(currentObject.behaviour, Ora.Instance))
 					{
 						objectTexture = _assets.OraSpritesheet!;
 					}
 
-                    SpriteEffects spriteEffects = currentObject.spriteEffects;
-                    spriteBatch.Draw(
-                        texture: objectTexture,
-                        position: new Vector2(
-                            (int)objectPosition.X - CameraPosition.X,
-                            (int)objectPosition.Y - CameraPosition.Y
-                            ),
-                        sourceRectangle: new(
-                            Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
-                            Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
-                            Configuration.Tile.Px.Width * 2,
-                            Configuration.Tile.Px.Height * 2
-                            ),
-                        color: Color.White, 
-                        0f,Vector2.Zero,1f,spriteEffects,0f
-                        );
-                    if (_drawIndices)
-                    {
-						spriteBatch.Draw(
-							texture: _assets.DebugSpritesheet,
-							position: new Vector2(
-								(int)objectPosition.X - CameraPosition.X,
-								(int)objectPosition.Y - CameraPosition.Y
-								),
-							sourceRectangle: new(
-                                4 * ((o>>4) & 0xf), 0, 4, 8
-								),
-							color: Color.White,
-							0f, Vector2.Zero, 1f, spriteEffects, 0f
-							);
-						spriteBatch.Draw(
-							texture: _assets.DebugSpritesheet,
-							position: new Vector2(
-								(int)objectPosition.X - CameraPosition.X + 4,
-								(int)objectPosition.Y - CameraPosition.Y
-								),
-							sourceRectangle: new(
-								4 * (o & 0xf), 0, 4, 8
-								),
-							color: Color.White,
-							0f, Vector2.Zero, 1f, spriteEffects, 0f
-							);
-					}
+					RenderObject(spriteBatch, currentObject, objectTexture);
 				}
-            }
+			}
+
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject currentObject = _objectPool[o];
+				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.FRONT)
+				{
+					RenderObject(spriteBatch, currentObject, _assets.ObjectSpritesheet!);
+				}
+			}
 
 		}
     }

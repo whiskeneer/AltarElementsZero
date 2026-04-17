@@ -25,7 +25,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			gameObject.isPersistentAcrossChunks = true;
 
 
-			gameObject.isVisible = true;
+			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
             gameObject.spritesheetIndex = 0x00;
             gameObject.SpriteOffset = new(10, 6);
             gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
@@ -41,6 +41,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             ref uint jumpTimer = ref gameObject.Timer;
             ref uint animationTimer = ref gameObject.Timer2;
+
+            //
+
+            if(inputHandler.IsPressed(Input.Pause)){
+                GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Exit);
+            }
+
+            //
             
             if (inputHandler.IsDown(Input.Left))
             {
@@ -131,7 +139,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
             {
-                //Console.WriteLine("Ouch!");
+                GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.RestartFromCheckpoint);
             }
 
         }

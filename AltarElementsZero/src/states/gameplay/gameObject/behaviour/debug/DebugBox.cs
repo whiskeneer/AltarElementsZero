@@ -12,7 +12,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
 			gameObject.Type = GameObject.Types.PUSHABLE;
             gameObject.isPersistentAcrossChunks = false;
 
-			gameObject.isVisible = true;
+			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
             gameObject.spritesheetIndex = 0x30;
             gameObject.spriteEffects = SpriteEffects.None;
 
