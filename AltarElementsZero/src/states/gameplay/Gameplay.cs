@@ -201,6 +201,8 @@ namespace AltarElementsZero.src.states.gameplay
 		//
 
 		private byte CurrentBackground = 0;
+		private Force CurrentGravity = new(0, 12);
+		private uint CurrentAirFriction = 0;
 
 		private uint ChunkLimitTop = 0;
 		private uint ChunkLimitBottom = 0;
@@ -237,6 +239,17 @@ namespace AltarElementsZero.src.states.gameplay
 			if (chunk.BackgroundIndex == 0) return;
 
 			CurrentBackground = chunk.BackgroundIndex;
+			switch(CurrentBackground){
+				case 3: // underwater
+					CurrentGravity = new Force(0, 6);
+					CurrentAirFriction = 10;
+					break;
+				default:
+					CurrentGravity = new Force(0, 12);
+					CurrentAirFriction = 0;
+					break;
+			}
+
 
 			ChunkLimitTop = (uint)(chunk.Top) * (uint)Configuration.Chunk.Subpx.Height;
 			ChunkLimitBottom = (uint)(chunk.Bottom + 1) * (uint)Configuration.Chunk.Subpx.Height - 1;
@@ -548,7 +561,8 @@ namespace AltarElementsZero.src.states.gameplay
 					gameObject.VelocityBelow = 0;
 					gameObject.FrictionCoefficientsBelow = new();
 					gameObject.VelocityAround = new();
-					gameObject.FrictionCoefficientAround = 0;
+					gameObject.FrictionCoefficientAround = CurrentAirFriction;
+					gameObject.Gravity = CurrentGravity;
 
 					gameObject.AppliedForces = new();
 
@@ -883,12 +897,12 @@ namespace AltarElementsZero.src.states.gameplay
         {
 			if(_level == null) return;
 
-            //PxPosition CameraPosition = _camera.currentBoundingBox.Position.ToVisualPx();
+			//PxPosition CameraPosition = _camera.currentBoundingBox.Position.ToVisualPx();
 
-			if(CurrentBackground == 1)
+			if (CurrentBackground == 1)
 			{
-				int waterPosition = 16*6 - (int)(CameraPosition.Y >> 4);
-				int waterHorizonPosition = -(int)((CameraPosition.X >> 4) & (Configuration.VisibleScreen.Px.Width-1));
+				int waterPosition = 16 * 6 - (int)(CameraPosition.Y >> 4);
+				int waterHorizonPosition = -(int)((CameraPosition.X >> 4) & (Configuration.VisibleScreen.Px.Width - 1));
 
 				int smallCloudsX = -(int)((CameraPosition.X >> 3) & (Configuration.VisibleScreen.Px.Width - 1));
 				int smallCloudsY = 16 * 3 - (int)(CameraPosition.Y >> 3);
@@ -943,8 +957,82 @@ namespace AltarElementsZero.src.states.gameplay
 					color: Color.White
 					);
 			}
+			else if (CurrentBackground == 3)
+			{
+				PxPosition cameraOffset = new(
+					CameraPosition.X - (ChunkLimitLeft >> Configuration.Px.SubpxPower),
+					CameraPosition.Y - (ChunkLimitTop >> Configuration.Px.SubpxPower)
+					);
 
-
+				spriteBatch.Draw(
+					texture: _assets.UnderwaterSky,
+					position: new Vector2( 
+						-(cameraOffset.X >> 4), 
+						-(cameraOffset.Y >> 4) - (5 << Configuration.Tile.PxPower)
+						),
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: _assets.UnderwaterTemple1,
+					position: new Vector2(
+						-(cameraOffset.X >> 4) + (10 << Configuration.Tile.PxPower),
+						-(cameraOffset.Y >> 4) + (1 << Configuration.Tile.PxPower)
+						),
+					sourceRectangle: new Rectangle(
+						0,
+						(int)((_animationFrame >> 4) & 7) * 32,
+						32+16,
+						32
+						),
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: _assets.UnderwaterTemple2,
+					position: new Vector2(
+						-(cameraOffset.X >> 4) + (2 << Configuration.Tile.PxPower),
+						-(cameraOffset.Y >> 4) + (1 << Configuration.Tile.PxPower)
+						),
+					sourceRectangle: new Rectangle(
+						0,
+						(int)((_animationFrame >> 4) & 7) * 32,
+						64 + 16,
+						32
+						),
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: _assets.UnderwaterFarRocks,
+					position: new Vector2(
+						-(cameraOffset.X >> 4),
+						-(cameraOffset.Y >> 4) + (3 << Configuration.Tile.PxPower)
+						),
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: _assets.UnderwaterCloseRocks,
+					position: new Vector2(
+						-(cameraOffset.X >> 3),
+						-(cameraOffset.Y >> 3) + (5 << Configuration.Tile.PxPower)
+						),
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: _assets.UnderwaterFarCorals,
+					position: new Vector2(
+						-(cameraOffset.X >> 2),
+						-(cameraOffset.Y >> 2) + (8 << Configuration.Tile.PxPower)
+						),
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: _assets.UnderwaterCloseCorals,
+					position: new Vector2(
+						-(cameraOffset.X >> 1),
+						-(cameraOffset.Y >> 1) + (13 << Configuration.Tile.PxPower)
+						),
+					color: Color.White
+					);
+			}
 
 				Renderer.RenderTiles(
 					spriteBatch,

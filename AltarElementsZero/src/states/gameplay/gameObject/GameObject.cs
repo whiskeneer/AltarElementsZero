@@ -43,8 +43,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public bool PushedPreviouslyLeft = false;
         public bool PushedPreviouslyRight = false;
 
-        // Friction with the ground
-        public int VelocityBelow;
+        // Gravity
+        public Force Gravity = new(0, 12);
+		// Friction with the ground
+		public int VelocityBelow;
         public Tile.FrictionCoefficients FrictionCoefficientsBelow;
         // Friction with the medium
         public SubpxVelocity VelocityAround;
@@ -68,7 +70,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
 			ApplyAirImpulse();
 			ApplyMediumFriction();
-			AppliedForces += new Force(0, 12); // gravity
+            AppliedForces += Gravity; // gravity
 
 			Force ForcesBeforeGroundFriction = AppliedForces;
 
