@@ -12,6 +12,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
     sealed class GameObject
     {
 
+        public GameObject? linkedObject = null;
+
+        public void LinkWith(GameObject gameObject){
+            linkedObject = gameObject;
+        }
         public enum DrawOrderTypes : Byte{
             NONE,
             BACK,
@@ -563,6 +568,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             PUSHABLE,
             FLUID,
             REGION, // Like fluid, but without physical properties
+            RESERVED,  // Like nonexistent, but not available
         };
 
         public Types Type { get; set; }

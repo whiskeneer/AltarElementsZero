@@ -38,6 +38,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
         public void Update(GameObject gameObject)
         {
             InputHandler inputHandler = GameObject.inputHandler!;
+            GameObject? scythe = gameObject.linkedObject;
+            if (scythe == null) return;
 
             ref uint jumpTimer = ref gameObject.Timer;
             ref uint animationTimer = ref gameObject.Timer2;
@@ -48,7 +50,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Exit);
             }
 
-            //
+            // PHYSICS
             
             if (inputHandler.IsDown(Input.Left))
             {
@@ -91,44 +93,89 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             }
 
+            // SCYTHE SYNCHRONIZATION
+
+            if (gameObject.linkedObject != null)
+            {
+                if(inputHandler.IsPressed(Input.Attack)){
+                    if(scythe.State == (uint)Scythe.State.INACTIVE){
+                        scythe.State = (uint)Scythe.State.ACTIVE;
+                    }
+                }
+                scythe.SpriteOffset = gameObject.SpriteOffset;
+                scythe.spriteEffects = gameObject.spriteEffects;
+            }
+
+            // GRAPHICS
+
             if (gameObject.PushedUp || gameObject.PushedPreviouslyUp) // on ground
             {
-                if (inputHandler.IsDown(Input.Left))
+                if(scythe.State == (uint)Scythe.State.ACTIVE)
                 {
-                    gameObject.spritesheetIndex = 0x08 + ((animationTimer>>3) & 0x3);
-                    animationTimer++;
-                }
-                else if (inputHandler.IsDown(Input.Right))
-                {
-					gameObject.spritesheetIndex = 0x08 + ((animationTimer >> 3) & 0x3);
-					animationTimer++;
-                }
+					ref uint attackTimer = ref scythe.Timer2;
+					if (attackTimer > 6){
+                        gameObject.spritesheetIndex = 0x18;
+					}
+					else
+					{
+						gameObject.spritesheetIndex = 0x19;
+					}
+				}
                 else
                 {
-                    animationTimer = 0;
-                    gameObject.spritesheetIndex = 0x2;
+                    if (inputHandler.IsDown(Input.Left))
+                    {
+                        gameObject.spritesheetIndex = 0x08 + ((animationTimer>>3) & 0x3);
+                        animationTimer++;
+                    }
+                    else if (inputHandler.IsDown(Input.Right))
+                    {
+					    gameObject.spritesheetIndex = 0x08 + ((animationTimer >> 3) & 0x3);
+					    animationTimer++;
+                    }
+                    else
+                    {
+                        animationTimer = 0;
+                        gameObject.spritesheetIndex = 0x2;
+                    }
                 }
 
 
             }
             else
             {
-                if(jumpTimer > 0)
+                if (scythe.State == (uint)Scythe.State.ACTIVE)
                 {
-                    animationTimer = 0;
-                    gameObject.spritesheetIndex = 0x10;
-                }
-                else
-                {
-                    if(animationTimer < 15)
+					ref uint attackTimer = ref scythe.Timer2;
+					if (attackTimer > 6)
+					{
+						gameObject.spritesheetIndex = 0x1A;
+					}
+					else
+					{
+						gameObject.spritesheetIndex = 0x1B;
+					}
+				}
+				else
+                { 
+				    if (jumpTimer > 0)
                     {
-						gameObject.spritesheetIndex = 0x11;
-						animationTimer++;
+                        animationTimer = 0;
+                        gameObject.spritesheetIndex = 0x10;
                     }
                     else
                     {
-						gameObject.spritesheetIndex = 0x12;
-					}
+                        if(animationTimer < 15)
+                        {
+						    gameObject.spritesheetIndex = 0x11;
+						    animationTimer++;
+                        }
+                        else
+                        {
+						    gameObject.spritesheetIndex = 0x12;
+					    }
+                    }
+
                 }
             }
 

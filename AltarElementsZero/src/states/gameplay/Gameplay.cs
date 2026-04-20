@@ -441,6 +441,12 @@ namespace AltarElementsZero.src.states.gameplay
 			player.Init();
 			player.currentBoundingBox.Position = LastActivatedCheckpoint.ToPx().ToSubpx();
 
+			GameObject scythe = _objectPool[1];
+			scythe.behaviour = Scythe.Instance;
+			scythe.Init();
+			player.LinkWith(scythe);
+
+
 			int chunkX = ((int)LastActivatedCheckpoint.X / Configuration.Chunk.Tile.Width);
 			int chunkY = ((int)LastActivatedCheckpoint.Y / Configuration.Chunk.Tile.Height);
 
@@ -488,15 +494,15 @@ namespace AltarElementsZero.src.states.gameplay
 				stopCamera = !stopCamera;
 			}
 
-			if (_inputHandler.IsPressed(Input.Attack))
-			{
-				frameByFrameMode = !frameByFrameMode;
-			}
+			//if (_inputHandler.IsPressed(Input.Attack))
+			//{
+			//	frameByFrameMode = !frameByFrameMode;
+			//}
 
-			if (frameByFrameMode && !_inputHandler.IsPressed(Input.Jump))
-			{
-				return;
-			}
+			//if (frameByFrameMode && !_inputHandler.IsPressed(Input.Jump))
+			//{
+			//	return;
+			//}
 
 
 			CalculateDesiredOutcomes();
@@ -575,7 +581,7 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject gameObject = _objectPool[o];
-				if (gameObject.Type != GameObject.Types.NONEXISTENT)
+				if (gameObject.Type != GameObject.Types.NONEXISTENT && gameObject.Type != GameObject.Types.RESERVED)
 				{
 					gameObject.ApplyHorizontalDesiredVelocity();
 				}
@@ -587,12 +593,12 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject go1 = _objectPool[o];
-				if (go1.Type == GameObject.Types.NONEXISTENT) continue;
+				if (go1.Type == GameObject.Types.NONEXISTENT || go1.Type == GameObject.Types.RESERVED) continue;
 				go1.CleanHorizontalPushFlags();
 				for (int u = o + 1; u < _objectPool.Length; u++)
 				{
 					GameObject go2 = _objectPool[u];
-					if (go2.Type == GameObject.Types.NONEXISTENT) continue;
+					if (go2.Type == GameObject.Types.NONEXISTENT || go2.Type == GameObject.Types.RESERVED) continue;
 
 					GameObject.CheckHorizontalCollisions(go1, go2);
 				}
@@ -656,6 +662,10 @@ namespace AltarElementsZero.src.states.gameplay
 				}
 
 
+				if(o == 0){ // ORA
+					GameObject linked = _objectPool[o + 1]; // SCYTHE
+					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+				}
 			}
 		}
 
@@ -664,7 +674,7 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject gameObject = _objectPool[o];
-				if (gameObject.Type != GameObject.Types.NONEXISTENT)
+				if (gameObject.Type != GameObject.Types.NONEXISTENT && gameObject.Type != GameObject.Types.RESERVED)
 				{
 					gameObject.ApplyVerticalDesiredVelocity();
 				}
@@ -676,12 +686,12 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject go1 = _objectPool[o];
-				if (go1.Type == GameObject.Types.NONEXISTENT) continue;
+				if (go1.Type == GameObject.Types.NONEXISTENT || go1.Type == GameObject.Types.RESERVED) continue;
 				go1.CleanVerticalPushFlags();
 				for (int u = o + 1; u < _objectPool.Length; u++)
 				{
 					GameObject go2 = _objectPool[u];
-					if (go2.Type == GameObject.Types.NONEXISTENT) continue;
+					if (go2.Type == GameObject.Types.NONEXISTENT || go2.Type == GameObject.Types.RESERVED) continue;
 
 					GameObject.CheckVerticalCollisions(go1, go2);
 				}
@@ -747,6 +757,12 @@ namespace AltarElementsZero.src.states.gameplay
 						}
 					}
 				}
+
+				if (o == 0)
+				{ // ORA
+					GameObject linked = _objectPool[o + 1]; // SCYTHE
+					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+				}
 			}
 		}
 
@@ -788,6 +804,11 @@ namespace AltarElementsZero.src.states.gameplay
 						}
 
 					}
+				}
+				if (o == 0)
+				{ // ORA
+					GameObject linked = _objectPool[o + 1]; // SCYTHE
+					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position;
 				}
 			}
 		}
@@ -848,6 +869,12 @@ namespace AltarElementsZero.src.states.gameplay
 						}
 					}
 				}
+
+				if (o == 0)
+				{ // ORA
+					GameObject linked = _objectPool[o + 1]; // SCYTHE
+					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+				}
 			}
 
 		}
@@ -893,7 +920,30 @@ namespace AltarElementsZero.src.states.gameplay
 				);
 
 		}
-        private void Render(SpriteBatch spriteBatch)
+		private void RenderWideObject(SpriteBatch spriteBatch, GameObject gameObject, Texture2D spritesheetTexture)
+		{
+			PxPosition objectPosition = gameObject.currentBoundingBox.Position.ToVisualPx() - gameObject.SpriteOffset;
+			uint spritesheetIndex = gameObject.spritesheetIndex;
+			SpriteEffects spriteEffects = gameObject.spriteEffects;
+
+			spriteBatch.Draw(
+				texture: spritesheetTexture,
+				position: new Vector2(
+					(int)objectPosition.X - CameraPosition.X,
+					(int)objectPosition.Y - CameraPosition.Y
+					),
+				sourceRectangle: new(
+					Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
+					Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
+					Configuration.Tile.Px.Width * 4,
+					Configuration.Tile.Px.Height * 2
+					),
+				color: Color.White,
+				0f, Vector2.Zero, 1f, spriteEffects, 0f
+				);
+
+		}
+		private void Render(SpriteBatch spriteBatch)
         {
 			if(_level == null) return;
 
@@ -1047,7 +1097,7 @@ namespace AltarElementsZero.src.states.gameplay
             for(int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject currentObject = _objectPool[o];
-                if(currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.BACK)
+                if(currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.Type != GameObject.Types.RESERVED && currentObject.drawOrder == GameObject.DrawOrderTypes.BACK)
                 {
 					RenderObject(spriteBatch, currentObject, _assets.ObjectSpritesheet!);
 				}
@@ -1056,7 +1106,7 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject currentObject = _objectPool[o];
-				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.MIDDLE)
+				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.Type != GameObject.Types.RESERVED && currentObject.drawOrder == GameObject.DrawOrderTypes.MIDDLE)
 				{
 					Texture2D objectTexture = _assets.ObjectSpritesheet!;
 					if (object.ReferenceEquals(currentObject.behaviour, Ora.Instance))
@@ -1071,9 +1121,18 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject currentObject = _objectPool[o];
-				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.FRONT)
+				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.Type != GameObject.Types.RESERVED && currentObject.drawOrder == GameObject.DrawOrderTypes.FRONT)
 				{
-					RenderObject(spriteBatch, currentObject, _assets.ObjectSpritesheet!);
+					Texture2D objectTexture = _assets.ObjectSpritesheet!;
+					if (object.ReferenceEquals(currentObject.behaviour, Scythe.Instance))
+					{
+						objectTexture = _assets.OraSpritesheet!;
+						RenderWideObject(spriteBatch, currentObject, objectTexture);
+					}
+					else
+					{
+						RenderObject(spriteBatch, currentObject, objectTexture);
+					}
 				}
 			}
 

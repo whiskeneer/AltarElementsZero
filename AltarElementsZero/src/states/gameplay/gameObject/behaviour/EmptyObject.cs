@@ -51,6 +51,8 @@
 
             gameObject.InteractionFlags = 0;
 
+            gameObject.linkedObject = null;
+
 			return;
         }
         public void Update(GameObject gameObject)
