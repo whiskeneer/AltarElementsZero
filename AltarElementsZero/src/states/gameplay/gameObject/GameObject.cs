@@ -594,6 +594,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public SpriteEffects spriteEffects = SpriteEffects.None;
         public PxSize SpriteOffset;
 
+        public void Delete()
+        {
+            behaviour = EmptyObject.Instance;
+            behaviour.Init(this);
+        }
+
 
         public void Init()
         {

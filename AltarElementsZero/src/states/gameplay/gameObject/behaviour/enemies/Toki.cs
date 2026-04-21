@@ -1,10 +1,17 @@
-﻿using AltarElementsZero.src.states.gameplay.vectors;
+﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
+using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 {
     class Toki : IBehaviour
     {
+		private enum FlagTypes : UInt32
+		{
+			None = 0,
+			Hurt = 1 << 0,
+		}
+
         public static readonly Toki Instance = new();
 
         enum State : uint
@@ -124,11 +131,22 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			}
 
 			gameObject.SimulateRegularObjectPhysics();
+
+			//
+
+			if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
+			{
+				gameObject.Delete();	
+			}
 		}
 
 		public void Interact(GameObject own, GameObject other)
 		{
-			return;
+			IBehaviour otherBehaviour = other.behaviour;
+			if(otherBehaviour == Scythe.Instance)
+			{
+				own.InteractionFlags |= (UInt32)FlagTypes.Hurt;
+			}
 		}
 
 	}

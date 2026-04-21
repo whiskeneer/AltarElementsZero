@@ -1,4 +1,6 @@
-﻿namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
+﻿using AltarElementsZero.src.states.gameplay.vectors;
+
+namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 {
 	class Scythe : IBehaviour
 	{
@@ -68,7 +70,7 @@
 					break;
 				case State.ACTIVE:
 					gameObject.drawOrder = GameObject.DrawOrderTypes.FRONT;
-					gameObject.currentBoundingBox.Size = new(40,11);
+					gameObject.currentBoundingBox.Size = new PxSize(40,11).ToSubpx();
 					gameObject.Type = GameObject.Types.REGION;
 
 					if (attackTimer > 6){
