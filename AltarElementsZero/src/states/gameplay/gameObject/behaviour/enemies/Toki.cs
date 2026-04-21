@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
+﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -136,7 +137,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
 			if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
 			{
-				gameObject.Delete();	
+				//gameObject.Delete();	
+				SubpxPosition center = gameObject.currentBoundingBox.Center();
+				gameObject.Delete();
+				gameObject.behaviour = EnemyDefeated.Instance;
+				gameObject.Init();
+				gameObject.currentBoundingBox.Position = center;
 			}
 		}
 

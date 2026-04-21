@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.vectors;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
@@ -194,7 +195,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
             {
-                GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.RestartFromCheckpoint);
+                //GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.RestartFromCheckpoint);
+                SubpxPosition center = gameObject.currentBoundingBox.Center();
+                gameObject.Delete();
+                gameObject.behaviour = OraDefeated.Instance;
+                gameObject.Init();
+                gameObject.currentBoundingBox.Position = center;
+
             }
 
         }
