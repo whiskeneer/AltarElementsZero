@@ -13,6 +13,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
     {
 
         public GameObject? linkedObject = null;
+        public SubpxPosition linkedPosition = new();
 
         public void LinkWith(GameObject gameObject){
             linkedObject = gameObject;

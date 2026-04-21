@@ -59,16 +59,24 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
                 gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
 				gameObject.SpriteOffset = new(11, 6);
+
+				gameObject.linkedPosition = new PxPosition((uint)((-11 - 16 + 10) & 0xffffffff), -6 + 13).ToSubpx();
+				scythe.SpriteOffset = new(10, 13);
+
 			}
-            else if (inputHandler.IsDown(Input.Right))
+			else if (inputHandler.IsDown(Input.Right))
             {
 				gameObject.AirImpulse = new(AIR_IMPULSE, 0);
                 gameObject.GroundImpulse = GROUND_IMPULSE;
 
                 gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
 				gameObject.SpriteOffset = new(10, 6);
+
+				gameObject.linkedPosition = new PxPosition((uint)((-10-16+14)&0xffffffff),-6+13).ToSubpx();
+				scythe.SpriteOffset = new(14, 13);
+
 			}
-            else
+			else
             {
 				gameObject.AirImpulse = new(0, 0);
 				gameObject.GroundImpulse = 0;
@@ -102,7 +110,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                         scythe.State = (uint)Scythe.State.ACTIVE;
                     }
                 }
-                scythe.SpriteOffset = gameObject.SpriteOffset;
+                //scythe.SpriteOffset = gameObject.SpriteOffset;
                 scythe.spriteEffects = gameObject.spriteEffects;
             }
 

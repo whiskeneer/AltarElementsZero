@@ -68,7 +68,7 @@
 					break;
 				case State.ACTIVE:
 					gameObject.drawOrder = GameObject.DrawOrderTypes.FRONT;
-					gameObject.currentBoundingBox.Size = new(44,12);
+					gameObject.currentBoundingBox.Size = new(40,11);
 					gameObject.Type = GameObject.Types.REGION;
 
 					if (attackTimer > 6){

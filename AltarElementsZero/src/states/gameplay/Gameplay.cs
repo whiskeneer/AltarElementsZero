@@ -662,9 +662,10 @@ namespace AltarElementsZero.src.states.gameplay
 				}
 
 
-				if(o == 0){ // ORA
+				if (o == 0)
+				{ // ORA
 					GameObject linked = _objectPool[o + 1]; // SCYTHE
-					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
 				}
 			}
 		}
@@ -761,7 +762,7 @@ namespace AltarElementsZero.src.states.gameplay
 				if (o == 0)
 				{ // ORA
 					GameObject linked = _objectPool[o + 1]; // SCYTHE
-					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
 				}
 			}
 		}
@@ -808,7 +809,7 @@ namespace AltarElementsZero.src.states.gameplay
 				if (o == 0)
 				{ // ORA
 					GameObject linked = _objectPool[o + 1]; // SCYTHE
-					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
 				}
 			}
 		}
@@ -873,7 +874,7 @@ namespace AltarElementsZero.src.states.gameplay
 				if (o == 0)
 				{ // ORA
 					GameObject linked = _objectPool[o + 1]; // SCYTHE
-					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position;
+					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
 				}
 			}
 

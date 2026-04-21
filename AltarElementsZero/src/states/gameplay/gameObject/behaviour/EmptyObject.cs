@@ -52,6 +52,7 @@
             gameObject.InteractionFlags = 0;
 
             gameObject.linkedObject = null;
+            gameObject.linkedPosition = new();
 
 			return;
         }

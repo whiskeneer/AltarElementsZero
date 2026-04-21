@@ -7,6 +7,13 @@ namespace AltarElementsZero.src.states.gameplay.vectors
 		public uint X = x;
 		public uint Y = y;
 
+		public static SubpxPosition operator+(SubpxPosition left, SubpxPosition right)
+		{
+			return new SubpxPosition(
+				left.X + right.X,
+				left.Y + right.Y
+				);
+		}
 
 		public static SubpxVelocity operator-(SubpxPosition left, SubpxPosition right)
 		{
