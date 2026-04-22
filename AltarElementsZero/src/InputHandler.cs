@@ -30,6 +30,9 @@ namespace AltarElementsZero.src
 		private KeyboardState _previousKeyboardState;
 		private KeyboardState _currentKeyboardState;
 
+		private GamePadState _previousGamePadState;
+		private GamePadState _currentGamePadState;
+
 		public InputActions Actions { get; private set; }
 
 		public bool IsDown(Input input) => (Actions.IsDown & input) == input;
@@ -40,6 +43,9 @@ namespace AltarElementsZero.src
 		{
 			_previousKeyboardState = _currentKeyboardState;
 			_currentKeyboardState = Keyboard.GetState();
+
+			_previousGamePadState = _currentGamePadState;
+			_currentGamePadState = GamePad.GetState(0);
 
 			InputActions actions = new();
 
@@ -53,6 +59,18 @@ namespace AltarElementsZero.src
 			MapKey(Keys.S, ref actions, Input.Dash);
 			MapKey(Keys.A, ref actions, Input.Pause);
 
+			//
+		
+			MapButton(Buttons.DPadUp, ref actions, Input.Up);
+			MapButton(Buttons.DPadDown, ref actions, Input.Down);
+			MapButton(Buttons.DPadLeft, ref actions, Input.Left);
+			MapButton(Buttons.DPadRight, ref actions, Input.Right);
+
+			MapButton(Buttons.A, ref actions, Input.Jump);
+			MapButton(Buttons.X, ref actions, Input.Attack);
+			MapButton(Buttons.RightShoulder, ref actions, Input.Dash);
+			MapButton(Buttons.Start, ref actions, Input.Pause);
+
 			Actions = actions;
 		}
 		private void MapKey(Keys key, ref InputActions actions, Input input)
@@ -64,6 +82,17 @@ namespace AltarElementsZero.src
 			if (currentDown && !previousDown) actions.IsPressed |= input;
 			if (!currentDown && previousDown) actions.IsReleased |= input; 
 		}
+
+		private void MapButton(Buttons button, ref InputActions actions, Input input)
+		{
+			bool previousDown = _previousGamePadState.IsButtonDown(button);
+			bool currentDown = _currentGamePadState.IsButtonDown(button);
+
+			if (currentDown) actions.IsDown |= input;
+			if (currentDown && !previousDown) actions.IsPressed |= input;
+			if (!currentDown && previousDown) actions.IsReleased |= input;
+		}
+
 	}
 
 
