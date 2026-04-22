@@ -299,66 +299,66 @@ namespace AltarElementsZero.src.states.gameplay
 						if (tile.Family == Tile.Families.Toki)
 						{
 							_objectPool[nextAssignableObject].behaviour = Toki.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.MovingPlatform1)
 						{
 							_objectPool[nextAssignableObject].behaviour = MovingPlatform1.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.DebugBox)
 						{
 							_objectPool[nextAssignableObject].behaviour = DebugBox.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.DebugPusher)
 						{
 							_objectPool[nextAssignableObject].behaviour = DebugPusher.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.DebugImmobile)
 						{
 							_objectPool[nextAssignableObject].behaviour = DebugImmobile.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 
 						else if (tile.Family == Tile.Families.FanUp)
 						{
 							_objectPool[nextAssignableObject].behaviour = CurrentUp.Instance;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j - 2).ToPx().ToSubpx();
 							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j - 4).ToPx().ToSubpx();
 						}
 						else if (tile.Family == Tile.Families.FloorButton)
 						{
 							_objectPool[nextAssignableObject].behaviour = FloorButton.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.SwitchableDoor)
 						{
 							_objectPool[nextAssignableObject].behaviour = SwitchableDoor.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 						else if (tile.Family == Tile.Families.Checkpoint)
 						{
 							_objectPool[nextAssignableObject].behaviour = Checkpoint.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 						}
 					}
 				}
@@ -488,11 +488,11 @@ namespace AltarElementsZero.src.states.gameplay
 			//    _manager.RequestTransition(new IntroPayload("ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
 			//}
 
-			_drawIndices = _inputHandler.IsDown(Input.Dash);
-			if (_inputHandler.IsPressed(Input.Dash))
-			{
-				stopCamera = !stopCamera;
-			}
+			//_drawIndices = _inputHandler.IsDown(Input.Dash);
+			//if (_inputHandler.IsPressed(Input.Dash))
+			//{
+			//	stopCamera = !stopCamera;
+			//}
 
 			//if (_inputHandler.IsPressed(Input.Attack))
 			//{
@@ -537,16 +537,16 @@ namespace AltarElementsZero.src.states.gameplay
 				}
 			}
 
-			if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
-			{
-				for (int o = 0; o < _objectPool.Length; o++)
-				{
-					GameObject gameObject = _objectPool[o];
-					if (gameObject.Type == GameObject.Types.NONEXISTENT) continue;
-					Console.Write($"{o} : UP={gameObject.PushedUp} DN={gameObject.PushedDown} LF={gameObject.PushedLeft} RH={gameObject.PushedRight} ");
-					Console.WriteLine($"P-UP={gameObject.PushedPreviouslyUp} P-DN={gameObject.PushedPreviouslyDown} P-LF={gameObject.PushedPreviouslyLeft} P-RH={gameObject.PushedPreviouslyRight}");
-				}
-			}
+			//if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
+			//{
+			//	for (int o = 0; o < _objectPool.Length; o++)
+			//	{
+			//		GameObject gameObject = _objectPool[o];
+			//		if (gameObject.Type == GameObject.Types.NONEXISTENT) continue;
+			//		Console.Write($"{o} : UP={gameObject.PushedUp} DN={gameObject.PushedDown} LF={gameObject.PushedLeft} RH={gameObject.PushedRight} ");
+			//		Console.WriteLine($"P-UP={gameObject.PushedPreviouslyUp} P-DN={gameObject.PushedPreviouslyDown} P-LF={gameObject.PushedPreviouslyLeft} P-RH={gameObject.PushedPreviouslyRight}");
+			//	}
+			//}
 
 
 			ProcessGameplayMessages();
@@ -628,6 +628,10 @@ namespace AltarElementsZero.src.states.gameplay
 								go1.FixHorizontalVelocity();
 								go1.PushedLeft = true;
 								foundCollision = true;
+
+								if(object.ReferenceEquals(go1.behaviour,Ora.Instance) && tile.Family == Tile.Families.Spikes){
+									go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+								}
                             }
 
                         }
@@ -655,6 +659,11 @@ namespace AltarElementsZero.src.states.gameplay
 								go1.FixHorizontalVelocity();
 								go1.PushedRight = true;
 								foundCollision = true;
+
+								if (object.ReferenceEquals(go1.behaviour, Ora.Instance) && tile.Family == Tile.Families.Spikes)
+								{
+									go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+								}
 							}
 
 						}
@@ -726,6 +735,11 @@ namespace AltarElementsZero.src.states.gameplay
 								go1.VelocityBelow = tile.GetSurfaceVelocityAbove();
 								go1.FrictionCoefficientsBelow = tile.GetFrictionCoefficients();
 
+								if (object.ReferenceEquals(go1.behaviour, Ora.Instance) && tile.Family == Tile.Families.Spikes)
+								{
+									go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+								}
+
 							}
 
 						}
@@ -753,6 +767,11 @@ namespace AltarElementsZero.src.states.gameplay
 								go1.FixVerticalVelocity();
 								go1.PushedDown = true;
 								foundCollision = true;
+
+								if (object.ReferenceEquals(go1.behaviour, Ora.Instance) && tile.Family == Tile.Families.Spikes)
+								{
+									go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+								}
 							}
 
 						}
@@ -959,7 +978,7 @@ namespace AltarElementsZero.src.states.gameplay
 				int smallCloudsY = 16 * 3 - (int)(CameraPosition.Y >> 3);
 
 				int bigCloudsX = -(int)((CameraPosition.X >> 2) & (Configuration.VisibleScreen.Px.Width - 1));
-				int bigCloudsY = 16 * 4 - (int)(CameraPosition.Y >> 2);
+				int bigCloudsY = 16 * 3 - (int)(CameraPosition.Y >> 2);
 
 				spriteBatch.Draw(
 					texture: _assets.SkyBackground,

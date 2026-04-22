@@ -17,7 +17,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
             //gameObject.spritesheetIndex = 0x2d;
 
 
-            gameObject.currentBoundingBox.Size = new TileSize(1, 2).ToPx().ToSubpx();
+            gameObject.currentBoundingBox.Size = new TileSize(1, 4).ToPx().ToSubpx();
 
             gameObject.FluidVelocity = new SubpxVelocity(0, 64 * 10);// -64*40);
             gameObject.FluidCoefficient = 0;

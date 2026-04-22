@@ -19,7 +19,7 @@ namespace AltarElementsZero.src.states.intro
             base.Load();
 
             // Loading textures
-            Background = _contentManager!.Load<Texture2D>("img/intro_placeholder.png");
+            Background = _contentManager!.Load<Texture2D>("img/intro_static.png");
 
             // Creating renderTargets
             DebugText = new RenderTarget2D(

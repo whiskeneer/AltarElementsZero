@@ -52,7 +52,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 					attackTimer--;
 					if(attackTimer == 0){
 						gameObject.State = (uint)State.COOLDOWN;
-						cooldownTimer = 12;
+						cooldownTimer = 1;
 					}
 					break;
 			}

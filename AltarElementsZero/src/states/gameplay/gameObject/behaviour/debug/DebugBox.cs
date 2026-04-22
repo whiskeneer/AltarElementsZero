@@ -13,7 +13,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
             gameObject.isPersistentAcrossChunks = false;
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-            gameObject.spritesheetIndex = 0x30;
+            gameObject.spritesheetIndex = 0x0f;
             gameObject.spriteEffects = SpriteEffects.None;
 
             gameObject.currentBoundingBox.Size = new PxSize(16,16).ToSubpx();
@@ -22,7 +22,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
 
         public void Update(GameObject gameObject)
         {
-		    gameObject.spritesheetIndex = 0x30;
+		    gameObject.spritesheetIndex = 0x0f;
 
             gameObject.SimulateRegularObjectPhysics();
 

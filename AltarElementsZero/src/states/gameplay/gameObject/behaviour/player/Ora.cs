@@ -7,7 +7,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
     class Ora : IBehaviour
     {
         [Flags]
-		private enum FlagTypes : UInt32
+		public enum FlagTypes : UInt32
         {
             None = 0,
             Hurt = 1 << 0,
