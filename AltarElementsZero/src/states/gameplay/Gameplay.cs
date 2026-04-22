@@ -360,6 +360,20 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 						}
+						else if (tile.Family == Tile.Families.TurbineLeft)
+						{
+							_objectPool[nextAssignableObject].behaviour = TurbineCurrentLeft.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i-7, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.TurbineRight)
+						{
+							_objectPool[nextAssignableObject].behaviour = TurbineCurrentRight.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i+1, (uint)j).ToPx().ToSubpx();
+						}
 					}
 				}
 			}

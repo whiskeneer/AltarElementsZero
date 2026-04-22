@@ -56,7 +56,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 
         readonly public bool IsSolid()
         {
-            return (Family >= Families.Ground && Family <= Families.FanRight) || (
+            return (Family >= Families.Ground && Family <= Families.TurbineRight2) || (
                 Family == Families.AutomaticallyTiledGround);
         }
         readonly public FrictionCoefficients GetFrictionCoefficients()
@@ -101,12 +101,12 @@ namespace AltarElementsZero.src.states.gameplay.level
         }
         readonly public bool IsAnimatedTile()
         {
-            return Family >= Families.ConveyorRight && Family <= Families.FanRight;
+            return Family >= Families.ConveyorRight && Family <= Families.TurbineRight2;
         }
         readonly public bool IsObjectSpawn()
         {
             return (Family >= Families.Toki && Family <= Families.DebugBox)
-                || (Family >= Families.FanUp  && Family <= Families.FanRight);
+                || (Family >= Families.FanUp  && Family <= Families.TurbineRight);
                 
         }
 
@@ -126,9 +126,14 @@ namespace AltarElementsZero.src.states.gameplay.level
             FanLeft,
             FanRight,
             
+            TurbineLeft,
+            TurbineRight,
+            TurbineLeft2,
+            TurbineRight2,
+
             AutomaticallyTiledGround = 0x10, // static spritesheet index, where only bits 11001100 matter (masked by 0xcc)
 
-                            // Spring,         //  6msb animated spritesheet index | direction
+
 
             // GameObjects spawn points
 
@@ -167,7 +172,7 @@ namespace AltarElementsZero.src.states.gameplay.level
             "FAN LEFT",
             "FANRIGHT",
 
-            "UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+			"TRB LEFT","TRBRIGHT","TRB L 2","TRB R 2","UNASSIGN","UNASSIGN",
 
 			"AUTO GND","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
