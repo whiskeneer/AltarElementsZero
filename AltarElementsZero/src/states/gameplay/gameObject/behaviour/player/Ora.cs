@@ -15,10 +15,18 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
         public static readonly Ora Instance = new();
 
+        private enum State : uint
+        {
+            LOOKING_RIGHT,
+            LOOKING_LEFT
+        }
+
         private const int GROUND_IMPULSE = 64;
         private const int AIR_IMPULSE = 128;
         private const uint JUMP_TIME = 12;
         private const int JUMP_FORCE = 175;
+        private const int DOWN_ATTACK_IMPULSE = 100;
+        private const int BOUNCE_IMPULSE = 275;
 
         public void Init(GameObject gameObject)
         {
@@ -32,6 +40,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
 
             gameObject.currentBoundingBox.Size = new PxSize(11, 24).ToSubpx();
+
+            gameObject.State = (uint)State.LOOKING_RIGHT;
 
 
         }
@@ -51,18 +61,21 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Exit);
             }
 
-            // PHYSICS
-            
-            if (inputHandler.IsDown(Input.Left))
+
+
+			// PHYSICS
+
+			if (inputHandler.IsDown(Input.Left))
             {
                 gameObject.AirImpulse = new(-AIR_IMPULSE, 0);
                 gameObject.GroundImpulse = -GROUND_IMPULSE;
 
                 gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
 				gameObject.SpriteOffset = new(11, 6);
+                gameObject.State = (uint)State.LOOKING_LEFT;
 
-				gameObject.linkedPosition = new PxPosition((uint)((-11 - 16 + 10) & 0xffffffff), -6 + 13).ToSubpx();
-				scythe.SpriteOffset = new(10, 13);
+
+
 
 			}
 			else if (inputHandler.IsDown(Input.Right))
@@ -72,9 +85,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
                 gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
 				gameObject.SpriteOffset = new(10, 6);
+				gameObject.State = (uint)State.LOOKING_RIGHT;
 
-				gameObject.linkedPosition = new PxPosition((uint)((-10-16+14)&0xffffffff),-6+13).ToSubpx();
-				scythe.SpriteOffset = new(14, 13);
+
+
 
 			}
 			else
@@ -102,22 +116,76 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             }
 
-            // SCYTHE SYNCHRONIZATION
+			// SCYTHE SYNCHRONIZATION
 
-            if (gameObject.linkedObject != null)
+
+			if (inputHandler.IsPressed(Input.Attack))
+			{
+				if (scythe.State == (uint)Scythe.State.INACTIVE)
+				{
+					if (inputHandler.IsDown(Input.Down))
+					{
+						if (gameObject.previousVelocity.Y < 0)
+						{
+							gameObject.previousVelocity.Y = 0;
+						}
+						gameObject.AppliedForces += new Force(0, DOWN_ATTACK_IMPULSE);
+						scythe.State = (uint)Scythe.State.ACTIVE_DOWN;
+						jumpTimer = 0;
+					}
+					else
+					{
+						scythe.State = (uint)Scythe.State.ACTIVE;
+					}
+
+				}
+			}
+
+            if((scythe.InteractionFlags & (UInt32)Scythe.FlagTypes.Bounce) == (UInt32)Scythe.FlagTypes.Bounce)
             {
-                if(inputHandler.IsPressed(Input.Attack)){
-                    if(scythe.State == (uint)Scythe.State.INACTIVE){
-                        scythe.State = (uint)Scythe.State.ACTIVE;
-                    }
+                if(gameObject.previousVelocity.Y > 0)
+                {
+                    gameObject.previousVelocity.Y = 0;
                 }
-                //scythe.SpriteOffset = gameObject.SpriteOffset;
-                scythe.spriteEffects = gameObject.spriteEffects;
+                gameObject.AppliedForces += new Force(0, -BOUNCE_IMPULSE);
             }
 
-            // GRAPHICS
+			//scythe.SpriteOffset = gameObject.SpriteOffset;
 
-            if (gameObject.PushedUp || gameObject.PushedPreviouslyUp) // on ground
+			if (scythe.State == (uint)Scythe.State.ACTIVE)
+			{
+                if(gameObject.State == (uint)State.LOOKING_LEFT)
+                {
+				    gameObject.linkedPosition = new PxPosition((uint)((-11 - 16 + 10) & 0xffffffff), -6 + 13).ToSubpx();
+				    scythe.SpriteOffset = new(10, 13);
+				    scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+                }
+                else
+                {
+					gameObject.linkedPosition = new PxPosition((uint)((-10 - 16 + 14) & 0xffffffff), -6 + 13).ToSubpx();
+					scythe.SpriteOffset = new(14, 13);
+					scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+				}
+			}
+            else if(scythe.State == (uint)Scythe.State.ACTIVE_DOWN)
+            {
+				if (gameObject.State == (uint)State.LOOKING_LEFT)
+				{
+					gameObject.linkedPosition = new PxPosition((uint)((-11 - 16 + 25) & 0xffffffff), -6 + 25).ToSubpx();
+					scythe.SpriteOffset = new(25, 25);
+					scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+				}
+				else
+				{
+					gameObject.linkedPosition = new PxPosition((uint)((-10 - 16 + 23) & 0xffffffff), -6 + 25).ToSubpx();
+					scythe.SpriteOffset = new(23, 25);
+					scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+				}
+			}
+
+			// GRAPHICS
+
+			if (gameObject.PushedUp || gameObject.PushedPreviouslyUp) // on ground
             {
                 if(scythe.State == (uint)Scythe.State.ACTIVE)
                 {
@@ -130,6 +198,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 						gameObject.spritesheetIndex = 0x19;
 					}
 				}
+                else if(scythe.State == (uint)Scythe.State.ACTIVE_DOWN)
+                {
+                    gameObject.spritesheetIndex = 0x13;
+                }
                 else
                 {
                     if (inputHandler.IsDown(Input.Left))
@@ -165,6 +237,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 						gameObject.spritesheetIndex = 0x1B;
 					}
 				}
+                else if (scythe.State == (uint)Scythe.State.ACTIVE_DOWN)
+                {
+                    gameObject.spritesheetIndex = 0x13;
+                }
 				else
                 { 
 				    if (jumpTimer > 0)

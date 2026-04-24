@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.vectors;
+﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+using AltarElementsZero.src.states.gameplay.vectors;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 {
@@ -7,10 +8,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 		public static readonly Scythe Instance = new ();
 
+		[Flags]
+		public enum FlagTypes : UInt32
+		{
+			None = 0,
+			Bounce = 1 << 0,
+		}
 		public enum State : uint
 		{
 			INACTIVE,
 			ACTIVE,
+			ACTIVE_DOWN,
 			COOLDOWN
 		}
 
@@ -48,6 +56,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 					break;
 				case State.INACTIVE:
 					break;
+				case State.ACTIVE_DOWN:
+					attackTimer--;
+					if (attackTimer == 0)
+					{
+						gameObject.State = (uint)State.COOLDOWN;
+						cooldownTimer = 1;
+					}
+					break;
 				case State.ACTIVE:
 					attackTimer--;
 					if(attackTimer == 0){
@@ -79,13 +95,31 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 						gameObject.spritesheetIndex = 0x32;
 					}
 					break;
+				case State.ACTIVE_DOWN:
+					gameObject.drawOrder = GameObject.DrawOrderTypes.FRONT;
+					gameObject.currentBoundingBox.Size = new PxSize(17, 10).ToSubpx();
+					gameObject.Type = GameObject.Types.REGION;
+
+					if ((attackTimer & 4) == 4)
+					{
+						gameObject.spritesheetIndex = 0x34;
+					}
+					else
+					{
+						gameObject.spritesheetIndex = 0x36;
+					}
+					break;
 			}
 
 		}
 
 		public void Interact(GameObject own, GameObject other)
 		{
-
+			if(own.State == (uint)State.ACTIVE_DOWN){
+				if(object.ReferenceEquals(other.behaviour, Toki.Instance)){
+					own.InteractionFlags |= (UInt32)FlagTypes.Bounce;
+				}
+			}
 		}
 	}
 }
