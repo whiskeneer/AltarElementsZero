@@ -27,6 +27,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
         public void Init(GameObject gameObject)
         {
+			ref uint AnimationTimer = ref gameObject.Timer;
+
 			gameObject.Type = GameObject.Types.PUSHABLE;
 			gameObject.isPersistentAcrossChunks = false;
 
@@ -42,37 +44,98 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			if(gameObject.spawnValue == 0)
 			{
 				gameObject.State = (uint)State.GOING_LEFT;
-				gameObject.Timer = 60 * 4;
+				AnimationTimer = 60 * 4;
 			}
 			else
 			{
 				gameObject.State = (uint)State.GOING_RIGHT;
-				gameObject.Timer = 60 * 4;
+				AnimationTimer = 60 * 4;
 			}
 		}
 
         public void Update(GameObject gameObject)
         {
+			ref uint AnimationTimer = ref gameObject.Timer;
+			ref uint CooldownTimer = ref gameObject.Timer2;
 
-			if (--gameObject.Timer == 0)
+			if (CooldownTimer > 0) CooldownTimer--;
+
+			
+			if((State)gameObject.State == State.ATTACKING_LEFT && AnimationTimer == 32){
+				GameObject.signalFlags!.CreateGameObject(
+					Arrow.Instance,
+					0,
+					new SubpxPosition
+					(
+						gameObject.currentBoundingBox.Position.X - 3*64,// - 1,
+						gameObject.currentBoundingBox.Position.Y
+					)
+				);
+				CooldownTimer = 90;
+			}
+			if ((State)gameObject.State == State.ATTACKING_RIGHT && AnimationTimer == 32)
+			{
+				GameObject.signalFlags!.CreateGameObject(
+					Arrow.Instance,
+					1,
+					new SubpxPosition
+					(
+						gameObject.currentBoundingBox.Position.X + 1*64,// - 1,
+						gameObject.currentBoundingBox.Position.Y
+					)
+				);
+				CooldownTimer = 90;
+			}
+
+			if ((State)gameObject.State == State.GOING_LEFT && CooldownTimer == 0){
+				ObjectBoundingBox regionToCheck = gameObject.currentBoundingBox;
+				regionToCheck.Position.X -= 5 * 16 * 64;
+				regionToCheck.Size.X += 5 * 16 * 64;
+				if (regionToCheck & GameObject.signalFlags!.GetPlayerPosition())
+				{
+					AnimationTimer = 64;
+					gameObject.State = (uint)State.ATTACKING_LEFT;
+				}
+			}
+			if((State)gameObject.State == State.GOING_RIGHT && CooldownTimer == 0)
+			{
+				ObjectBoundingBox regionToCheck = gameObject.currentBoundingBox;
+				//regionToCheck.Position.X -= 5 * 16 * 64;
+				regionToCheck.Size.X += 5 * 16 * 64;
+				if (regionToCheck & GameObject.signalFlags!.GetPlayerPosition())
+				{
+					AnimationTimer = 64;
+					gameObject.State = (uint)State.ATTACKING_RIGHT;
+				}
+			}
+
+			if (--AnimationTimer == 0)
             {
                 switch ((State)gameObject.State)
                 {
                     case State.GOING_LEFT:
                         gameObject.State = (uint)State.SHIFTING_TO_RIGHT;
-                        gameObject.Timer = 24;
+                        AnimationTimer = 24;
                         break;
                     case State.GOING_RIGHT:
 						gameObject.State = (uint)State.SHIFTING_TO_LEFT;
-						gameObject.Timer = 24;
+						AnimationTimer = 24;
 						break;
                     case State.SHIFTING_TO_LEFT:
 						gameObject.State = (uint)State.GOING_LEFT;
-						gameObject.Timer = 60*4;
+						AnimationTimer = 60*4;
 						break;
                     case State.SHIFTING_TO_RIGHT:
 						gameObject.State = (uint)State.GOING_RIGHT;
-						gameObject.Timer = 60 * 4;
+						AnimationTimer = 60 * 4;
+						break;
+					case State.ATTACKING_LEFT:
+						gameObject.State = (uint)State.GOING_LEFT;
+						AnimationTimer = 60 * 4;
+						break;
+					case State.ATTACKING_RIGHT:
+						gameObject.State = (uint)State.GOING_RIGHT;
+						AnimationTimer = 60 * 4;
 						break;
 				}
             }
@@ -81,22 +144,44 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			{
 				case State.GOING_LEFT:
 					gameObject.GroundImpulse= -16;
-                    gameObject.spritesheetIndex = (gameObject.Timer>>4)&3;
+                    gameObject.spritesheetIndex = (AnimationTimer >>4)&3;
                     gameObject.spriteEffects = SpriteEffects.None;
 					break;
 				case State.GOING_RIGHT:
 					gameObject.GroundImpulse= 16;
-					gameObject.spritesheetIndex = (gameObject.Timer >> 4) & 3;
+					gameObject.spritesheetIndex = (AnimationTimer >> 4) & 3;
 					gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
 					break;
-                case State.SHIFTING_TO_RIGHT:
+
+				case State.ATTACKING_LEFT:
 					gameObject.GroundImpulse = 0;
-                    if(gameObject.Timer > 16)
+					gameObject.spriteEffects = SpriteEffects.None;
+					if(AnimationTimer >= 32 - 8 && AnimationTimer < 32 + 8){
+						gameObject.spritesheetIndex = 7;
+					}else{
+						gameObject.spritesheetIndex = 6;
+					}
+					break;
+				case State.ATTACKING_RIGHT:
+					gameObject.GroundImpulse = 0;
+					gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					if (AnimationTimer >= 32 - 8 && AnimationTimer < 32 + 8)
+					{
+						gameObject.spritesheetIndex = 7;
+					}
+					else
+					{
+						gameObject.spritesheetIndex = 6;
+					}
+					break;
+				case State.SHIFTING_TO_RIGHT:
+					gameObject.GroundImpulse = 0;
+                    if(AnimationTimer > 16)
                     {
 						gameObject.spritesheetIndex = 4;
 						gameObject.spriteEffects = SpriteEffects.None;
 					}
-                    else if(gameObject.Timer > 8)
+                    else if(AnimationTimer > 8)
                     {
 						gameObject.spritesheetIndex = 5;
 						gameObject.spriteEffects = SpriteEffects.None;
@@ -110,12 +195,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 					break;
                 case State.SHIFTING_TO_LEFT:
 					gameObject.GroundImpulse = 0;
-					if (gameObject.Timer > 16)
+					if (AnimationTimer > 16)
 					{
 						gameObject.spritesheetIndex = 4;
 						gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
 					}
-					else if (gameObject.Timer > 8)
+					else if (AnimationTimer > 8)
 					{
 						gameObject.spritesheetIndex = 5;
 						gameObject.spriteEffects = SpriteEffects.None;

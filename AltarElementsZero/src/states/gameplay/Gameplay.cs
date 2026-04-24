@@ -38,6 +38,8 @@ namespace AltarElementsZero.src.states.gameplay
 
 		SubpxPosition GetPlayerPosition();
 
+		bool CreateGameObject(IBehaviour behaviour, byte spawnValue, SubpxPosition position);
+
 	}
 
 
@@ -56,6 +58,20 @@ namespace AltarElementsZero.src.states.gameplay
             globalAssets: globalAssets
             ), ISignalFlags
     {
+
+		public bool CreateGameObject(IBehaviour behaviour, byte spawnValue, SubpxPosition position){
+			int nextAssignableObject = GetNextAssignableObject();
+			if (nextAssignableObject == -1) return false;
+
+			GameObject newObject = _objectPool[nextAssignableObject];
+			newObject.behaviour = behaviour;
+			newObject.spawnValue = spawnValue;
+			newObject.currentBoundingBox.Position = position;
+			newObject.Type = GameObject.Types.SPAWNING;
+
+			return true;
+
+		}
 
 		private GameplayMessages gameplayMessages = GameplayMessages.None;
 
@@ -532,6 +548,14 @@ namespace AltarElementsZero.src.states.gameplay
 			//	return;
 			//}
 
+			for(int o = 0; o < _objectPool.Length; o++){
+				if(_objectPool[o].Type == GameObject.Types.SPAWNING){
+					_objectPool[o].Init();
+				}
+			}
+
+			ResetAssignableObjects();
+
 
 			CalculateDesiredOutcomes();
 			ApplyHorizontalVelocities();
@@ -587,7 +611,7 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject gameObject = _objectPool[o];
-				if (gameObject.Type != GameObject.Types.NONEXISTENT)
+				if (gameObject.Type != GameObject.Types.NONEXISTENT && gameObject.Type != GameObject.Types.SPAWNING)
 				{
 					gameObject.SavePreviousValues();
 					gameObject.CalculateDesiredOutcome();
@@ -609,7 +633,7 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject gameObject = _objectPool[o];
-				if (gameObject.Type != GameObject.Types.NONEXISTENT && gameObject.Type != GameObject.Types.RESERVED)
+				if (gameObject.Type != GameObject.Types.NONEXISTENT && gameObject.Type != GameObject.Types.RESERVED && gameObject.Type != GameObject.Types.SPAWNING)
 				{
 					gameObject.ApplyHorizontalDesiredVelocity();
 				}
@@ -621,17 +645,17 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject go1 = _objectPool[o];
-				if (go1.Type == GameObject.Types.NONEXISTENT || go1.Type == GameObject.Types.RESERVED) continue;
+				if (go1.Type == GameObject.Types.NONEXISTENT || go1.Type == GameObject.Types.RESERVED || go1.Type == GameObject.Types.SPAWNING) continue;
 				go1.CleanHorizontalPushFlags();
 				for (int u = o + 1; u < _objectPool.Length; u++)
 				{
 					GameObject go2 = _objectPool[u];
-					if (go2.Type == GameObject.Types.NONEXISTENT || go2.Type == GameObject.Types.RESERVED) continue;
+					if (go2.Type == GameObject.Types.NONEXISTENT || go2.Type == GameObject.Types.RESERVED || go2.Type == GameObject.Types.SPAWNING) continue;
 
 					GameObject.CheckHorizontalCollisions(go1, go2);
 				}
 
-				if (go1.Type != GameObject.Types.PUSHABLE) continue;
+				if (go1.Type != GameObject.Types.PUSHABLE && go1.Type != GameObject.Types.PROJECTILE) continue;
 
 				TileSpan tileSpan = go1.currentBoundingBox.GetTileSpan();
                 if(go1.currentVelocity.X > 0)
@@ -712,7 +736,7 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject gameObject = _objectPool[o];
-				if (gameObject.Type != GameObject.Types.NONEXISTENT && gameObject.Type != GameObject.Types.RESERVED)
+				if (gameObject.Type != GameObject.Types.NONEXISTENT && gameObject.Type != GameObject.Types.RESERVED && gameObject.Type != GameObject.Types.SPAWNING)
 				{
 					gameObject.ApplyVerticalDesiredVelocity();
 				}
@@ -724,17 +748,17 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject go1 = _objectPool[o];
-				if (go1.Type == GameObject.Types.NONEXISTENT || go1.Type == GameObject.Types.RESERVED) continue;
+				if (go1.Type == GameObject.Types.NONEXISTENT || go1.Type == GameObject.Types.RESERVED || go1.Type == GameObject.Types.SPAWNING) continue;
 				go1.CleanVerticalPushFlags();
 				for (int u = o + 1; u < _objectPool.Length; u++)
 				{
 					GameObject go2 = _objectPool[u];
-					if (go2.Type == GameObject.Types.NONEXISTENT || go2.Type == GameObject.Types.RESERVED) continue;
+					if (go2.Type == GameObject.Types.NONEXISTENT || go2.Type == GameObject.Types.RESERVED || go2.Type == GameObject.Types.SPAWNING) continue;
 
 					GameObject.CheckVerticalCollisions(go1, go2);
 				}
 
-				if (go1.Type != GameObject.Types.PUSHABLE) continue;
+				if (go1.Type != GameObject.Types.PUSHABLE && go1.Type != GameObject.Types.PROJECTILE) continue;
 
 				TileSpan tileSpan = go1.currentBoundingBox.GetTileSpan();
 				if (go1.currentVelocity.Y > 0)

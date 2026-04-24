@@ -81,6 +81,25 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 );
         }
 
+		public static bool operator&(ObjectBoundingBox b1, SubpxPosition b2){
+			if (b1.Size.X == 0 || b1.Size.Y == 0 )
+			{
+				return false;
+			}
+			uint left = b1.Position.X;
+			uint up = b1.Position.Y;
+			uint right = left + b1.Size.X - 1;
+			uint down = up + b1.Size.Y - 1;
+
+			return 
+			(
+				left <= b2.X &&
+				b2.X <= right &&
+				up <= b2.Y &&
+				b2.Y <= down
+			);
+		}
+
         public void LeanAbove(ObjectBoundingBox other, uint maxDiff)
         {
 			int desiredPosition = (int)(other.Position.Y - Size.Y);

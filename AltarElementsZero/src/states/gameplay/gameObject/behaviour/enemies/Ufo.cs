@@ -4,10 +4,11 @@ using AltarElementsZero.src.states.gameplay.vectors;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 {
-	internal class Ufo : IBehaviour
+	class Ufo : IBehaviour
 	{
 		public static readonly Ufo Instance = new ();
 
+		[Flags]
 		private enum FlagTypes : UInt32
 		{
 			None = 0,

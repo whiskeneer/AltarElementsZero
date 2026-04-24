@@ -563,13 +563,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public enum Types : byte
         {
-            NONEXISTENT,
-            IMMOBILE,
-            UNSTOPPABLE,
-            PUSHABLE,
-            FLUID,
+            NONEXISTENT, // empty slot
+            IMMOBILE,    // similar to ground tiles
+            UNSTOPPABLE, // self-moving platforms
+            PUSHABLE,    // target of physical actions
+            FLUID,      // region with friction and current
             REGION, // Like fluid, but without physical properties
             RESERVED,  // Like nonexistent, but not available
+            PROJECTILE,  // Dissapears on contact with solid objects
+            SPAWNING,   // reserved to be created on the next frame
         };
 
         public Types Type { get; set; }

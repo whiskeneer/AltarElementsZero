@@ -288,7 +288,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             // Can this be optimized?
             // (I could use extra GameObject bools but I'm starting
             //  to worry about the potential size of the objectPool)
-            if(otherBehaviour == Toki.Instance || otherBehaviour == Ufo.Instance)
+            if(otherBehaviour == Toki.Instance || 
+                otherBehaviour == Ufo.Instance ||
+                otherBehaviour == Arrow.Instance)
             {
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
             }
