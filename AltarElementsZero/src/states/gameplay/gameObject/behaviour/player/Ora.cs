@@ -26,7 +26,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
         private const uint JUMP_TIME = 12;
         private const int JUMP_FORCE = 175;
         private const int DOWN_ATTACK_IMPULSE = 100;
-        private const int BOUNCE_IMPULSE = 275;
+        private const int BOUNCE_IMPULSE = 290;
 
         public void Init(GameObject gameObject)
         {
@@ -288,7 +288,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             // Can this be optimized?
             // (I could use extra GameObject bools but I'm starting
             //  to worry about the potential size of the objectPool)
-            if(otherBehaviour == Toki.Instance)
+            if(otherBehaviour == Toki.Instance || otherBehaviour == Ufo.Instance)
             {
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
             }

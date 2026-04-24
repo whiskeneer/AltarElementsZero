@@ -7,6 +7,34 @@ namespace AltarElementsZero.src.states.gameplay.vectors
 		public uint X = x;
 		public uint Y = y;
 
+		public static uint DistanceSquared(SubpxPosition left, SubpxPosition right)
+		{
+			uint horizontalDiff;
+			if (left.X < right.X)
+			{
+				horizontalDiff = right.X - left.X;
+			}
+			else
+			{
+				horizontalDiff = left.X - right.X;
+			}
+
+			uint verticalDiff;
+			if (left.Y < right.Y)
+			{
+				verticalDiff = right.Y - left.Y;
+			}
+			else
+			{
+				verticalDiff = left.Y - right.Y;
+			}
+
+			if(horizontalDiff > 0x7fff || verticalDiff > 0x7fff) { return (uint)(-1 & 0xffffffff); }
+
+			return horizontalDiff*horizontalDiff + verticalDiff*verticalDiff;
+
+		}
+
 		public static SubpxPosition operator+(SubpxPosition left, SubpxPosition right)
 		{
 			return new SubpxPosition(

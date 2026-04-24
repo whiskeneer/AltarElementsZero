@@ -36,6 +36,8 @@ namespace AltarElementsZero.src.states.gameplay
 		void SetCheckpoint(byte checkpointValue, TilePosition checkpointPosition);
 		byte GetCheckpointValue();
 
+		SubpxPosition GetPlayerPosition();
+
 	}
 
 
@@ -196,7 +198,12 @@ namespace AltarElementsZero.src.states.gameplay
  
 		private readonly GameObject[] _objectPool = new GameObject[64];
 
-        uint _animationFrame = 0;
+		public SubpxPosition GetPlayerPosition()
+		{
+			return _objectPool[0].currentBoundingBox.Center();
+		}
+
+		uint _animationFrame = 0;
 
 		//
 
@@ -373,6 +380,13 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i+1, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.Ufo)
+						{
+							_objectPool[nextAssignableObject].behaviour = Ufo.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 						}
 					}
 				}
