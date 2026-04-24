@@ -9,7 +9,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 		public static readonly Ufo Instance = new ();
 
 		[Flags]
-		private enum FlagTypes : UInt32
+		public enum FlagTypes : UInt32
 		{
 			None = 0,
 			Hurt = 1<<0

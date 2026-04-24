@@ -54,6 +54,10 @@
             gameObject.linkedObject = null;
             gameObject.linkedPosition = new();
 
+            gameObject.secondLinkedObject = null;
+            gameObject.secondLinkedPosition = new();
+
+
 			return;
         }
         public void Update(GameObject gameObject)

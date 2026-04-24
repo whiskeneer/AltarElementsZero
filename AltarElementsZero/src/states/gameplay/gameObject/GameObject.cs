@@ -15,8 +15,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public GameObject? linkedObject = null;
         public SubpxPosition linkedPosition = new();
 
+        public GameObject? secondLinkedObject = null;
+        public SubpxPosition secondLinkedPosition = new();
+
         public void LinkWith(GameObject gameObject){
-            linkedObject = gameObject;
+            linkedObject = gameObject; // ORA will use as a scythe
+        }
+        public void SecondLinkWith(GameObject gameObject){
+            secondLinkedObject = gameObject; // ORA will use as a movable box
         }
         public enum DrawOrderTypes : Byte{
             NONE,
@@ -584,17 +590,36 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public static void Interaction(GameObject go1, GameObject go2)
         {
-            if(go1.linkedObject != null && go1.linkedObject.currentBoundingBox & go2.currentBoundingBox)
+			go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+			go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
+
+			go2.linkedObject?.currentBoundingBox.Position = go2.currentBoundingBox.Position + go2.linkedPosition;
+			go2.secondLinkedObject?.currentBoundingBox.Position = go2.currentBoundingBox.Position + go2.secondLinkedPosition;
+
+			if (go1.linkedObject != null && go1.linkedObject.currentBoundingBox & go2.currentBoundingBox)
             {
                 if(go2.linkedObject != null && go2.linkedObject.currentBoundingBox & go1.linkedObject.currentBoundingBox)
                 {
 					go1.linkedObject.behaviour.Interact(go1.linkedObject, go2.linkedObject);
 					go2.linkedObject.behaviour.Interact(go2.linkedObject, go1.linkedObject);
+
+					go1.linkedObject.behaviour.Interact(go1.linkedObject, go2);
+					go2.behaviour.Interact(go2, go1.linkedObject);
+
+					go1.behaviour.Interact(go1, go2.linkedObject);
+					go2.linkedObject.behaviour.Interact(go2.linkedObject, go1);
+
+					go1.behaviour.Interact(go1, go2);
+					go2.behaviour.Interact(go2, go1);
+
 				}
                 else
                 {
 					go1.linkedObject.behaviour.Interact(go1.linkedObject, go2);
 					go2.behaviour.Interact(go2, go1.linkedObject);
+
+					go1.behaviour.Interact(go1, go2);
+					go2.behaviour.Interact(go2, go1);
 				}
             }
             else
@@ -603,6 +628,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 				{
 					go1.behaviour.Interact(go1, go2.linkedObject);
 					go2.linkedObject.behaviour.Interact(go2.linkedObject, go1);
+
+					go1.behaviour.Interact(go1, go2);
+					go2.behaviour.Interact(go2, go1);
 				}
 				else
 				{

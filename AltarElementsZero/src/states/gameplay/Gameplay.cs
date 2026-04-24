@@ -723,11 +723,15 @@ namespace AltarElementsZero.src.states.gameplay
 				}
 
 
-				if (o == 0)
-				{ // ORA
-					GameObject linked = _objectPool[o + 1]; // SCYTHE
-					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
-				}
+				//if (o == 0)
+				//{ // ORA
+				//	GameObject linked = _objectPool[o + 1]; // SCYTHE
+				//	linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+				//}
+
+				go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+				go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
+
 			}
 		}
 
@@ -830,11 +834,14 @@ namespace AltarElementsZero.src.states.gameplay
 					}
 				}
 
-				if (o == 0)
-				{ // ORA
-					GameObject linked = _objectPool[o + 1]; // SCYTHE
-					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
-				}
+				//if (o == 0)
+				//{ // ORA
+				//	GameObject linked = _objectPool[o + 1]; // SCYTHE
+				//	linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+				//}
+
+				go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+				go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
 			}
 		}
 
@@ -877,11 +884,13 @@ namespace AltarElementsZero.src.states.gameplay
 
 					}
 				}
-				if (o == 0)
-				{ // ORA
-					GameObject linked = _objectPool[o + 1]; // SCYTHE
-					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
-				}
+				//if (o == 0)
+				//{ // ORA
+				//	GameObject linked = _objectPool[o + 1]; // SCYTHE
+				//	linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+				//}
+				go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+				go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
 			}
 		}
 
@@ -942,11 +951,14 @@ namespace AltarElementsZero.src.states.gameplay
 					}
 				}
 
-				if (o == 0)
-				{ // ORA
-					GameObject linked = _objectPool[o + 1]; // SCYTHE
-					linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
-				}
+				//if (o == 0)
+				//{ // ORA
+				//	GameObject linked = _objectPool[o + 1]; // SCYTHE
+				//	linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+				//}
+				go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+				go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
+
 			}
 
 		}
@@ -1169,7 +1181,7 @@ namespace AltarElementsZero.src.states.gameplay
             for(int o = 0; o < _objectPool.Length; o++)
             {
                 GameObject currentObject = _objectPool[o];
-                if(currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.Type != GameObject.Types.RESERVED && currentObject.drawOrder == GameObject.DrawOrderTypes.BACK)
+                if(currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.BACK)
                 {
 					RenderObject(spriteBatch, currentObject, _assets.ObjectSpritesheet!);
 				}
@@ -1178,7 +1190,7 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject currentObject = _objectPool[o];
-				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.Type != GameObject.Types.RESERVED && currentObject.drawOrder == GameObject.DrawOrderTypes.MIDDLE)
+				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.MIDDLE)
 				{
 					Texture2D objectTexture = _assets.ObjectSpritesheet!;
 					if (object.ReferenceEquals(currentObject.behaviour, Ora.Instance))
@@ -1193,7 +1205,7 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject currentObject = _objectPool[o];
-				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.Type != GameObject.Types.RESERVED && currentObject.drawOrder == GameObject.DrawOrderTypes.FRONT)
+				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.FRONT)
 				{
 					Texture2D objectTexture = _assets.ObjectSpritesheet!;
 					if (object.ReferenceEquals(currentObject.behaviour, Scythe.Instance))

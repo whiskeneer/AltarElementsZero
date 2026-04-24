@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
+﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.vectors;
 
@@ -61,8 +62,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Exit);
             }
 
-			if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
-			{
+            if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
+            {
+                if (gameObject.secondLinkedObject != null)
+                {
+                    gameObject.secondLinkedObject.Type = GameObject.Types.PUSHABLE;
+                    gameObject.secondLinkedObject.isPersistentAcrossChunks = false;
+                    gameObject.secondLinkedObject = null;
+                }
+
 				//GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.RestartFromCheckpoint);
 				SubpxPosition center = gameObject.currentBoundingBox.Center();
 				gameObject.Delete();
@@ -132,7 +140,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 			if (inputHandler.IsPressed(Input.Attack))
 			{
-				if (scythe.State == (uint)Scythe.State.INACTIVE)
+				if (scythe.State == (uint)Scythe.State.INACTIVE && gameObject.secondLinkedObject == null)
 				{
 					if (inputHandler.IsDown(Input.Down) && !(gameObject.PushedUp || gameObject.PushedPreviouslyUp))
 					{
@@ -194,6 +202,41 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				}
 			}
 
+            if(gameObject.secondLinkedObject != null){
+				scythe.State = (uint)Scythe.State.COOLDOWN;
+				scythe.Timer = 1; // cooldownTimer
+			}
+
+            // MOVING BOX SYNCRONIZATION
+
+            if(gameObject.secondLinkedObject != null){
+
+				if ((State)gameObject.State == State.LOOKING_LEFT)
+				{
+					gameObject.secondLinkedPosition = new PxPosition((uint)(-16 & 0xffffffff), (uint)(-7 & 0xffffffff)).ToSubpx();
+				}
+				else
+				{
+					gameObject.secondLinkedPosition = new PxPosition((uint)(11 & 0xffffffff), (uint)(-7 & 0xffffffff)).ToSubpx();
+				}
+
+				if (inputHandler.IsPressed(Input.Attack))
+				{
+					gameObject.secondLinkedObject.Type = GameObject.Types.PUSHABLE;
+					gameObject.secondLinkedObject.isPersistentAcrossChunks = false;
+                    gameObject.secondLinkedObject.currentVelocity = gameObject.currentVelocity;
+					if ((State)gameObject.State == State.LOOKING_LEFT){
+                        gameObject.secondLinkedObject.AppliedForces += new Force(-100,-100);
+					}
+					else{
+						gameObject.secondLinkedObject.AppliedForces += new Force(100, -100);
+					}
+					gameObject.secondLinkedObject = null;
+				}
+
+			}
+
+
 			// GRAPHICS
 
 			if (gameObject.PushedUp || gameObject.PushedPreviouslyUp) // on ground
@@ -230,11 +273,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                         animationTimer = 0;
                         gameObject.spritesheetIndex = 0x2;
                     }
+
+                    if (gameObject.secondLinkedObject != null) gameObject.spritesheetIndex += 0x4;
                 }
 
 
             }
-            else
+            else // on air
             {
                 if (scythe.State == (uint)Scythe.State.ACTIVE)
                 {
@@ -272,8 +317,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 					    }
                     }
 
-                }
-            }
+					if (gameObject.secondLinkedObject != null) gameObject.spritesheetIndex += 0x4;
+
+				}
+			}
 
 
             gameObject.SimulateRegularObjectPhysics();
@@ -288,12 +335,47 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             // Can this be optimized?
             // (I could use extra GameObject bools but I'm starting
             //  to worry about the potential size of the objectPool)
-            if(otherBehaviour == Toki.Instance || 
-                otherBehaviour == Ufo.Instance ||
-                otherBehaviour == Arrow.Instance)
-            {
+            if(otherBehaviour == Arrow.Instance)
+            {   
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
             }
+
+            if (otherBehaviour == Toki.Instance && 
+                ((Toki.FlagTypes)other.InteractionFlags & Toki.FlagTypes.Hurt) == 0)
+            {
+                own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
+			}
+			if (otherBehaviour == Ufo.Instance &&
+			    ((Ufo.FlagTypes)other.InteractionFlags & Ufo.FlagTypes.Hurt) == 0)
+            {
+                own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
+			}
+
+			if (own.secondLinkedObject == null && 
+                otherBehaviour == DebugBox.Instance &&
+                GameObject.inputHandler!.IsPressed(Input.Attack))
+            {
+                ObjectBoundingBox checkingBoundingBox = own.currentBoundingBox;
+
+                if((State)own.State == State.LOOKING_LEFT){
+                    checkingBoundingBox.Size.Y -= 8 * 64;
+                    checkingBoundingBox.Position.Y += 4 * 64;
+                    checkingBoundingBox.Position.X -= 4 * 64;
+                }else{
+					checkingBoundingBox.Size.Y -= 8 * 64;
+					checkingBoundingBox.Position.Y += 4 * 64;
+					checkingBoundingBox.Position.X += 4 * 64;
+				}
+
+                if(checkingBoundingBox & other.currentBoundingBox){
+                    other.Type = GameObject.Types.RESERVED;
+                    own.secondLinkedObject = other;
+                    other.isPersistentAcrossChunks = true;
+
+                }
+
+            }
+
 		}
 
 	}
