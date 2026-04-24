@@ -582,8 +582,33 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public static void Interaction(GameObject go1, GameObject go2)
         {
-            go1.behaviour.Interact(go1, go2);
-            go2.behaviour.Interact(go2, go1);
+            if(go1.linkedObject != null && go1.linkedObject.currentBoundingBox & go2.currentBoundingBox)
+            {
+                if(go2.linkedObject != null && go2.linkedObject.currentBoundingBox & go1.linkedObject.currentBoundingBox)
+                {
+					go1.linkedObject.behaviour.Interact(go1.linkedObject, go2.linkedObject);
+					go2.linkedObject.behaviour.Interact(go2.linkedObject, go1.linkedObject);
+				}
+                else
+                {
+					go1.linkedObject.behaviour.Interact(go1.linkedObject, go2);
+					go2.behaviour.Interact(go2, go1.linkedObject);
+				}
+            }
+            else
+            {
+				if (go2.linkedObject != null && go2.linkedObject.currentBoundingBox & go1.currentBoundingBox)
+				{
+					go1.behaviour.Interact(go1, go2.linkedObject);
+					go2.linkedObject.behaviour.Interact(go2.linkedObject, go1);
+				}
+				else
+				{
+					go1.behaviour.Interact(go1, go2);
+					go2.behaviour.Interact(go2, go1);
+				}
+			}
+
         }
 
 

@@ -61,6 +61,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Exit);
             }
 
+			if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
+			{
+				//GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.RestartFromCheckpoint);
+				SubpxPosition center = gameObject.currentBoundingBox.Center();
+				gameObject.Delete();
+				gameObject.behaviour = OraDefeated.Instance;
+				gameObject.Init();
+				gameObject.currentBoundingBox.Position = center;
+                return;
+			}
+            
 
 
 			// PHYSICS
@@ -123,7 +134,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			{
 				if (scythe.State == (uint)Scythe.State.INACTIVE)
 				{
-					if (inputHandler.IsDown(Input.Down))
+					if (inputHandler.IsDown(Input.Down) && !(gameObject.PushedUp || gameObject.PushedPreviouslyUp))
 					{
 						if (gameObject.previousVelocity.Y < 0)
 						{
@@ -171,14 +182,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             {
 				if (gameObject.State == (uint)State.LOOKING_LEFT)
 				{
-					gameObject.linkedPosition = new PxPosition((uint)((-11 - 16 + 25) & 0xffffffff), -6 + 25).ToSubpx();
-					scythe.SpriteOffset = new(25, 25);
+					gameObject.linkedPosition = new PxPosition((uint)((-11 - 16 + 25) & 0xffffffff), -6 + 19).ToSubpx();
+					scythe.SpriteOffset = new(25, 19);
 					scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
 				}
 				else
 				{
-					gameObject.linkedPosition = new PxPosition((uint)((-10 - 16 + 23) & 0xffffffff), -6 + 25).ToSubpx();
-					scythe.SpriteOffset = new(23, 25);
+					gameObject.linkedPosition = new PxPosition((uint)((-10 - 16 + 23) & 0xffffffff), -6 + 19).ToSubpx();
+					scythe.SpriteOffset = new(23, 19);
 					scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
 				}
 			}
@@ -269,16 +280,6 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             //
 
-            if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
-            {
-                //GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.RestartFromCheckpoint);
-                SubpxPosition center = gameObject.currentBoundingBox.Center();
-                gameObject.Delete();
-                gameObject.behaviour = OraDefeated.Instance;
-                gameObject.Init();
-                gameObject.currentBoundingBox.Position = center;
-
-            }
 
         }
 		public void Interact(GameObject own, GameObject other)

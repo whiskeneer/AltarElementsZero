@@ -97,7 +97,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 					break;
 				case State.ACTIVE_DOWN:
 					gameObject.drawOrder = GameObject.DrawOrderTypes.FRONT;
-					gameObject.currentBoundingBox.Size = new PxSize(17, 10).ToSubpx();
+					gameObject.currentBoundingBox.Size = new PxSize(17, 16).ToSubpx();
 					gameObject.Type = GameObject.Types.REGION;
 
 					if ((attackTimer & 4) == 4)
