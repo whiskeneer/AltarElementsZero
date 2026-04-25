@@ -1,4 +1,5 @@
 ﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.gameplay.vectors;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
@@ -116,7 +117,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 		public void Interact(GameObject own, GameObject other)
 		{
 			if(own.State == (uint)State.ACTIVE_DOWN){
-				if(object.ReferenceEquals(other.behaviour, Toki.Instance) || object.ReferenceEquals(other.behaviour,Ufo.Instance)){
+				if (object.ReferenceEquals(other.behaviour, Toki.Instance) || 
+					object.ReferenceEquals(other.behaviour,Ufo.Instance) ||
+					object.ReferenceEquals(other.behaviour,BreakableTile.Instance))
+				{
 					own.InteractionFlags |= (UInt32)FlagTypes.Bounce;
 				}
 			}

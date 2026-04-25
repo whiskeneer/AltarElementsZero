@@ -44,7 +44,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
 			// PHYSICS
 			
-			gameObject.AppliedForces += new Force(0, -12);
+			gameObject.AppliedForces += new Force(-gameObject.Gravity.X, -gameObject.Gravity.Y);
 
 			SubpxPosition playerPosition = GameObject.signalFlags!.GetPlayerPosition();
 			SubpxPosition ownPosition = gameObject.currentBoundingBox.Position;

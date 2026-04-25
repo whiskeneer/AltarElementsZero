@@ -7,6 +7,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 {
     class Toki : IBehaviour
     {
+		[Flags]
 		public enum FlagTypes : UInt32
 		{
 			None = 0,
@@ -22,7 +23,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
             ATTACKING_LEFT,
             ATTACKING_RIGHT,
             SHIFTING_TO_LEFT,
-            SHIFTING_TO_RIGHT
+            SHIFTING_TO_RIGHT,
+			STILL_LEFT,
         }
 
         public void Init(GameObject gameObject)
@@ -46,10 +48,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 				gameObject.State = (uint)State.GOING_LEFT;
 				AnimationTimer = 60 * 4;
 			}
-			else
+			else if(gameObject.spawnValue == 1)
 			{
 				gameObject.State = (uint)State.GOING_RIGHT;
 				AnimationTimer = 60 * 4;
+			}
+			else
+			{
+				gameObject.State = (uint)State.STILL_LEFT;
 			}
 		}
 
@@ -210,6 +216,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 						gameObject.spritesheetIndex = 4;
 						gameObject.spriteEffects = SpriteEffects.None;
 					}
+					break;
+				case State.STILL_LEFT:
+					gameObject.GroundImpulse = 0;
+					gameObject.spritesheetIndex = 0;
+					gameObject.spriteEffects = SpriteEffects.None;
 					break;
 				default:
 					gameObject.GroundImpulse = 0;
