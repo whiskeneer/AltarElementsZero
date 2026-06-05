@@ -1,5 +1,7 @@
 # Altar Elements Zero
 
+![Game Screenshot](screenshot.png "Game Screenshot")
+
 > A 2D pixel art platformer built from scratch in C# using the **FNA framework** — no engine, no editor, no physics library.
 
 **[▶ Play the demo on itch.io](https://whiskeneer.itch.io/altar-elements-zero)** · **[🎵 Soundtrack on YouTube](https://www.youtube.com/@Whiskeneer)**
