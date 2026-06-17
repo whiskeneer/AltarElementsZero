@@ -113,7 +113,8 @@ namespace AltarElementsZero.src.renderer
             PxPosition cameraPosition,
             uint frame,
             Texture2D staticSpritesheet,
-            Texture2D animatedSpritesheet
+            Texture2D animatedSpritesheet,
+            Texture2D blobSpritesheet
             )
         {
             PxPosition cameraTileRemainder = cameraPosition.TileRemainder();
@@ -152,25 +153,45 @@ namespace AltarElementsZero.src.renderer
                     }
                     else if (tile.IsAnimatedTile())
                     {
-						int spritesheetCol = (tile.Member & 0xc) | (((int)frame >> (3 - (tile.Member & 0x3))) & 0x3);
-						int spritesheetRow = (tile.Member >> 4) & 0xf;
+                        int spritesheetCol = (tile.Member & 0xc) | (((int)frame >> (3 - (tile.Member & 0x3))) & 0x3);
+                        int spritesheetRow = (tile.Member >> 4) & 0xf;
 
+                        Vector2 outputVector = new(
+                            Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
+                            Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
+                            );
+                        Rectangle sourceRectangle = new(
+                            Configuration.Tile.Px.Width * spritesheetCol,
+                            Configuration.Tile.Px.Height * spritesheetRow,
+                            Configuration.Tile.Px.Width,
+                            Configuration.Tile.Px.Height
+                            );
+
+                        spriteBatch.Draw(
+                            animatedSpritesheet,
+                            outputVector,
+                            sourceRectangle,
+                            Color.White);
+                    }
+                    else if (tile.IsBlobTile())
+                    {
+                        int spritesheetCol = (tile.BlobFamilyIndex() & 0x7) * 8 + (tile.Member & 0x7);
+                        int spritesheetRow = (tile.BlobFamilyIndex() >> 3) * 8 + (tile.Member >> 3);
 						Vector2 outputVector = new(
-							Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
-							Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
-							);
+	                        Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
+	                        Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
+	                        );
 						Rectangle sourceRectangle = new(
 							Configuration.Tile.Px.Width * spritesheetCol,
 							Configuration.Tile.Px.Height * spritesheetRow,
 							Configuration.Tile.Px.Width,
 							Configuration.Tile.Px.Height
 							);
-
 						spriteBatch.Draw(
-							animatedSpritesheet,
-							outputVector,
-							sourceRectangle,
-							Color.White);
+                            blobSpritesheet,
+                            outputVector,
+                            sourceRectangle,
+                            Color.White);
 					}
 
 

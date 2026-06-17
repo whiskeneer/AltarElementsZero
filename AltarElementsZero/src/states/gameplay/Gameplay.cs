@@ -1181,7 +1181,8 @@ namespace AltarElementsZero.src.states.gameplay
 					CameraPosition,
 					_animationFrame,
 					_assets.StaticSpritesheet!,
-					_assets.AnimatedSpritesheet!
+					_assets.AnimatedSpritesheet!,
+					_assets.Atlas!
 					);
 
 

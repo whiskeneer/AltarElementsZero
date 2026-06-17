@@ -56,8 +56,9 @@ namespace AltarElementsZero.src.states.gameplay.level
 
         readonly public bool IsSolid()
         {
-            return (Family >= Families.Ground && Family <= Families.TurbineRight2) || (
-                Family == Families.AutomaticallyTiledGround);
+            return (Family >= Families.Ground && Family <= Families.TurbineRight2) || 
+            (Family == Families.AutomaticallyTiledGround) || 
+            (Family >= Families.BlobTileset0 && Family <= Families.BlobTileset7);
         }
         readonly public FrictionCoefficients GetFrictionCoefficients()
         {
@@ -103,11 +104,26 @@ namespace AltarElementsZero.src.states.gameplay.level
         {
             return Family >= Families.ConveyorRight && Family <= Families.TurbineRight2;
         }
+        readonly public bool IsBlobTile()
+        {
+            return Family >= Families.BlobTileset0 && Family <= Families.BlobTileset7;
+        }
+        readonly public int BlobFamilyIndex()
+        {
+            if (IsBlobTile())
+            {
+                return (int)Family - (int)Families.BlobTileset0;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
         readonly public bool IsObjectSpawn()
         {
             return (Family >= Families.Toki && Family <= Families.DebugBox)
                 || (Family >= Families.FanUp  && Family <= Families.TurbineRight);
-                
         }
 
         public enum Families : byte
@@ -133,13 +149,22 @@ namespace AltarElementsZero.src.states.gameplay.level
 
             AutomaticallyTiledGround = 0x10, // static spritesheet index, where only bits 11001100 matter (masked by 0xcc)
 
+            BlobTileset0 = 0x20,
+            BlobTileset1,
+            BlobTileset2,
+            BlobTileset3,
+            BlobTileset4,
+            BlobTileset5,
+            BlobTileset6,
+            BlobTileset7,
 
 
-            // GameObjects spawn points
+
+			// GameObjects spawn points
 
 
 
-            Toki = 128,
+			Toki = 128,
             MovingPlatform1,
 
             Ufo = 128 + 16,
@@ -179,7 +204,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 			"AUTO GND","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+			"BLOBSET0","BLOBSET1","BLOBSET2","BLOBSET3","BLOBSET4","BLOBSET5","BLOBSET6","BLOBSET7",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",

@@ -16,6 +16,7 @@ namespace AltarElementsZero.src.states.gameplay
         public Texture2D? DebugSpritesheet {  get; private set; }
         public Texture2D? StaticSpritesheet { get; private set; }
         public Texture2D? AnimatedSpritesheet { get; private set; }
+		public Texture2D? Atlas {  get; private set; }
         public Texture2D? BackgroundSpritesheet { get; private set; }
         public Texture2D? ObjectSpritesheet { get; private set; }
         public Texture2D? OraSpritesheet { get; private set; }
@@ -53,6 +54,7 @@ namespace AltarElementsZero.src.states.gameplay
             DebugSpritesheet = _contentManager!.Load<Texture2D>("img/editor_spritesheet.png");
             StaticSpritesheet = _contentManager!.Load<Texture2D>("img/static_spritesheet_level1.png");
             AnimatedSpritesheet = _contentManager!.Load<Texture2D>("img/animated_spritesheet_level1.png");
+			Atlas = _contentManager!.Load<Texture2D>("img/atlas.png");
             BackgroundSpritesheet = _contentManager!.Load<Texture2D>("img/background_spritesheet_level1.png");
             ObjectSpritesheet = _contentManager!.Load<Texture2D>("img/object_spritesheet_level1.png");
             OraSpritesheet = _contentManager!.Load<Texture2D>("img/ora_spritesheet.png");
@@ -556,6 +558,7 @@ namespace AltarElementsZero.src.states.gameplay
             DebugSpritesheet = null;
             StaticSpritesheet = null;
             AnimatedSpritesheet = null;
+			Atlas = null;
             BackgroundSpritesheet = null;
             ObjectSpritesheet = null;
             OraSpritesheet = null;

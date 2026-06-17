@@ -19,8 +19,10 @@ namespace AltarElementsZero.src.states.editor
         public Texture2D? AnimatedSpritesheet1 { get; private set; }
         public Texture2D? ObjectSpritesheet1 { get; private set; }
 
-        //
+        // ATLAS
+		public Texture2D? Atlas {  get; private set; }
 
+		//
         public RenderTarget2D? ChunkOutline { get; private set; }
 
         public override void Load()
@@ -34,6 +36,8 @@ namespace AltarElementsZero.src.states.editor
             StaticSpritesheet1 = _contentManager!.Load<Texture2D>("img/static_spritesheet_level1.png");
 			AnimatedSpritesheet1 = _contentManager!.Load<Texture2D>("img/animated_spritesheet_level1.png");
 			ObjectSpritesheet1 = _contentManager!.Load<Texture2D>("img/object_spritesheet_level1.png");
+
+			Atlas = _contentManager!.Load<Texture2D>("img/atlas.png");
 
 			// Creating renderTargets
 			ChunkOutline = new RenderTarget2D(
@@ -95,6 +99,8 @@ namespace AltarElementsZero.src.states.editor
 			StaticSpritesheet1 = null;
 			AnimatedSpritesheet1 = null;
 			ObjectSpritesheet1 = null;
+
+			Atlas = null;
 
 			// Disposing renderTargets
 			ChunkOutline!.Dispose();

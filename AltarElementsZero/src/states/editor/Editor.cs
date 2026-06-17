@@ -94,7 +94,11 @@ namespace AltarElementsZero.src.states.editor
                             (int)_cursorTilePosition.Y,
                             new Tile((Tile.Families)paintingByteHigh, paintingByteLow)
                             );
-                    }
+                        _level.UpdateTilesAround(
+                            (int)_cursorTilePosition.X,
+							(int)_cursorTilePosition.Y);
+
+					}
                     if (_inputHandler.IsDown(Input.Attack))
                     {
                         _level.SetTile(
@@ -294,7 +298,8 @@ namespace AltarElementsZero.src.states.editor
                 _cameraPosition,
                 _frame,
                 _assets.StaticSpritesheet1!,
-                _assets.AnimatedSpritesheet1!
+                _assets.AnimatedSpritesheet1!,
+                _assets.Atlas!
                 );
             Renderer.RenderSpawnPoints(
                 spriteBatch,
