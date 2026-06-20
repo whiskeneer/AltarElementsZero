@@ -1,6 +1,8 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 {
@@ -29,11 +31,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			gameObject.isPersistentAcrossChunks = false;
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-			gameObject.spritesheetIndex = 0x30;
-			gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
 
 			gameObject.currentBoundingBox.Size = new PxSize(12, 12).ToSubpx();
-			gameObject.SpriteOffset = new PxSize(10, 10);
+			//gameObject.spritesheetIndex = 0x30;
+			//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+			//gameObject.SpriteOffset = new PxSize(10, 10);
+			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x30);
+			gameObject.atlasReference.Size = new PxSize(32, 32);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(10, 10);
 
 			gameObject.State = (uint)State.FLOATING_LEFT;
 		}
@@ -110,19 +116,25 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
 			animationTimer++;
 			if((animationTimer&4) == 4){
-				gameObject.spritesheetIndex = 0x30;
-			}else{
-				gameObject.spritesheetIndex = 0x31;
+				//gameObject.spritesheetIndex = 0x30;
+				gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x30);
+			}
+			else
+			{
+				//gameObject.spritesheetIndex = 0x31;
+				gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x31);
 			}
 
 			if ((State)gameObject.State == State.FLOATING_LEFT || 
 				(State)gameObject.State == State.CHASING_LEFT)
 			{
-				gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+				//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+				gameObject.atlasReference.Effects = SpriteEffects.None;
 			}
 			else 
 			{
-				gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+				//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+				gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
 			}
 
 			//

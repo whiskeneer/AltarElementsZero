@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.gameplay.level;
@@ -645,9 +646,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public bool isPersistentAcrossChunks = false;
 
         //public bool isVisible = false;
-        public uint spritesheetIndex = 0;
-        public SpriteEffects spriteEffects = SpriteEffects.None;
-        public PxSize SpriteOffset;
+        //public uint spritesheetIndex = 0;
+        //public SpriteEffects spriteEffects = SpriteEffects.None;
+        //public PxSize SpriteOffset;
+
+        public AtlasReference atlasReference;
 
         public void Delete()
         {

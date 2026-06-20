@@ -1,6 +1,8 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 {
@@ -20,11 +22,16 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 			gameObject.isPersistentAcrossChunks = false;
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-			gameObject.spritesheetIndex = 0x0e;
-			gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
 
 			gameObject.currentBoundingBox.Size = new PxSize(16, 16).ToSubpx();
-			gameObject.SpriteOffset = new();
+
+			//gameObject.SpriteOffset = new();
+			//gameObject.spritesheetIndex = 0x0e;
+			//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x0e);
+			gameObject.atlasReference.Size = new PxSize(32, 32);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(0, 0);
 
 		}
 

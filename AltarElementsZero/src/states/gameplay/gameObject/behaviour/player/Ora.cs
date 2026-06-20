@@ -1,7 +1,9 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 {
@@ -36,11 +38,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-            gameObject.spritesheetIndex = 0x00;
-            gameObject.SpriteOffset = new(10, 6);
-            gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+			//gameObject.spritesheetIndex = 0x00;
+			//gameObject.SpriteOffset = new(10, 6);
+			//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+			gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x00);
+			gameObject.atlasReference.Size = new PxSize(32, 32);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(10, 6);
 
-            gameObject.currentBoundingBox.Size = new PxSize(11, 24).ToSubpx();
+			gameObject.currentBoundingBox.Size = new PxSize(11, 24).ToSubpx();
 
             gameObject.State = (uint)State.LOOKING_RIGHT;
 
@@ -89,9 +95,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 gameObject.AirImpulse = new(-AIR_IMPULSE, 0);
                 gameObject.GroundImpulse = -GROUND_IMPULSE;
 
-                gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
-				gameObject.SpriteOffset = new(11, 6);
-                gameObject.State = (uint)State.LOOKING_LEFT;
+				//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+				//gameObject.SpriteOffset = new(11, 6);
+				gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
+				gameObject.atlasReference.Offset = new PxPosition(11, 6);
+				gameObject.State = (uint)State.LOOKING_LEFT;
 
 
 
@@ -102,8 +110,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				gameObject.AirImpulse = new(AIR_IMPULSE, 0);
                 gameObject.GroundImpulse = GROUND_IMPULSE;
 
-                gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
-				gameObject.SpriteOffset = new(10, 6);
+				//            gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+				//gameObject.SpriteOffset = new(10, 6);
+				gameObject.atlasReference.Effects = SpriteEffects.None;
+				gameObject.atlasReference.Offset = new PxPosition(10, 6);
 				gameObject.State = (uint)State.LOOKING_RIGHT;
 
 
@@ -176,14 +186,18 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 if(gameObject.State == (uint)State.LOOKING_LEFT)
                 {
 				    gameObject.linkedPosition = new PxPosition((uint)((-11 - 16 + 10) & 0xffffffff), -6 + 13).ToSubpx();
-				    scythe.SpriteOffset = new(10, 13);
-				    scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
-                }
+				    //scythe.SpriteOffset = new(10, 13);
+				    //scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+					scythe.atlasReference.Offset = new PxPosition(10, 13);
+					scythe.atlasReference.Effects = SpriteEffects.FlipHorizontally;
+				}
                 else
                 {
 					gameObject.linkedPosition = new PxPosition((uint)((-10 - 16 + 14) & 0xffffffff), -6 + 13).ToSubpx();
-					scythe.SpriteOffset = new(14, 13);
-					scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+					//scythe.SpriteOffset = new(14, 13);
+					//scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+					scythe.atlasReference.Offset = new PxPosition(14, 13);
+					scythe.atlasReference.Effects = SpriteEffects.None;
 				}
 			}
             else if(scythe.State == (uint)Scythe.State.ACTIVE_DOWN)
@@ -191,14 +205,18 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				if (gameObject.State == (uint)State.LOOKING_LEFT)
 				{
 					gameObject.linkedPosition = new PxPosition((uint)((-11 - 16 + 25) & 0xffffffff), -6 + 19).ToSubpx();
-					scythe.SpriteOffset = new(25, 19);
-					scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+					//scythe.SpriteOffset = new(25, 19);
+					//scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+					scythe.atlasReference.Offset = new PxPosition(25, 19);
+					scythe.atlasReference.Effects = SpriteEffects.FlipHorizontally;
 				}
 				else
 				{
 					gameObject.linkedPosition = new PxPosition((uint)((-10 - 16 + 23) & 0xffffffff), -6 + 19).ToSubpx();
-					scythe.SpriteOffset = new(23, 19);
-					scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+					//scythe.SpriteOffset = new(23, 19);
+					//scythe.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+					scythe.atlasReference.Offset = new PxPosition(23, 19);
+					scythe.atlasReference.Effects = SpriteEffects.None;
 				}
 			}
 
@@ -245,36 +263,47 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 {
 					ref uint attackTimer = ref scythe.Timer2;
 					if (attackTimer > 6){
-                        gameObject.spritesheetIndex = 0x18;
+                        //gameObject.spritesheetIndex = 0x18;
+			            gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x18);
 					}
 					else
 					{
-						gameObject.spritesheetIndex = 0x19;
+						//gameObject.spritesheetIndex = 0x19;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x19);
 					}
 				}
                 else if(scythe.State == (uint)Scythe.State.ACTIVE_DOWN)
                 {
-                    gameObject.spritesheetIndex = 0x13;
-                }
+                    //gameObject.spritesheetIndex = 0x13;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x13);
+				}
                 else
                 {
                     if (inputHandler.IsDown(Input.Left))
                     {
-                        gameObject.spritesheetIndex = 0x08 + ((animationTimer>>3) & 0x3);
-                        animationTimer++;
+						//gameObject.spritesheetIndex = 0x08 + ((animationTimer>>3) & 0x3);
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x08 + ((animationTimer >> 3) & 0x3));
+						animationTimer++;
                     }
                     else if (inputHandler.IsDown(Input.Right))
                     {
-					    gameObject.spritesheetIndex = 0x08 + ((animationTimer >> 3) & 0x3);
-					    animationTimer++;
+						//gameObject.spritesheetIndex = 0x08 + ((animationTimer >> 3) & 0x3);
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x08 + ((animationTimer >> 3) & 0x3));
+						animationTimer++;
                     }
                     else
                     {
                         animationTimer = 0;
-                        gameObject.spritesheetIndex = 0x2;
-                    }
+						//gameObject.spritesheetIndex = 0x2;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x02);
 
-                    if (gameObject.secondLinkedObject != null) gameObject.spritesheetIndex += 0x4;
+					}
+
+                    if (gameObject.secondLinkedObject != null)
+                    {
+                        //gameObject.spritesheetIndex += 0x4;
+                        gameObject.atlasReference.Start.X += 128;
+                    }
                 }
 
 
@@ -286,38 +315,48 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 					ref uint attackTimer = ref scythe.Timer2;
 					if (attackTimer > 6)
 					{
-						gameObject.spritesheetIndex = 0x1A;
+						//gameObject.spritesheetIndex = 0x1A;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x1A);
 					}
 					else
 					{
-						gameObject.spritesheetIndex = 0x1B;
+                        //gameObject.spritesheetIndex = 0x1B;
+                        gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x1B);
 					}
 				}
                 else if (scythe.State == (uint)Scythe.State.ACTIVE_DOWN)
                 {
-                    gameObject.spritesheetIndex = 0x13;
-                }
+					//gameObject.spritesheetIndex = 0x13;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x13);
+				}
 				else
                 { 
 				    if (jumpTimer > 0)
                     {
                         animationTimer = 0;
-                        gameObject.spritesheetIndex = 0x10;
-                    }
-                    else
+						//gameObject.spritesheetIndex = 0x10;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x10);
+					}
+					else
                     {
                         if(animationTimer < 15)
                         {
-						    gameObject.spritesheetIndex = 0x11;
-						    animationTimer++;
+						    //gameObject.spritesheetIndex = 0x11;
+							gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x11);
+							animationTimer++;
                         }
                         else
                         {
-						    gameObject.spritesheetIndex = 0x12;
-					    }
-                    }
+							//gameObject.spritesheetIndex = 0x12;
+							gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x12);
+						}
+					}
 
-					if (gameObject.secondLinkedObject != null) gameObject.spritesheetIndex += 0x4;
+                    if (gameObject.secondLinkedObject != null) 
+                    { 
+                        //gameObject.spritesheetIndex += 0x4;
+						gameObject.atlasReference.Start.X += 128;
+					}
 
 				}
 			}

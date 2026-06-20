@@ -989,51 +989,51 @@ namespace AltarElementsZero.src.states.gameplay
         }
 
        
-		private void RenderObject(SpriteBatch spriteBatch, GameObject gameObject, Texture2D spritesheetTexture){
-			PxPosition objectPosition = gameObject.currentBoundingBox.Position.ToVisualPx() - gameObject.SpriteOffset;
-			uint spritesheetIndex = gameObject.spritesheetIndex;
-			SpriteEffects spriteEffects = gameObject.spriteEffects;
+		//private void RenderObject(SpriteBatch spriteBatch, GameObject gameObject, Texture2D spritesheetTexture){
+		//	PxPosition objectPosition = gameObject.currentBoundingBox.Position.ToVisualPx() - gameObject.SpriteOffset;
+		//	uint spritesheetIndex = gameObject.spritesheetIndex;
+		//	SpriteEffects spriteEffects = gameObject.spriteEffects;
 
-			spriteBatch.Draw(
-				texture: spritesheetTexture,
-				position: new Vector2(
-					(int)objectPosition.X - CameraPosition.X,
-					(int)objectPosition.Y - CameraPosition.Y
-					),
-				sourceRectangle: new(
-					Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
-					Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
-					Configuration.Tile.Px.Width * 2,
-					Configuration.Tile.Px.Height * 2
-					),
-				color: Color.White,
-				0f, Vector2.Zero, 1f, spriteEffects, 0f
-				);
+		//	spriteBatch.Draw(
+		//		texture: spritesheetTexture,
+		//		position: new Vector2(
+		//			(int)objectPosition.X - CameraPosition.X,
+		//			(int)objectPosition.Y - CameraPosition.Y
+		//			),
+		//		sourceRectangle: new(
+		//			Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
+		//			Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
+		//			Configuration.Tile.Px.Width * 2,
+		//			Configuration.Tile.Px.Height * 2
+		//			),
+		//		color: Color.White,
+		//		0f, Vector2.Zero, 1f, spriteEffects, 0f
+		//		);
 
-		}
-		private void RenderWideObject(SpriteBatch spriteBatch, GameObject gameObject, Texture2D spritesheetTexture)
-		{
-			PxPosition objectPosition = gameObject.currentBoundingBox.Position.ToVisualPx() - gameObject.SpriteOffset;
-			uint spritesheetIndex = gameObject.spritesheetIndex;
-			SpriteEffects spriteEffects = gameObject.spriteEffects;
+		//}
+		//private void RenderWideObject(SpriteBatch spriteBatch, GameObject gameObject, Texture2D spritesheetTexture)
+		//{
+		//	PxPosition objectPosition = gameObject.currentBoundingBox.Position.ToVisualPx() - gameObject.SpriteOffset;
+		//	uint spritesheetIndex = gameObject.spritesheetIndex;
+		//	SpriteEffects spriteEffects = gameObject.spriteEffects;
 
-			spriteBatch.Draw(
-				texture: spritesheetTexture,
-				position: new Vector2(
-					(int)objectPosition.X - CameraPosition.X,
-					(int)objectPosition.Y - CameraPosition.Y
-					),
-				sourceRectangle: new(
-					Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
-					Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
-					Configuration.Tile.Px.Width * 4,
-					Configuration.Tile.Px.Height * 2
-					),
-				color: Color.White,
-				0f, Vector2.Zero, 1f, spriteEffects, 0f
-				);
+		//	spriteBatch.Draw(
+		//		texture: spritesheetTexture,
+		//		position: new Vector2(
+		//			(int)objectPosition.X - CameraPosition.X,
+		//			(int)objectPosition.Y - CameraPosition.Y
+		//			),
+		//		sourceRectangle: new(
+		//			Configuration.Tile.Px.Width * 2 * (int)(spritesheetIndex & 0x7),
+		//			Configuration.Tile.Px.Height * 2 * (int)(spritesheetIndex >> 3),
+		//			Configuration.Tile.Px.Width * 4,
+		//			Configuration.Tile.Px.Height * 2
+		//			),
+		//		color: Color.White,
+		//		0f, Vector2.Zero, 1f, spriteEffects, 0f
+		//		);
 
-		}
+		//}
 		private void Render(SpriteBatch spriteBatch)
         {
 			if(_level == null) return;
@@ -1175,58 +1175,63 @@ namespace AltarElementsZero.src.states.gameplay
 					);
 			}
 
-				Renderer.RenderTiles(
-					spriteBatch,
-					_level,
-					CameraPosition,
-					_animationFrame,
-					_assets.StaticSpritesheet!,
-					_assets.AnimatedSpritesheet!,
-					_assets.Atlas!
-					);
+			Renderer.RenderTiles(
+				spriteBatch,
+				_level,
+				CameraPosition,
+				_animationFrame,
+				_assets.StaticSpritesheet!,
+				_assets.AnimatedSpritesheet!,
+				_assets.Atlas!
+				);
+			Renderer.RenderObjects(
+				spriteBatch,
+				_objectPool,
+				CameraPosition,
+				_assets.Atlas!
+				);
+			
+   //         for(int o = 0; o < _objectPool.Length; o++)
+   //         {
+   //             GameObject currentObject = _objectPool[o];
+   //             if(currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.BACK)
+   //             {
+			//		RenderObject(spriteBatch, currentObject, _assets.ObjectSpritesheet!);
+			//	}
+   //         }
 
+			//for (int o = 0; o < _objectPool.Length; o++)
+			//{
+			//	GameObject currentObject = _objectPool[o];
+			//	if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.MIDDLE)
+			//	{
+			//		Texture2D objectTexture = _assets.ObjectSpritesheet!;
+			//		if (object.ReferenceEquals(currentObject.behaviour, Ora.Instance))
+			//		{
+			//			objectTexture = _assets.OraSpritesheet!;
+			//		}
 
-            for(int o = 0; o < _objectPool.Length; o++)
-            {
-                GameObject currentObject = _objectPool[o];
-                if(currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.BACK)
-                {
-					RenderObject(spriteBatch, currentObject, _assets.ObjectSpritesheet!);
-				}
-            }
+			//		RenderObject(spriteBatch, currentObject, objectTexture);
+			//	}
+			//}
 
-			for (int o = 0; o < _objectPool.Length; o++)
-			{
-				GameObject currentObject = _objectPool[o];
-				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.MIDDLE)
-				{
-					Texture2D objectTexture = _assets.ObjectSpritesheet!;
-					if (object.ReferenceEquals(currentObject.behaviour, Ora.Instance))
-					{
-						objectTexture = _assets.OraSpritesheet!;
-					}
-
-					RenderObject(spriteBatch, currentObject, objectTexture);
-				}
-			}
-
-			for (int o = 0; o < _objectPool.Length; o++)
-			{
-				GameObject currentObject = _objectPool[o];
-				if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.FRONT)
-				{
-					Texture2D objectTexture = _assets.ObjectSpritesheet!;
-					if (object.ReferenceEquals(currentObject.behaviour, Scythe.Instance))
-					{
-						objectTexture = _assets.OraSpritesheet!;
-						RenderWideObject(spriteBatch, currentObject, objectTexture);
-					}
-					else
-					{
-						RenderObject(spriteBatch, currentObject, objectTexture);
-					}
-				}
-			}
+			//for (int o = 0; o < _objectPool.Length; o++)
+			//{
+			//	GameObject currentObject = _objectPool[o];
+			//	if (currentObject.Type != GameObject.Types.NONEXISTENT && currentObject.drawOrder == GameObject.DrawOrderTypes.FRONT)
+			//	{
+			//		Texture2D objectTexture = _assets.ObjectSpritesheet!;
+			//		if (object.ReferenceEquals(currentObject.behaviour, Scythe.Instance))
+			//		{
+			//			objectTexture = _assets.OraSpritesheet!;
+			//			RenderWideObject(spriteBatch, currentObject, objectTexture);
+			//		}
+			//		else
+			//		{
+			//			RenderObject(spriteBatch, currentObject, objectTexture);
+			//		}
+			//	}
+			//}
 
 		}
     }

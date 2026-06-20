@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.vectors;
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
@@ -13,18 +14,27 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug
             gameObject.isPersistentAcrossChunks = false;
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-            gameObject.spritesheetIndex = 0x0f;
-            gameObject.spriteEffects = SpriteEffects.None;
 
             gameObject.currentBoundingBox.Size = new PxSize(16,16).ToSubpx();
-            gameObject.SpriteOffset = new PxSize(0, 0);
-        }
+
+            //gameObject.spritesheetIndex = 0x0f;
+            //gameObject.spriteEffects = SpriteEffects.None;
+            //gameObject.SpriteOffset = new PxSize(0, 0);
+
+            gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x0f);
+            gameObject.atlasReference.Size = new PxSize(32, 32);
+            gameObject.atlasReference.Effects = SpriteEffects.None;
+            gameObject.atlasReference.Offset = new PxPosition(0, 0);
+
+
+		}
 
         public void Update(GameObject gameObject)
         {
-		    gameObject.spritesheetIndex = 0x0f;
+			//gameObject.spritesheetIndex = 0x0f;
+			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x0f);
 
-            gameObject.SimulateRegularObjectPhysics();
+			gameObject.SimulateRegularObjectPhysics();
 
 		}
 		public void Interact(GameObject own, GameObject other)

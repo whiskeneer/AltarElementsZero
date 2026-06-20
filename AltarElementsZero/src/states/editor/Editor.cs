@@ -106,7 +106,10 @@ namespace AltarElementsZero.src.states.editor
                             (int)_cursorTilePosition.Y,
                             new Tile((Tile.Families)0, 0)
                             );
-                    }
+						_level.UpdateTilesAround(
+	                        (int)_cursorTilePosition.X,
+	                        (int)_cursorTilePosition.Y);
+					}
 
                 }
                 else // _showHex == true

@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.vectors;
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
@@ -57,11 +58,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 			//gameObject.isAffectedByGravity = false;
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-			gameObject.spritesheetIndex = 8;
-            gameObject.SpriteOffset = new(0, 16);
-            gameObject.spriteEffects = SpriteEffects.None;
+			//gameObject.spritesheetIndex = 8;
+			//         gameObject.SpriteOffset = new(0, 16);
+			//         gameObject.spriteEffects = SpriteEffects.None;
+			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x08);
+			gameObject.atlasReference.Size = new PxSize(32, 32);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(0, 16);
 
-            gameObject.currentBoundingBox.Size = new PxSize(32, 16).ToSubpx();
+			gameObject.currentBoundingBox.Size = new PxSize(32, 16).ToSubpx();
 
             //gameObject.isSelfMoving = true;
 

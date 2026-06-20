@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.level;
+﻿using AltarElementsZero.src.states.gameplay.gameObject;
+using AltarElementsZero.src.states.gameplay.level;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,6 +8,69 @@ namespace AltarElementsZero.src.renderer
 {
     static class Renderer
     {
+
+        private static void RenderObject(
+            SpriteBatch spriteBatch, 
+            GameObject gameObject, 
+            PxPosition cameraPosition, 
+            Texture2D atlas
+            )
+        {
+            if (gameObject.atlasReference.Size.X == 0 || gameObject.atlasReference.Size.Y == 0)
+                return;
+
+            PxPosition spritePosition = gameObject.currentBoundingBox.Position.ToVisualPx() - cameraPosition - gameObject.atlasReference.Offset;
+            Rectangle atlasSourceRectangle = new(
+                (int)gameObject.atlasReference.Start.X,
+				(int)gameObject.atlasReference.Start.Y,
+				(int)gameObject.atlasReference.Size.X,
+				(int)gameObject.atlasReference.Size.Y
+            );
+            spriteBatch.Draw(
+                texture: atlas,
+                position: new((int)spritePosition.X, (int)spritePosition.Y),
+                sourceRectangle: atlasSourceRectangle,
+                color: Color.White,
+                0f, Vector2.Zero, 1f, gameObject.atlasReference.Effects, 0f 
+            );
+        }
+        public static void RenderObjects(
+            SpriteBatch spriteBatch,
+            GameObject[] objectPool,
+            PxPosition cameraPosition,
+            Texture2D atlas
+            )
+        {
+            for (int o = 0; o < objectPool.Length; o++)
+            {
+                GameObject currentObject = objectPool[o];
+                if(currentObject.Type != GameObject.Types.NONEXISTENT &&
+                    currentObject.drawOrder == GameObject.DrawOrderTypes.BACK)
+                {
+                    RenderObject(spriteBatch, currentObject, cameraPosition, atlas);
+                }
+            }
+
+			for (int o = 0; o < objectPool.Length; o++)
+			{
+				GameObject currentObject = objectPool[o];
+				if (currentObject.Type != GameObject.Types.NONEXISTENT &&
+					currentObject.drawOrder == GameObject.DrawOrderTypes.MIDDLE)
+				{
+					RenderObject(spriteBatch, currentObject, cameraPosition, atlas);
+				}
+			}
+
+			for (int o = 0; o < objectPool.Length; o++)
+			{
+				GameObject currentObject = objectPool[o];
+				if (currentObject.Type != GameObject.Types.NONEXISTENT &&
+					currentObject.drawOrder == GameObject.DrawOrderTypes.FRONT)
+				{
+					RenderObject(spriteBatch, currentObject, cameraPosition, atlas);
+				}
+			}
+		}
 
         public static void RenderSpawnPoints(
             SpriteBatch spriteBatch,

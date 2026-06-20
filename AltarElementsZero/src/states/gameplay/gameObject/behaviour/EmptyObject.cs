@@ -1,4 +1,8 @@
-﻿namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
 {
     class EmptyObject : IBehaviour
     {
@@ -12,11 +16,16 @@
             gameObject.spawnValue = 0;
 			gameObject.isPersistentAcrossChunks = false;
             gameObject.drawOrder = GameObject.DrawOrderTypes.NONE;
-            gameObject.spritesheetIndex = 0;
-            gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
-            gameObject.SpriteOffset = new();
+			//gameObject.spritesheetIndex = 0;
+			//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+			//gameObject.SpriteOffset = new();
+			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x0);
+			gameObject.atlasReference.Size = new PxSize(0,0);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(0, 0);
 
-            gameObject.previousVelocity = new();
+
+			gameObject.previousVelocity = new();
             gameObject.currentVelocity = new();
             gameObject.previousBoundingBox = new();
             gameObject.currentBoundingBox = new();

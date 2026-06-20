@@ -1,4 +1,6 @@
-﻿using AltarElementsZero.src.states.gameplay.vectors;
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects
 {
@@ -12,11 +14,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects
 			gameObject.isPersistentAcrossChunks = true;
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-			gameObject.spritesheetIndex = 0x2c;
-			gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
 
 			gameObject.currentBoundingBox.Size = new SubpxSize();
-			gameObject.SpriteOffset = new PxSize(16, 16);
+
+			//gameObject.SpriteOffset = new PxSize(16, 16);
+			//gameObject.spritesheetIndex = 0x2c;
+			//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x2c);
+			gameObject.atlasReference.Size = new PxSize(32, 32);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(16, 16);
+
 
 			gameObject.Timer = 17;
 			gameObject.Timer2 = 40;
@@ -29,12 +37,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects
 				gameObject.Timer2--;
 
 				if((gameObject.Timer2 & 8) == 8){
-					gameObject.spritesheetIndex = 0x3e;
+					//gameObject.spritesheetIndex = 0x3e;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x3e);
 
 				}
 				else
 				{
-					gameObject.spritesheetIndex = 0x3f;
+					//gameObject.spritesheetIndex = 0x3f;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x3f);
 
 				}
 
@@ -46,19 +56,23 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects
 				gameObject.Timer--;
 				if (gameObject.Timer > 12)
 				{
-					gameObject.spritesheetIndex = 0x2C;
+					//gameObject.spritesheetIndex = 0x2C;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x2c);
 				}
 				else if (gameObject.Timer > 8)
 				{
-					gameObject.spritesheetIndex = 0x2D;
+					//gameObject.spritesheetIndex = 0x2D;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x2d);
 				}
 				else if (gameObject.Timer > 4)
 				{
-					gameObject.spritesheetIndex = 0x2E;
+					//gameObject.spritesheetIndex = 0x2E;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x2e);
 				}
 				else
 				{
-					gameObject.spritesheetIndex = 0x2F;
+					//gameObject.spritesheetIndex = 0x2F;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x2f);
 				}
 			}	
 		}

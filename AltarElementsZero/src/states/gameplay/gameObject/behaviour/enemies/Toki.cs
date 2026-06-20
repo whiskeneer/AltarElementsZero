@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
@@ -36,14 +37,19 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-            gameObject.spritesheetIndex = 0;
-            gameObject.spriteEffects = SpriteEffects.None;
-
 
 			gameObject.currentBoundingBox.Size = new PxSize(12, 12).ToSubpx();
-			gameObject.SpriteOffset = new PxSize(10, 20);
 
-			if(gameObject.spawnValue == 0)
+			//gameObject.SpriteOffset = new PxSize(10, 20);
+   //         gameObject.spritesheetIndex = 0;
+   //         gameObject.spriteEffects = SpriteEffects.None;
+			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x00);
+			gameObject.atlasReference.Size = new PxSize(32, 32);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(10, 20);
+
+
+			if (gameObject.spawnValue == 0)
 			{
 				gameObject.State = (uint)State.GOING_LEFT;
 				AnimationTimer = 60 * 4;
@@ -150,52 +156,71 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			{
 				case State.GOING_LEFT:
 					gameObject.GroundImpulse= -16;
-                    gameObject.spritesheetIndex = (AnimationTimer >>4)&3;
-                    gameObject.spriteEffects = SpriteEffects.None;
+					//gameObject.spritesheetIndex = (AnimationTimer >>4)&3;
+					//gameObject.spriteEffects = SpriteEffects.None;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex((AnimationTimer >> 4) & 3);
+					gameObject.atlasReference.Effects = SpriteEffects.None;
 					break;
 				case State.GOING_RIGHT:
 					gameObject.GroundImpulse= 16;
-					gameObject.spritesheetIndex = (AnimationTimer >> 4) & 3;
-					gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					//gameObject.spritesheetIndex = (AnimationTimer >> 4) & 3;
+					//gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex((AnimationTimer >> 4) & 3);
+					gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
 					break;
 
 				case State.ATTACKING_LEFT:
 					gameObject.GroundImpulse = 0;
-					gameObject.spriteEffects = SpriteEffects.None;
-					if(AnimationTimer >= 32 - 8 && AnimationTimer < 32 + 8){
-						gameObject.spritesheetIndex = 7;
-					}else{
-						gameObject.spritesheetIndex = 6;
+					//gameObject.spriteEffects = SpriteEffects.None;
+					gameObject.atlasReference.Effects = SpriteEffects.None;
+
+					if (AnimationTimer >= 32 - 8 && AnimationTimer < 32 + 8){
+						//gameObject.spritesheetIndex = 7;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(7);
+					}
+					else
+					{
+						//gameObject.spritesheetIndex = 6;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(6);
 					}
 					break;
 				case State.ATTACKING_RIGHT:
 					gameObject.GroundImpulse = 0;
-					gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					//gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+					gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
 					if (AnimationTimer >= 32 - 8 && AnimationTimer < 32 + 8)
 					{
-						gameObject.spritesheetIndex = 7;
+						//gameObject.spritesheetIndex = 7;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(7);
 					}
 					else
 					{
-						gameObject.spritesheetIndex = 6;
+						//gameObject.spritesheetIndex = 6;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(6);
 					}
 					break;
 				case State.SHIFTING_TO_RIGHT:
 					gameObject.GroundImpulse = 0;
                     if(AnimationTimer > 16)
                     {
-						gameObject.spritesheetIndex = 4;
-						gameObject.spriteEffects = SpriteEffects.None;
+						//gameObject.spritesheetIndex = 4;
+						//gameObject.spriteEffects = SpriteEffects.None;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(4);
+						gameObject.atlasReference.Effects = SpriteEffects.None;
 					}
                     else if(AnimationTimer > 8)
                     {
-						gameObject.spritesheetIndex = 5;
-						gameObject.spriteEffects = SpriteEffects.None;
+						//gameObject.spritesheetIndex = 5;
+						//gameObject.spriteEffects = SpriteEffects.None;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(5);
+						gameObject.atlasReference.Effects = SpriteEffects.None;
 					}
                     else
                     {
-						gameObject.spritesheetIndex = 4;
-						gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+						//gameObject.spritesheetIndex = 4;
+						//gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(4);
+						gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
 					}
 
 					break;
@@ -203,24 +228,32 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 					gameObject.GroundImpulse = 0;
 					if (AnimationTimer > 16)
 					{
-						gameObject.spritesheetIndex = 4;
-						gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+						//gameObject.spritesheetIndex = 4;
+						//gameObject.spriteEffects = SpriteEffects.FlipHorizontally;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(4);
+						gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
 					}
 					else if (AnimationTimer > 8)
 					{
-						gameObject.spritesheetIndex = 5;
-						gameObject.spriteEffects = SpriteEffects.None;
+						//gameObject.spritesheetIndex = 5;
+						//gameObject.spriteEffects = SpriteEffects.None;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(5);
+						gameObject.atlasReference.Effects = SpriteEffects.None;
 					}
 					else
 					{
-						gameObject.spritesheetIndex = 4;
-						gameObject.spriteEffects = SpriteEffects.None;
+						//gameObject.spritesheetIndex = 4;
+						//gameObject.spriteEffects = SpriteEffects.None;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(4);
+						gameObject.atlasReference.Effects = SpriteEffects.None;
 					}
 					break;
 				case State.STILL_LEFT:
 					gameObject.GroundImpulse = 0;
-					gameObject.spritesheetIndex = 0;
-					gameObject.spriteEffects = SpriteEffects.None;
+					//gameObject.spritesheetIndex = 0;
+					//gameObject.spriteEffects = SpriteEffects.None;
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0);
+					gameObject.atlasReference.Effects = SpriteEffects.None;
 					break;
 				default:
 					gameObject.GroundImpulse = 0;

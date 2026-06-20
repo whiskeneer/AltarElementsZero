@@ -1,5 +1,7 @@
 ﻿using System.Data;
+using AltarElementsZero.src.renderer;
 using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 {
@@ -25,7 +27,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			gameObject.isPersistentAcrossChunks = false;
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-			gameObject.spritesheetIndex = 0x0d;
+			//gameObject.spritesheetIndex = 0x0d;
+
+			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x0d);
+			gameObject.atlasReference.Size = new PxSize(32, 32);
 
 			gameObject.Timer = 3 * 60;
 			
@@ -33,16 +38,22 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 			{
 				case 1:
 					// going right
-					gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+					//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+					//gameObject.SpriteOffset = new PxSize(18, 6);
+					gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
+					gameObject.atlasReference.Offset = new PxPosition(18, 6);
+
 					gameObject.currentBoundingBox.Size = new PxSize(14, 3).ToSubpx();
-					gameObject.SpriteOffset = new PxSize(18, 6);
 					gameObject.currentVelocity = new SubpxVelocity(64,0);
 					break;
-				default: 
+				default:
 					// going left
-					gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+					//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+					//gameObject.SpriteOffset = new PxSize(0,6);
+					gameObject.atlasReference.Effects = SpriteEffects.None;
+					gameObject.atlasReference.Offset = new PxPosition(0, 6);
+
 					gameObject.currentBoundingBox.Size = new PxSize(14, 3).ToSubpx();
-					gameObject.SpriteOffset = new PxSize(0,6);
 					gameObject.currentVelocity = new SubpxVelocity(-64, 0);
 					break;
 			}

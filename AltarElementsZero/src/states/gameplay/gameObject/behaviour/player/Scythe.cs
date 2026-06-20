@@ -1,6 +1,8 @@
-﻿using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.gameplay.vectors;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 {
@@ -38,6 +40,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			ref uint attackTimer = ref gameObject.Timer2;
 			gameObject.State = (uint)State.INACTIVE;
 			attackTimer = 13;
+
+
+			gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x00);
+			gameObject.atlasReference.Size = new PxSize(64, 32);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(0, 0);
 
 		}
 
@@ -91,9 +99,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 					gameObject.Type = GameObject.Types.REGION;
 
 					if (attackTimer > 6){
-						gameObject.spritesheetIndex = 0x30;
-					}else{
-						gameObject.spritesheetIndex = 0x32;
+						//gameObject.spritesheetIndex = 0x30;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x30);
+					}
+					else
+					{
+						//gameObject.spritesheetIndex = 0x32;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x32);
 					}
 					break;
 				case State.ACTIVE_DOWN:
@@ -103,11 +115,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 					if ((attackTimer & 4) == 4)
 					{
-						gameObject.spritesheetIndex = 0x34;
+						//gameObject.spritesheetIndex = 0x34;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x34);
 					}
 					else
 					{
-						gameObject.spritesheetIndex = 0x36;
+						//gameObject.spritesheetIndex = 0x36;
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x36);
 					}
 					break;
 			}
