@@ -9,6 +9,68 @@ namespace AltarElementsZero.src.renderer
     static class Renderer
     {
 
+        public static void RenderBackground(
+            SpriteBatch spriteBatch,
+			PxPosition cameraPosition,
+			Texture2D atlas,
+            IBackground background
+		    )
+        {
+            if(background.IsVertical)
+            {
+                // RenderVerticallyScrollableBackground
+            }
+            else
+            {
+                RenderHorizontallyScrollableBackground(
+                    spriteBatch,
+                    cameraPosition,
+                    atlas,
+                    background.AtlasPosition,
+                    background.Distances
+                );
+            }
+        }
+
+        public static void RenderHorizontallyScrollableBackground(
+            SpriteBatch spriteBatch,
+            PxPosition cameraPosition,
+            Texture2D atlas,
+            PxPosition atlasPosition,
+            uint[] distances
+            )
+        {
+            if (distances.Length < Configuration.Chunk.Tile.Height) return;
+            for (int row = 0; row < Configuration.Chunk.Tile.Height; row++)
+            {
+                Rectangle sourceRectangle = new(
+                    (int)atlasPosition.X,
+                    (int)atlasPosition.Y + row * Configuration.Tile.Px.Height,
+                    Configuration.Chunk.Px.Width,
+                    Configuration.Tile.Px.Height
+                    );
+                uint distance = distances[row];
+
+                uint cameraOffset = 0;
+                if(distance != 0)
+                {
+                    cameraOffset = (cameraPosition.X / distance) % (uint)Configuration.Chunk.Px.Width;
+                } // otherwise, row remains immobile
+                spriteBatch.Draw(
+                    texture: atlas,
+                    position: new(-(int)cameraOffset, row * Configuration.Tile.Px.Height),
+                    sourceRectangle: sourceRectangle,
+                    color: Color.White
+                    );
+				spriteBatch.Draw(
+	                texture: atlas,
+	                position: new(-(int)cameraOffset + Configuration.Chunk.Px.Width, row * Configuration.Tile.Px.Height),
+	                sourceRectangle: sourceRectangle,
+	                color: Color.White
+                    );
+			}
+        }
+
         private static void RenderObject(
             SpriteBatch spriteBatch, 
             GameObject gameObject, 
