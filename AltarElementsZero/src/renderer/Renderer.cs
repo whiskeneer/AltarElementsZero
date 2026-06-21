@@ -18,8 +18,14 @@ namespace AltarElementsZero.src.renderer
         {
             if(background.IsVertical)
             {
-                // RenderVerticallyScrollableBackground
-            }
+				RenderVerticallyScrollableBackground(
+					spriteBatch,
+					cameraPosition,
+					atlas,
+					background.AtlasPosition,
+					background.Distances
+				);
+			}
             else
             {
                 RenderHorizontallyScrollableBackground(
@@ -32,7 +38,45 @@ namespace AltarElementsZero.src.renderer
             }
         }
 
-        public static void RenderHorizontallyScrollableBackground(
+		public static void RenderVerticallyScrollableBackground(
+			SpriteBatch spriteBatch,
+			PxPosition cameraPosition,
+			Texture2D atlas,
+			PxPosition atlasPosition,
+			uint[] distances
+			)
+		{
+			if (distances.Length < Configuration.Chunk.Tile.Width) return;
+			for (int col = 0; col < Configuration.Chunk.Tile.Width; col++)
+			{
+				Rectangle sourceRectangle = new(
+					(int)atlasPosition.X + col * Configuration.Tile.Px.Width,
+					(int)atlasPosition.Y,
+					Configuration.Tile.Px.Width,
+					Configuration.Chunk.Px.Height
+					);
+				uint distance = distances[col];
+
+				uint cameraOffset = 0;
+				if (distance != 0)
+				{
+					cameraOffset = (cameraPosition.Y / distance) % (uint)Configuration.Chunk.Px.Height;
+				} // otherwise, col remains immobile
+				spriteBatch.Draw(
+					texture: atlas,
+					position: new(col * Configuration.Tile.Px.Width, -(int)cameraOffset),
+					sourceRectangle: sourceRectangle,
+					color: Color.White
+					);
+				spriteBatch.Draw(
+					texture: atlas,
+					position: new(col * Configuration.Tile.Px.Width, -(int)cameraOffset + Configuration.Chunk.Px.Height),
+					sourceRectangle: sourceRectangle,
+					color: Color.White
+					);
+			}
+		}
+		public static void RenderHorizontallyScrollableBackground(
             SpriteBatch spriteBatch,
             PxPosition cameraPosition,
             Texture2D atlas,
@@ -55,7 +99,7 @@ namespace AltarElementsZero.src.renderer
                 if(distance != 0)
                 {
                     cameraOffset = (cameraPosition.X / distance) % (uint)Configuration.Chunk.Px.Width;
-                } // otherwise, row remains immobile
+                } // otherwise, col remains immobile
                 spriteBatch.Draw(
                     texture: atlas,
                     position: new(-(int)cameraOffset, row * Configuration.Tile.Px.Height),
