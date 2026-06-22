@@ -170,6 +170,7 @@ namespace AltarElementsZero.src.states.gameplay.level
             Ufo = 128 + 16,
             BreakableTile,
 
+            Barrel = 0xd0,
 
             FloorButton = 0xe0,
             SwitchableDoor,
@@ -233,7 +234,8 @@ namespace AltarElementsZero.src.states.gameplay.level
 
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+
+			"BARREL"  ,"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
 			"BUTTON",  "SWITDOOR","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",

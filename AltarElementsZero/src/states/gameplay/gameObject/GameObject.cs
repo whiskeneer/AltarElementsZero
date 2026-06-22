@@ -58,8 +58,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         // Gravity
         public Force Gravity = new(0, 12);
-		// Friction with the ground
-		public int VelocityBelow;
+        // Friction with the ground
+        public int VelocityAbove; // from itself, applied into others
+		public int VelocityBelow; // from another object or tile
         public Tile.FrictionCoefficients FrictionCoefficientsBelow;
         // Friction with the medium
         public SubpxVelocity VelocityAround;
@@ -405,7 +406,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 {
                     VerticalPush(go1, go2);
                     go1.FrictionCoefficientsBelow = new(400, 200);
-                    go1.VelocityBelow = go2.currentVelocity.X;
+                    go1.VelocityBelow = go2.currentVelocity.X + go2.VelocityAbove;
                 }
                 else if((go2.PushedPreviouslyUp || go2.PushedUp) && !(go1.PushedPreviouslyUp || go1.PushedUp))
                 {
@@ -436,7 +437,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 {
                     VerticalPush(go2, go1);
 					go2.FrictionCoefficientsBelow = new(400, 200);
-					go2.VelocityBelow = go1.currentVelocity.X;
+					go2.VelocityBelow = go1.currentVelocity.X + go1.VelocityAbove;
 				}
 				else
 				{
@@ -488,7 +489,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
                 pushee.FixVerticalVelocity();
 
                 pushee.FrictionCoefficientsBelow = new(400, 200);
-                pushee.VelocityBelow = pusher.currentVelocity.X;
+                pushee.VelocityBelow = pusher.currentVelocity.X + pusher.VelocityAbove;
 
                 return ObjectBoundingBox.SeparationDirection.UP;
             }
@@ -522,12 +523,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
             {
                 case ObjectBoundingBox.SeparationDirection.UP:
                     go1.FrictionCoefficientsBelow = new(400, 200);
-                    go1.VelocityBelow = go2.currentVelocity.X;
+                    go1.VelocityBelow = go2.currentVelocity.X + go2.VelocityAbove;
                     go1.PushedUp = true;
 					break;
                 case ObjectBoundingBox.SeparationDirection.DOWN:
 					go2.FrictionCoefficientsBelow = new(400, 200);
-					go2.VelocityBelow = go1.currentVelocity.X;
+					go2.VelocityBelow = go1.currentVelocity.X + go1.VelocityAbove;
 					go2.PushedUp = true;
 					break;
 				default: break;
@@ -645,11 +646,6 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public bool isPersistentAcrossChunks = false;
 
-        //public bool isVisible = false;
-        //public uint spritesheetIndex = 0;
-        //public SpriteEffects spriteEffects = SpriteEffects.None;
-        //public PxSize SpriteOffset;
-
         public AtlasReference atlasReference;
 
         public void Delete()
@@ -661,6 +657,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public void Init()
         {
+            behaviour.Init(this);
+        }
+
+        public void TransformInto(IBehaviour newBehaviour, byte newSpawnValue)
+        {
+            Delete();
+            behaviour = newBehaviour;
+            spawnValue = newSpawnValue;
             behaviour.Init(this);
         }
 

@@ -412,6 +412,28 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 						}
+						else if(tile.Family == Tile.Families.Barrel)
+						{
+							_objectPool[nextAssignableObject].behaviour = Barrel.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+
+
+							nextAssignableObject = GetNextAssignableObject();
+							if (nextAssignableObject == -1)
+							{
+								objectPoolIsFull = true;
+								break;
+							}
+							_objectPool[nextAssignableObject].behaviour = BarrelTop.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+
+							_objectPool[nextAssignableObject - 1].linkedObject = _objectPool[nextAssignableObject];
+
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject-1].Init();
+							_objectPool[nextAssignableObject-1].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
 					}
 				}
 			}

@@ -2,6 +2,7 @@
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -28,6 +29,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
         private const int AIR_IMPULSE = 128;
         private const uint JUMP_TIME = 12;
         private const int JUMP_FORCE = 175;
+		private const int JUMP_SUSTAIN = 12;
         private const int DOWN_ATTACK_IMPULSE = 100;
         private const int BOUNCE_IMPULSE = 290;
 
@@ -41,9 +43,6 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-			//gameObject.spritesheetIndex = 0x00;
-			//gameObject.SpriteOffset = new(10, 6);
-			//gameObject.spriteEffects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
 			gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x00);
 			gameObject.atlasReference.Size = new PxSize(32, 32);
 			gameObject.atlasReference.Effects = SpriteEffects.None;
@@ -103,9 +102,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				}
 
 				SubpxPosition center = gameObject.currentBoundingBox.Center();
-				gameObject.Delete();
-				gameObject.behaviour = OraDefeated.Instance;
-				gameObject.Init();
+				gameObject.TransformInto(OraDefeated.Instance, 0);
 				gameObject.currentBoundingBox.Position = center;
                 return;
 			}
@@ -170,7 +167,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				jumpBuffer = 0;
 				coyoteTime = 0;
                 jumpTimer = JUMP_TIME;
-				gameObject.AppliedForces += new Force(0, -12 -JUMP_FORCE);
+				gameObject.AppliedForces += new Force(0, -JUMP_SUSTAIN - JUMP_FORCE);
 			}
             else if(jumpTimer > 0)
             {
@@ -181,7 +178,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 else
                 {
                     jumpTimer--;
-                    gameObject.AppliedForces += new Force(0, -12);
+                    gameObject.AppliedForces += new Force(0, -JUMP_SUSTAIN);
                 }
 
             }
@@ -422,8 +419,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             {   
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
             }
+			if (otherBehaviour == Barrel.Instance)
+			{
+                own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
 
-            if (otherBehaviour == Toki.Instance && 
+			}
+
+			if (otherBehaviour == Toki.Instance && 
                 ((Toki.FlagTypes)other.InteractionFlags & Toki.FlagTypes.Hurt) == 0)
             {
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
