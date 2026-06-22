@@ -31,6 +31,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
         private const int DOWN_ATTACK_IMPULSE = 100;
         private const int BOUNCE_IMPULSE = 290;
 
+		private const uint COYOTE_TIME = 5;
+		private const uint JUMP_BUFFER_TIME = 5;
+
         public void Init(GameObject gameObject)
         {
             gameObject.Type = GameObject.Types.PUSHABLE;
@@ -53,6 +56,28 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
         }
 
+		static private void ThrowHeldObject(GameObject gameObject)
+		{
+			if (gameObject.secondLinkedObject == null) return;
+			if ((State)gameObject.State == State.LOOKING_LEFT)
+			{
+				gameObject.secondLinkedObject.AppliedForces += new Force(-100, -100);
+			}
+			else
+			{
+				gameObject.secondLinkedObject.AppliedForces += new Force(100, -100);
+			}
+			UnlinkHeldObject(gameObject);
+		}
+		static private void UnlinkHeldObject(GameObject gameObject)
+		{
+			if (gameObject.secondLinkedObject == null) return;
+			gameObject.secondLinkedObject.Type = GameObject.Types.PUSHABLE;
+			gameObject.secondLinkedObject.isPersistentAcrossChunks = false;
+			gameObject.secondLinkedObject.currentVelocity = gameObject.currentVelocity;
+			gameObject.secondLinkedObject = null;
+		}
+
         public void Update(GameObject gameObject)
         {
             InputHandler inputHandler = GameObject.inputHandler!;
@@ -61,6 +86,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             ref uint jumpTimer = ref gameObject.Timer;
             ref uint animationTimer = ref gameObject.Timer2;
+			ref uint jumpBuffer = ref gameObject.Timer3;
+			ref uint coyoteTime = ref gameObject.Timer4;
 
             //
 
@@ -72,12 +99,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             {
                 if (gameObject.secondLinkedObject != null)
                 {
-                    gameObject.secondLinkedObject.Type = GameObject.Types.PUSHABLE;
-                    gameObject.secondLinkedObject.isPersistentAcrossChunks = false;
-                    gameObject.secondLinkedObject = null;
-                }
+					UnlinkHeldObject(gameObject);
+				}
 
-				//GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.RestartFromCheckpoint);
 				SubpxPosition center = gameObject.currentBoundingBox.Center();
 				gameObject.Delete();
 				gameObject.behaviour = OraDefeated.Instance;
@@ -126,14 +150,31 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				gameObject.GroundImpulse = 0;
             }
 
-            if ((gameObject.PushedUp || gameObject.PushedPreviouslyUp) && inputHandler.IsPressed(Input.Jump))
+
+
+
+			// JUMP BUFFERING
+			if(inputHandler.IsPressed(Input.Jump))
+			{
+				jumpBuffer = JUMP_BUFFER_TIME;
+			}
+			else if(jumpBuffer > 0)
+			{
+				jumpBuffer--;	
+			}
+
+            if (/*(gameObject.PushedUp || gameObject.PushedPreviouslyUp) && inputHandler.IsPressed(Input.Jump)*/
+				coyoteTime > 0 && jumpBuffer > 0
+				)
             {
+				jumpBuffer = 0;
+				coyoteTime = 0;
                 jumpTimer = JUMP_TIME;
 				gameObject.AppliedForces += new Force(0, -12 -JUMP_FORCE);
 			}
             else if(jumpTimer > 0)
             {
-                if (inputHandler.IsReleased(Input.Jump))
+                if (!inputHandler.IsDown(Input.Jump))
                 {
                     jumpTimer = 0;
                 }
@@ -144,6 +185,18 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 }
 
             }
+
+			//
+			// COYOTE TIME
+			//
+			if (gameObject.PushedUp /*|| gameObject.PushedPreviouslyUp*/ && jumpTimer == 0)
+			{
+				coyoteTime = COYOTE_TIME;
+			}
+			else if (coyoteTime > 0)
+			{
+				coyoteTime--;
+			}
 
 			// SCYTHE SYNCHRONIZATION
 
@@ -240,16 +293,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 				if (inputHandler.IsPressed(Input.Attack))
 				{
-					gameObject.secondLinkedObject.Type = GameObject.Types.PUSHABLE;
-					gameObject.secondLinkedObject.isPersistentAcrossChunks = false;
-                    gameObject.secondLinkedObject.currentVelocity = gameObject.currentVelocity;
-					if ((State)gameObject.State == State.LOOKING_LEFT){
-                        gameObject.secondLinkedObject.AppliedForces += new Force(-100,-100);
-					}
-					else{
-						gameObject.secondLinkedObject.AppliedForces += new Force(100, -100);
-					}
-					gameObject.secondLinkedObject = null;
+					ThrowHeldObject(gameObject);
 				}
 
 			}

@@ -57,6 +57,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
             gameObject.SubState = 0;
             gameObject.Timer = 0;
             gameObject.Timer2 = 0;
+            gameObject.Timer3 = 0;
+            gameObject.Timer4 = 0;
 
             gameObject.InteractionFlags = 0;
 

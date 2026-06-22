@@ -668,6 +668,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         public uint SubState = 0;
         public uint Timer = 0;
         public uint Timer2 = 0;
+        public uint Timer3 = 0;
+        public uint Timer4 = 0;
 
     }
 }
