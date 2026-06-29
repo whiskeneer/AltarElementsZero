@@ -75,6 +75,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
         // For fluids
         public SubpxVelocity FluidVelocity;
         public uint FluidCoefficient;
+        public Force FluidGravity;
 
         //////////////////////////////////////////////////
 

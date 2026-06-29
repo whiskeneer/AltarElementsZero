@@ -21,7 +21,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
 			gameObject.atlasReference.Size = new PxSize(0,0);
 			gameObject.atlasReference.Effects = SpriteEffects.None;
 			gameObject.atlasReference.Offset = new PxPosition(0, 0);
-
+			gameObject.atlasReference.RepeatX = (byte)(0);
+			gameObject.atlasReference.RepeatY = (byte)(0);
 
 			gameObject.previousVelocity = new();
             gameObject.currentVelocity = new();
@@ -51,8 +52,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
 
             gameObject.FluidVelocity = new();
             gameObject.FluidCoefficient = 0;
+            gameObject.FluidGravity = new();
 
-            gameObject.State = 0;
+
+			gameObject.State = 0;
             gameObject.SubState = 0;
             gameObject.Timer = 0;
             gameObject.Timer2 = 0;

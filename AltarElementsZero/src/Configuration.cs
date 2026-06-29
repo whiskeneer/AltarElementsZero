@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using AltarElementsZero.src.states.gameplay.vectors;
 
 namespace AltarElementsZero.src
 {
@@ -54,6 +55,14 @@ namespace AltarElementsZero.src
             Tile.Subpx.Width / 2,
             Tile.Subpx.Height / 2
             );
+
+        // Game physics
+        public static readonly Force AirGravity = new(0, 12);
+        public static readonly Force WaterGravity = new(0, 3);
+
+        public static readonly uint AirFriction = 0;
+        public static readonly uint WaterFriction = 15;
+
 
         // Game display
         public static class VisibleScreen

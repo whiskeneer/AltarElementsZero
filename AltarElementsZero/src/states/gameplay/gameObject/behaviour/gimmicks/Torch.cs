@@ -66,6 +66,16 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 			{
 				own.InteractionFlags |= (UInt32)FlagTypes.TurnOn;
 			}
+			if(otherBehaviour == Vine.Instance && (Vine.State)other.State == Vine.State.BURNING)
+			{
+				own.InteractionFlags |= (UInt32)FlagTypes.TurnOn;
+			}
+
+			if (otherBehaviour == WaterRegion.Instance)
+			{
+				own.InteractionFlags |= (Int32)FlagTypes.TurnOff;
+			}
+
 		}
 	}
 }

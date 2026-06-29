@@ -9,5 +9,8 @@ namespace AltarElementsZero.src.renderer
 		public PxSize Size;		 // sprite size
 		public PxPosition Offset;// offset from object logic top-left
 		public SpriteEffects Effects;
+
+		public byte RepeatX; // 0 = single column
+		public byte RepeatY; // 0 = single row
 	}
 }

@@ -132,13 +132,22 @@ namespace AltarElementsZero.src.renderer
 				(int)gameObject.atlasReference.Size.X,
 				(int)gameObject.atlasReference.Size.Y
             );
-            spriteBatch.Draw(
-                texture: atlas,
-                position: new((int)spritePosition.X, (int)spritePosition.Y),
-                sourceRectangle: atlasSourceRectangle,
-                color: Color.White,
-                0f, Vector2.Zero, 1f, gameObject.atlasReference.Effects, 0f 
-            );
+				
+            for (int y = 0; y < gameObject.atlasReference.RepeatY + 1; y++)
+            {
+                for (int x = 0; x < gameObject.atlasReference.RepeatX + 1; x++)
+				{
+                    spriteBatch.Draw(
+                        texture: atlas,
+                        position: new(
+                            (int)spritePosition.X + x * gameObject.atlasReference.Size.X, 
+                            (int)spritePosition.Y + y * gameObject.atlasReference.Size.Y),
+                        sourceRectangle: atlasSourceRectangle,
+                        color: Color.White,
+                        0f, Vector2.Zero, 1f, gameObject.atlasReference.Effects, 0f 
+                    );
+				}
+			}
         }
         public static void RenderObjects(
             SpriteBatch spriteBatch,

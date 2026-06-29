@@ -265,12 +265,12 @@ namespace AltarElementsZero.src.states.gameplay
 			switch(CurrentBackground){
 				case 3: // underwater
 				case 0x12:
-					CurrentGravity = new Force(0, 3);
-					CurrentAirFriction = 15;
+					CurrentGravity = Configuration.WaterGravity;
+					CurrentAirFriction = Configuration.WaterFriction;
 					break;
 				default:
-					CurrentGravity = new Force(0, 12);
-					CurrentAirFriction = 0;
+					CurrentGravity = Configuration.AirGravity;
+					CurrentAirFriction = Configuration.AirFriction;
 					break;
 			}
 
@@ -429,6 +429,13 @@ namespace AltarElementsZero.src.states.gameplay
 						else if (tile.Family == Tile.Families.Vine)
 						{
 							_objectPool[nextAssignableObject].behaviour = Vine.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.Water)
+						{
+							_objectPool[nextAssignableObject].behaviour = WaterRegion.Instance;
 							_objectPool[nextAssignableObject].spawnValue = tile.Member;
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
@@ -962,6 +969,7 @@ namespace AltarElementsZero.src.states.gameplay
 					{
 						go1.VelocityAround = go2.FluidVelocity;
 						go1.FrictionCoefficientAround = go2.FluidCoefficient;
+						go1.Gravity = go2.FluidGravity;
 					}
 
 					if (go2.Type != GameObject.Types.IMMOBILE && go2.Type != GameObject.Types.UNSTOPPABLE) continue;
