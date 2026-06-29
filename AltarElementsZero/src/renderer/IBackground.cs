@@ -18,6 +18,14 @@ namespace AltarElementsZero.src.renderer
 		public uint[] Distances { get; } = [2, 3, 4, 8, 8, 6, 4, 4];
 	}
 
+	class Background2 : IBackground
+	{
+		public static readonly Background2 Instance = new Background2();
+		public PxPosition AtlasPosition { get; } = new(192, 128);
+		public bool IsVertical { get; } = false;
+		public uint[] Distances { get; } = [8, 8, 3, 4, 4, 4, 4, 2];
+	}
+
 	class Background3 : IBackground
 	{
 		public static readonly Background3 Instance = new Background3();

@@ -25,13 +25,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             LOOKING_LEFT
         }
 
-        private const int GROUND_IMPULSE = 64;
+        private const int GROUND_IMPULSE = 64+16;
         private const int AIR_IMPULSE = 128;
+
         private const uint JUMP_TIME = 12;
-        private const int JUMP_FORCE = 175;
+        private const int JUMP_FORCE = 230;
 		private const int JUMP_SUSTAIN = 12;
+
         private const int DOWN_ATTACK_IMPULSE = 100;
-        private const int BOUNCE_IMPULSE = 290;
+        private const int BOUNCE_IMPULSE = 350;
 
 		private const uint COYOTE_TIME = 5;
 		private const uint JUMP_BUFFER_TIME = 5;
@@ -87,6 +89,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             ref uint animationTimer = ref gameObject.Timer2;
 			ref uint jumpBuffer = ref gameObject.Timer3;
 			ref uint coyoteTime = ref gameObject.Timer4;
+			ref int floorVerticalSpeed = ref gameObject.SavedSpeed;
 
             //
 
@@ -167,6 +170,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				jumpBuffer = 0;
 				coyoteTime = 0;
                 jumpTimer = JUMP_TIME;
+
+				gameObject.previousVelocity.Y = floorVerticalSpeed;
 				gameObject.AppliedForces += new Force(0, -JUMP_SUSTAIN - JUMP_FORCE);
 			}
             else if(jumpTimer > 0)
@@ -186,8 +191,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			//
 			// COYOTE TIME
 			//
-			if (gameObject.PushedUp /*|| gameObject.PushedPreviouslyUp*/ && jumpTimer == 0)
+			if (gameObject.PushedPreviouslyUp /*|| gameObject.PushedPreviouslyUp*/ && jumpTimer == 0)
 			{
+				floorVerticalSpeed = gameObject.previousVelocity.Y;
 				coyoteTime = COYOTE_TIME;
 			}
 			else if (coyoteTime > 0)

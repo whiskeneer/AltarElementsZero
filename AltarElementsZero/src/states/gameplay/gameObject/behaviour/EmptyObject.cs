@@ -59,6 +59,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour
             gameObject.Timer3 = 0;
             gameObject.Timer4 = 0;
 
+            gameObject.SavedSpeed = 0;
+
             gameObject.InteractionFlags = 0;
 
             gameObject.linkedObject = null;

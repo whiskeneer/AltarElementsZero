@@ -265,8 +265,8 @@ namespace AltarElementsZero.src.states.gameplay
 			switch(CurrentBackground){
 				case 3: // underwater
 				case 0x12:
-					CurrentGravity = new Force(0, 6);
-					CurrentAirFriction = 10;
+					CurrentGravity = new Force(0, 3);
+					CurrentAirFriction = 15;
 					break;
 				default:
 					CurrentGravity = new Force(0, 12);
@@ -1158,6 +1158,15 @@ namespace AltarElementsZero.src.states.gameplay
 					CameraPosition,
 					_assets.Atlas!,
 					Background1.Instance
+				);
+			}
+			else if (CurrentBackground == 0x11)
+			{
+				Renderer.RenderBackground(
+					spriteBatch,
+					CameraPosition,
+					_assets.Atlas!,
+					Background2.Instance
 				);
 			}
 			else if(CurrentBackground == 0x12)
