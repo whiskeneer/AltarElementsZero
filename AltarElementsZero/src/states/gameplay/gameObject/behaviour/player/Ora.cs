@@ -428,8 +428,16 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			if (otherBehaviour == Barrel.Instance)
 			{
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
-
 			}
+			if (otherBehaviour == Fire.Instance)
+			{
+				own.InteractionFlags |= (UInt32)FlagTypes.Hurt;
+			}
+			if (otherBehaviour == Vine.Instance && (Vine.State)other.State == Vine.State.BURNING)
+			{
+				own.InteractionFlags |= (UInt32)FlagTypes.Hurt;
+			}
+
 
 			if (otherBehaviour == Toki.Instance && 
                 ((Toki.FlagTypes)other.InteractionFlags & Toki.FlagTypes.Hurt) == 0)
@@ -442,8 +450,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
 			}
 
+
 			if (own.secondLinkedObject == null && 
-                otherBehaviour == DebugBox.Instance &&
+                (otherBehaviour == DebugBox.Instance || otherBehaviour == Torch.Instance) &&
                 GameObject.inputHandler!.IsPressed(Input.Attack))
             {
                 ObjectBoundingBox checkingBoundingBox = own.currentBoundingBox;
@@ -459,7 +468,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				}
 
                 if(checkingBoundingBox & other.currentBoundingBox){
-                    other.Type = GameObject.Types.RESERVED;
+                    other.Type = GameObject.Types.REGION;
                     own.secondLinkedObject = other;
                     other.isPersistentAcrossChunks = true;
 

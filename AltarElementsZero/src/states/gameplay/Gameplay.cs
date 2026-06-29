@@ -412,6 +412,27 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 						}
+						else if (tile.Family == Tile.Families.Fire)
+						{
+							_objectPool[nextAssignableObject].behaviour = Fire.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.Torch)
+						{
+							_objectPool[nextAssignableObject].behaviour = Torch.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.Vine)
+						{
+							_objectPool[nextAssignableObject].behaviour = Vine.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
 						else if(tile.Family == Tile.Families.Barrel)
 						{
 							_objectPool[nextAssignableObject].behaviour = Barrel.Instance;
