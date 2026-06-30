@@ -115,7 +115,7 @@ namespace AltarElementsZero.src.renderer
 			}
         }
 
-        private static void RenderObject(
+		private static void RenderObject(
             SpriteBatch spriteBatch, 
             GameObject gameObject, 
             PxPosition cameraPosition, 
@@ -286,6 +286,80 @@ namespace AltarElementsZero.src.renderer
 				}
             }
         }
+
+        public static void RenderDarkness(
+		    SpriteBatch spriteBatch,
+			SubpxPosition playerPositionCenter,
+            bool illuminated,
+            PxPosition cameraPosition,
+            Texture2D atlas,
+            uint from, uint to
+            )
+        {
+            PxPosition cameraTileRemainder = cameraPosition.TileRemainder();
+            TilePosition cameraTilePosition = cameraPosition.ToTile();
+
+            PxPosition lightSourceCenter = playerPositionCenter.ToVisualPx();
+
+            for (uint tileOffsetY = 0; tileOffsetY <= Configuration.Chunk.Tile.Height; tileOffsetY++)
+            {
+				uint tileY = cameraTilePosition.Y + tileOffsetY;
+				for (uint tileOffsetX = 0; tileOffsetX <= Configuration.Chunk.Tile.Width; tileOffsetX++)
+                {
+                    uint tileX = cameraTilePosition.X + tileOffsetX;
+                    if (tileX < from || tileX > to) continue;
+
+					TilePosition tilePosition = new(tileX,tileY);
+                    PxPosition tileCenter = tilePosition.ToPx() + new PxPosition(8, 8);
+
+                    Rectangle atlasSourceRectangle;
+
+					if (illuminated)
+                    {
+                        uint distanceX = tileCenter.X - lightSourceCenter.X;
+                        uint distanceY = tileCenter.Y - lightSourceCenter.Y;
+                        uint squaredDistance = distanceX * distanceX + distanceY * distanceY;
+
+                        if (squaredDistance < (uint)((16 * 2) * (16 * 2) * 2))
+                        {
+                            atlasSourceRectangle = new(416, 976, 16, 16);
+                        }
+                        else if (squaredDistance < (uint)((16 * 2.5) * (16 * 2.5) * 2))
+                        {
+                            atlasSourceRectangle = new(400, 976, 16, 16);
+                        }
+                        else if (squaredDistance < (uint)((16 * 3) * (16 * 3) * 2))
+                        {
+                            atlasSourceRectangle = new(384, 976, 16, 16);
+                        }
+						else if (squaredDistance < (uint)((16 * 3.5) * (16 * 3.5) * 2))
+						{
+							atlasSourceRectangle = new(368, 976, 16, 16);
+						}
+						else
+						{
+							atlasSourceRectangle = new(352, 976, 16, 16);
+						}
+					}
+                    else 
+                    {
+                        atlasSourceRectangle = new(352, 976, 16, 16);
+                    }
+
+					Vector2 outputVector = new(
+	                    Configuration.Tile.Px.Width * tileOffsetX - cameraTileRemainder.X,
+	                    Configuration.Tile.Px.Height * tileOffsetY - cameraTileRemainder.Y
+	                    );
+
+					spriteBatch.Draw(
+						atlas,
+						outputVector,
+						atlasSourceRectangle,
+						Color.White);
+				}
+            }
+        }
+
 		public static void RenderTiles(
             SpriteBatch spriteBatch,
             Level level,

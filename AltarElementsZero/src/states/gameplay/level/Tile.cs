@@ -175,6 +175,7 @@ namespace AltarElementsZero.src.states.gameplay.level
             Torch,
             Vine,
             Water,
+            Darkness,
 
             FloorButton = 0xe0,
             SwitchableDoor,
@@ -239,7 +240,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
-			"BARREL"  ,"FIRE"    ,"TORCH"   ,"VINE"    ,"WATER"   ,"UNASSIGN","UNASSIGN","UNASSIGN",
+			"BARREL"  ,"FIRE"    ,"TORCH"   ,"VINE"    ,"WATER"   ,"DARKNESS","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
 			"BUTTON",  "SWITDOOR","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",

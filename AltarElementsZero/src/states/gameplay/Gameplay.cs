@@ -218,6 +218,13 @@ namespace AltarElementsZero.src.states.gameplay
 		{
 			return _objectPool[0].currentBoundingBox.Center();
 		}
+		public bool IsPlayerEmittingLight()
+		{
+			return _objectPool[0].behaviour == Ora.Instance &&
+				_objectPool[0].secondLinkedObject != null &&
+				_objectPool[0].secondLinkedObject?.behaviour == Torch.Instance &&
+				_objectPool[0].secondLinkedObject?.State == (uint)Torch.State.ON;
+		}
 
 		uint _animationFrame = 0;
 
@@ -232,6 +239,10 @@ namespace AltarElementsZero.src.states.gameplay
 		private uint ChunkLimitLeft = 0;
 		private uint ChunkLimitRight = 0;
 		private PxPosition CameraPosition = new();
+
+		private bool ApplyDarkness = false;
+		private uint DarknessFrom = 0;
+		private uint DarknessTo = uint.MaxValue;
 
 		
 		private int _assignableObjectAuxiliar = 0;
@@ -440,6 +451,13 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 						}
+						else if (tile.Family == Tile.Families.Darkness)
+						{
+							_objectPool[nextAssignableObject].behaviour = Darkness.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
 						else if(tile.Family == Tile.Families.Barrel)
 						{
 							_objectPool[nextAssignableObject].behaviour = Barrel.Instance;
@@ -606,9 +624,18 @@ namespace AltarElementsZero.src.states.gameplay
 			//	return;
 			//}
 
+			ApplyDarkness = false;
+			DarknessFrom = 0;
+			DarknessTo = uint.MaxValue;
+
 			for(int o = 0; o < _objectPool.Length; o++){
 				if(_objectPool[o].Type == GameObject.Types.SPAWNING){
 					_objectPool[o].Init();
+				}
+				if(_objectPool[o].behaviour == Darkness.Instance)
+				{
+					ApplyDarkness = true;
+					Darkness.GetSpan(_objectPool[o], out DarknessFrom, out DarknessTo);
 				}
 			}
 
@@ -1223,7 +1250,19 @@ namespace AltarElementsZero.src.states.gameplay
 				CameraPosition,
 				_assets.Atlas!
 				);
-			
+			if(ApplyDarkness)
+			{
+				Renderer.RenderDarkness(
+					spriteBatch,
+					GetPlayerPosition(),
+					IsPlayerEmittingLight(),
+					CameraPosition,
+					_assets.Atlas!,
+					DarknessFrom,
+					DarknessTo
+					);
+
+			}
 
 		}
     }

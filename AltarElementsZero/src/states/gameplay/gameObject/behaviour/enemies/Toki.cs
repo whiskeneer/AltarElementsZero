@@ -1,5 +1,6 @@
 ﻿using AltarElementsZero.src.renderer;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
@@ -279,6 +280,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 		{
 			IBehaviour otherBehaviour = other.behaviour;
 			if(otherBehaviour == Scythe.Instance)
+			{
+				own.InteractionFlags |= (UInt32)FlagTypes.Hurt;
+			}
+			if (otherBehaviour == Barrel.Instance && (Barrel.State)other.State != Barrel.State.STOPPED)
 			{
 				own.InteractionFlags |= (UInt32)FlagTypes.Hurt;
 			}
