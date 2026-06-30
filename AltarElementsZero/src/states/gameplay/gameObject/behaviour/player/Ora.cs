@@ -425,7 +425,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             {   
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
             }
-			if (otherBehaviour == Barrel.Instance)
+			if (otherBehaviour == Barrel.Instance && (Barrel.State)other.State != Barrel.State.STOPPED)
 			{
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
 			}

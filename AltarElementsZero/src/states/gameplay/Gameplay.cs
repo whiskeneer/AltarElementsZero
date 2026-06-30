@@ -457,10 +457,10 @@ namespace AltarElementsZero.src.states.gameplay
 
 							_objectPool[nextAssignableObject - 1].linkedObject = _objectPool[nextAssignableObject];
 
+							_objectPool[nextAssignableObject-1].currentBoundingBox.Position = (new TilePosition((uint)i, (uint)j).ToPx() + new PxPosition(5,0)).ToSubpx();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject-1].Init();
-							_objectPool[nextAssignableObject-1].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 						}
 					}
 				}
