@@ -600,6 +600,7 @@ namespace AltarElementsZero.src.states.gameplay
 					_inputHandler.StartRecording();
 					break;
 				case GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY:
+					_inputHandler.StartPlayback();
 					break;
 			}
 
@@ -1082,6 +1083,7 @@ namespace AltarElementsZero.src.states.gameplay
 					_inputHandler.StopRecording();
 					break;
 				case GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY:
+					_inputHandler.StopPlayback();
 					break;
 			}
 

@@ -27,11 +27,14 @@ namespace AltarElementsZero.src
 
 	sealed class InputHandler
 	{
-		private KeyboardState _previousKeyboardState;
-		private KeyboardState _currentKeyboardState;
+		//private KeyboardState _previousKeyboardState;
+		//private KeyboardState _currentKeyboardState;
 
-		private GamePadState _previousGamePadState;
-		private GamePadState _currentGamePadState;
+		//private GamePadState _previousGamePadState;
+		//private GamePadState _currentGamePadState;
+
+		private Input _previousInput;
+		private Input _currentInput;
 
 		// TODO: make sure that on Dispose all of these are disposed properly
 		private FileStream? _stream;
@@ -106,95 +109,118 @@ namespace AltarElementsZero.src
 
 		public void Update()
 		{
-			_previousKeyboardState = _currentKeyboardState;
-			_currentKeyboardState = Keyboard.GetState();
+			_previousInput = _currentInput;
 
-			_previousGamePadState = _currentGamePadState;
-			_currentGamePadState = GamePad.GetState(0);
-			
-			if(state == State.RECORDING)
+			KeyboardState _currentKeyboardState = Keyboard.GetState();
+			GamePadState _currentGamePadState = GamePad.GetState(0);
+
+			if(state == State.PLAYBACK)
 			{
-				Input recordingInput = Input.None;
+				_currentInput = Input.None;
+				if (_currentKeyboardState.IsKeyDown(Keys.A) || _currentGamePadState.IsButtonDown(Buttons.Start))
+				{
+					_currentInput |= Input.Pause;
+				}
+				if(_stream!.Position >= _stream.Length)
+				{
+					_currentInput |= Input.Pause;
+				}
+				else
+				{
+					_currentInput |= (Input)_reader!.ReadByte();
+				}
+			}
+			else // REGULAR or RECORDING
+			{
+				_currentInput = Input.None;
 				if (_currentKeyboardState.IsKeyDown(Keys.Up) || _currentGamePadState.IsButtonDown(Buttons.DPadUp))
 				{
-					recordingInput |= Input.Up;
+					_currentInput |= Input.Up;
 				}
 				if (_currentKeyboardState.IsKeyDown(Keys.Down) || _currentGamePadState.IsButtonDown(Buttons.DPadDown))
 				{
-					recordingInput |= Input.Down;
+					_currentInput |= Input.Down;
 				}
 				if (_currentKeyboardState.IsKeyDown(Keys.Left) || _currentGamePadState.IsButtonDown(Buttons.DPadLeft))
 				{
-					recordingInput |= Input.Left;
+					_currentInput |= Input.Left;
 				}
 				if (_currentKeyboardState.IsKeyDown(Keys.Right) || _currentGamePadState.IsButtonDown(Buttons.DPadRight))
 				{
-					recordingInput |= Input.Right;
+					_currentInput |= Input.Right;
 				}
 				if (_currentKeyboardState.IsKeyDown(Keys.F) || _currentGamePadState.IsButtonDown(Buttons.A))
 				{
-					recordingInput |= Input.Jump;
+					_currentInput |= Input.Jump;
 				}
 				if (_currentKeyboardState.IsKeyDown(Keys.D) || _currentGamePadState.IsButtonDown(Buttons.X))
 				{
-					recordingInput |= Input.Attack;
+					_currentInput |= Input.Attack;
 				}
 				if (_currentKeyboardState.IsKeyDown(Keys.S) || _currentGamePadState.IsButtonDown(Buttons.RightShoulder))
 				{
-					recordingInput |= Input.Dash;
+					_currentInput |= Input.Dash;
 				}
 				if (_currentKeyboardState.IsKeyDown(Keys.A) || _currentGamePadState.IsButtonDown(Buttons.Start))
 				{
-					recordingInput |= Input.Pause;
+					_currentInput |= Input.Pause;
 				}
-				_writer!.Write((byte)recordingInput);
+			}
+			
+			if(state == State.RECORDING)
+			{
+				_writer!.Write((byte)_currentInput);
 			}
 
-			InputActions actions = new();
+			InputActions actions;
 
-			MapKey(Keys.Up, ref actions, Input.Up);
-			MapKey(Keys.Down, ref actions, Input.Down);
-			MapKey(Keys.Left, ref actions, Input.Left);
-			MapKey(Keys.Right, ref actions, Input.Right);
+			//MapKey(Keys.Up, ref actions, Input.Up);
+			//MapKey(Keys.Down, ref actions, Input.Down);
+			//MapKey(Keys.Left, ref actions, Input.Left);
+			//MapKey(Keys.Right, ref actions, Input.Right);
 
-			MapKey(Keys.F, ref actions, Input.Jump);
-			MapKey(Keys.D, ref actions, Input.Attack);
-			MapKey(Keys.S, ref actions, Input.Dash);
-			MapKey(Keys.A, ref actions, Input.Pause);
+			//MapKey(Keys.F, ref actions, Input.Jump);
+			//MapKey(Keys.D, ref actions, Input.Attack);
+			//MapKey(Keys.S, ref actions, Input.Dash);
+			//MapKey(Keys.A, ref actions, Input.Pause);
 
-			//
-		
-			MapButton(Buttons.DPadUp, ref actions, Input.Up);
-			MapButton(Buttons.DPadDown, ref actions, Input.Down);
-			MapButton(Buttons.DPadLeft, ref actions, Input.Left);
-			MapButton(Buttons.DPadRight, ref actions, Input.Right);
+			////
 
-			MapButton(Buttons.A, ref actions, Input.Jump);
-			MapButton(Buttons.X, ref actions, Input.Attack);
-			MapButton(Buttons.RightShoulder, ref actions, Input.Dash);
-			MapButton(Buttons.Start, ref actions, Input.Pause);
+			//MapButton(Buttons.DPadUp, ref actions, Input.Up);
+			//MapButton(Buttons.DPadDown, ref actions, Input.Down);
+			//MapButton(Buttons.DPadLeft, ref actions, Input.Left);
+			//MapButton(Buttons.DPadRight, ref actions, Input.Right);
+
+			//MapButton(Buttons.A, ref actions, Input.Jump);
+			//MapButton(Buttons.X, ref actions, Input.Attack);
+			//MapButton(Buttons.RightShoulder, ref actions, Input.Dash);
+			//MapButton(Buttons.Start, ref actions, Input.Pause);
+
+			actions.IsDown = _currentInput;
+			actions.IsPressed = _currentInput & ~_previousInput;
+			actions.IsReleased = ~_currentInput & _previousInput;
 
 			Actions = actions;
 		}
-		private void MapKey(Keys key, ref InputActions actions, Input input)
-		{
-			bool previousDown = _previousKeyboardState.IsKeyDown(key);
-			bool currentDown = _currentKeyboardState.IsKeyDown(key);
+		//private void MapKey(Keys key, ref InputActions actions, Input input)
+		//{
+		//	bool previousDown = _previousKeyboardState.IsKeyDown(key);
+		//	bool currentDown = _currentKeyboardState.IsKeyDown(key);
 
-			if (currentDown) actions.IsDown |= input;
-			if (currentDown && !previousDown) actions.IsPressed |= input;
-			if (!currentDown && previousDown) actions.IsReleased |= input; 
-		}
+		//	if (currentDown) actions.IsDown |= input;
+		//	if (currentDown && !previousDown) actions.IsPressed |= input;
+		//	if (!currentDown && previousDown) actions.IsReleased |= input; 
+		//}
 
-		private void MapButton(Buttons button, ref InputActions actions, Input input)
-		{
-			bool previousDown = _previousGamePadState.IsButtonDown(button);
-			bool currentDown = _currentGamePadState.IsButtonDown(button);
+		//private void MapButton(Buttons button, ref InputActions actions, Input input)
+		//{
+		//	bool previousDown = _previousGamePadState.IsButtonDown(button);
+		//	bool currentDown = _currentGamePadState.IsButtonDown(button);
 
-			if (currentDown) actions.IsDown |= input;
-			if (currentDown && !previousDown) actions.IsPressed |= input;
-			if (!currentDown && previousDown) actions.IsReleased |= input;
-		}
+		//	if (currentDown) actions.IsDown |= input;
+		//	if (currentDown && !previousDown) actions.IsPressed |= input;
+		//	if (!currentDown && previousDown) actions.IsReleased |= input;
+		//}
 
 	}
 
