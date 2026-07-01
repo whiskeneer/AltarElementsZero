@@ -30,9 +30,17 @@ namespace AltarElementsZero.src.states.intro
 
             if (_inputHandler.IsPressed(Input.Jump))
             {
-                _manager.RequestTransition(new GameplayPayload());
+                _manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY));
             }
-            else if (_inputHandler.IsPressed(Input.Pause))
+            else if (_inputHandler.IsPressed(Input.Attack))
+			{
+				_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY));
+			}
+			else if (_inputHandler.IsPressed(Input.Dash))
+			{
+				_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY));
+			}
+			else if (_inputHandler.IsPressed(Input.Pause))
             {
                 _manager.RequestTransition(new EditorPayload());
             }

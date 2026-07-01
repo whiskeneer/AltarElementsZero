@@ -592,6 +592,17 @@ namespace AltarElementsZero.src.states.gameplay
 
             base.Enter();
 
+			switch(_payload.Configuration)
+			{
+				case GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY:
+					break;
+				case GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY:
+					_inputHandler.StartRecording();
+					break;
+				case GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY:
+					break;
+			}
+
 			LoadLevel("assets/lvl/DEBUG_LEVEL.json", "assets/lvl/DEBUG_LEVEL_CHUNKS.json");
 			if (!StartLevel()){
 				_manager.RequestTransition(new IntroPayload("ERROR"));
@@ -1063,8 +1074,19 @@ namespace AltarElementsZero.src.states.gameplay
             GameObject.inputHandler = null;
 			GameObject.signalFlags = null;
 
-            // if allocating on Enter, dispose here
-            base.Exit();
+			switch (_payload.Configuration)
+			{
+				case GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY:
+					break;
+				case GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY:
+					_inputHandler.StopRecording();
+					break;
+				case GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY:
+					break;
+			}
+
+			// if allocating on Enter, dispose here
+			base.Exit();
         }
 
 		private void Render(SpriteBatch spriteBatch)
