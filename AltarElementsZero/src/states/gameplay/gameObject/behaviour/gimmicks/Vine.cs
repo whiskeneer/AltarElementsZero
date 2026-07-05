@@ -45,14 +45,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 
 		public void Update(GameObject gameObject)
 		{
+			ref uint animationTimer = ref gameObject.Timer2;
+			animationTimer++;
+
 			// UPDATE STATE
-			switch((State)gameObject.State)
+			switch ((State)gameObject.State)
 			{
 				case State.IDLE:
 					if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Burn) == FlagTypes.Burn)
 					{
 						gameObject.State = (uint)State.BURNING;
-						gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x36);
+						gameObject.atlasReference.Start = GetBurningAnimation(gameObject);
 						gameObject.Timer = 30;
 					}
 					break;
@@ -69,6 +72,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 					}
 					else
 					{
+						gameObject.atlasReference.Start = GetBurningAnimation(gameObject);
 						gameObject.Timer--;
 					}
 					break;
@@ -80,6 +84,24 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 
 
 		}
+
+		public static PxPosition GetBurningAnimation(GameObject gameObject)
+		{
+			ref uint animationTimer = ref gameObject.Timer2;
+			switch ((animationTimer >> 2) & 0x3)
+			{
+				case 0:
+				default:
+					return gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x36);
+				case 1:
+					return gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x36) + new PxPosition(16, 0);
+				case 2:
+					return gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x36) + new PxPosition(0, 16);
+				case 3:
+					return gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x36) + new PxPosition(16, 16);
+			}
+		}
+
 
 		public void Interact(GameObject own, GameObject other)
 		{

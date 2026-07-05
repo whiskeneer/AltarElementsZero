@@ -36,6 +36,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 
 		public void Update(GameObject gameObject)
 		{
+			ref uint animationTimer = ref gameObject.Timer;
+
+			animationTimer++;
+			if ((animationTimer & 0x1) == 0x1)
+			{
+				gameObject.atlasReference.Effects = SpriteEffects.None;
+			}
+			else
+			{
+				gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
+			}
 		}
 
 		public void Interact(GameObject own, GameObject other)

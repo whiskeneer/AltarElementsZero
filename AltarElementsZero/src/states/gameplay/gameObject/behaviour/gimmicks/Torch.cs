@@ -40,7 +40,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 
 		public void Update(GameObject gameObject)
 		{
-			if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.TurnOn) == FlagTypes.TurnOn)
+			ref uint animationTimer = ref gameObject.Timer;
+
+			if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.TurnOn) == FlagTypes.TurnOn)
 			{
 				gameObject.State = (uint)State.ON;
 			}
@@ -49,13 +51,22 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 				gameObject.State = (uint)State.OFF;
 			}
 
+
+			animationTimer++;
 			if (gameObject.State == (uint)State.OFF)
 			{
 				gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x33);
 			}
 			else
 			{
-				gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x34);
+				if((animationTimer & 0x4) == 0x4)
+				{
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x34);
+				}
+				else
+				{
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x34) + new PxPosition(16,0);
+				}
 			}
 			gameObject.SimulateRegularObjectPhysics();
 		}

@@ -122,7 +122,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 
         readonly public bool IsObjectSpawn()
         {
-            return (Family >= Families.Toki && Family <= Families.DebugBox)
+            return (Family >= Families.Toki && Family <= Families.DebugBox && Family != Families.PortalOut)
                 || (Family >= Families.FanUp  && Family <= Families.TurbineRight);
         }
 
@@ -182,6 +182,9 @@ namespace AltarElementsZero.src.states.gameplay.level
 
             Ora = 0xf0,
             Checkpoint,
+            ClockKey,
+            PortalIn,
+            PortalOut,
 
             DebugImmobile = 0xfd,
             DebugPusher = 0xfe,
@@ -246,7 +249,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 			"BUTTON",  "SWITDOOR","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
-			"ORA",     "CHECKPNT","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+			"ORA",     "CHECKPNT","CLOCKKEY","PORTALIN","PORT OUT","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","IMMOBILE","PUSHER",  "DEBUGBOX"
 			};
     }

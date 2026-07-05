@@ -25,6 +25,24 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 
 		public void Update(GameObject gameObject)
 		{
+			ref uint animationTimer = ref gameObject.Timer;
+
+			animationTimer++;
+			switch ((animationTimer >> 2) & 0x3)
+			{
+				case 0:
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x32);
+					break;
+				case 1:
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x32) + new PxPosition(16, 0);
+					break;
+				case 2:
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x32) + new PxPosition(0, 16);
+					break;
+				case 3:
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x32) + new PxPosition(16, 16);
+					break;
+			}
 		}
 		public void Interact(GameObject own, GameObject other)
 		{

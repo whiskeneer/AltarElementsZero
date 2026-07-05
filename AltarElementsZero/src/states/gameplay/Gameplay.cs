@@ -458,6 +458,20 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 						}
+						else if (tile.Family == Tile.Families.ClockKey)
+						{
+							_objectPool[nextAssignableObject].behaviour = ClockKey.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
+						else if (tile.Family == Tile.Families.PortalIn)
+						{
+							_objectPool[nextAssignableObject].behaviour = Portal.Instance;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].Init();
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
 						else if(tile.Family == Tile.Families.Barrel)
 						{
 							_objectPool[nextAssignableObject].behaviour = Barrel.Instance;

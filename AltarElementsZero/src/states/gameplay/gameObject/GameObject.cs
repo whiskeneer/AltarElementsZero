@@ -593,11 +593,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         public static void Interaction(GameObject go1, GameObject go2)
         {
+
+            // shouldn't this go elsewhere? (in a more predictable place)
 			go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
 			go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
 
 			go2.linkedObject?.currentBoundingBox.Position = go2.currentBoundingBox.Position + go2.linkedPosition;
 			go2.secondLinkedObject?.currentBoundingBox.Position = go2.currentBoundingBox.Position + go2.secondLinkedPosition;
+            //
 
 			if (go1.linkedObject != null && go1.linkedObject.currentBoundingBox & go2.currentBoundingBox)
             {

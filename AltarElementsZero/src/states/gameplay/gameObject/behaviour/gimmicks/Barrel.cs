@@ -216,7 +216,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 					gameObject.Timer &= 0xff;
 					gameObject.atlasReference.Start =
 						LegacyMapper.StartFromObjectSpritesheetIndex(
-						0x39 + ((gameObject.Timer >> 3) & 0x3)
+						0x39 + ((gameObject.Timer >> 2) & 0x3)
 						);
 					gameObject.atlasReference.Offset = new PxPosition(5, 24); // redundant but explicit
 					break;
@@ -225,7 +225,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 					gameObject.Timer &= 0xff;
 					gameObject.atlasReference.Start =
 						LegacyMapper.StartFromObjectSpritesheetIndex(
-						0x39 + ((gameObject.Timer >> 3) & 0x3)
+						0x39 + ((gameObject.Timer >> 2) & 0x3)
 						);
 					gameObject.atlasReference.Offset = new PxPosition(5, 24); // redundant but explicit
 					break;
