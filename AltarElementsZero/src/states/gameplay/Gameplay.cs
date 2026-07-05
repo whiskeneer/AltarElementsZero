@@ -22,6 +22,7 @@ namespace AltarElementsZero.src.states.gameplay
 		Exit = 1 << 0,
 		RestartFromCheckpoint = 1 << 1,
 		RestartFromBeginning = 1 << 2,
+		Teleport = 1 << 3,
 	}
 
 	interface ISignalFlags
@@ -35,6 +36,8 @@ namespace AltarElementsZero.src.states.gameplay
 
 		void SetCheckpoint(byte checkpointValue, TilePosition checkpointPosition);
 		byte GetCheckpointValue();
+
+		void SetTeleportDestiny(int chunkRelativeX,  int chunkRelativeY);
 
 		SubpxPosition GetPlayerPosition();
 
@@ -93,8 +96,14 @@ namespace AltarElementsZero.src.states.gameplay
 			{
 				RestartFromCheckpoint();
 			}
-			
+			else if((gameplayMessages & GameplayMessages.Teleport) == GameplayMessages.Teleport)
+			{
+				Teleport();
+			}
+
 			//
+			teleportChunkRelativeX = 0;
+			teleportChunkRelativeY = 0;
 			gameplayMessages = GameplayMessages.None;
 		}
 
@@ -118,6 +127,15 @@ namespace AltarElementsZero.src.states.gameplay
 		private TilePosition BeginningCheckpoint = new(0, 0);
 		private byte LastActivatedCheckpointValue = 0;
 		private TilePosition LastActivatedCheckpoint = new(0, 0);
+
+		private int teleportChunkRelativeX = 0;
+		private int teleportChunkRelativeY = 0;
+
+		public void SetTeleportDestiny(int chunkRelativeX, int chunkRelativeY)
+		{
+			teleportChunkRelativeX = chunkRelativeX;
+			teleportChunkRelativeY = chunkRelativeY;
+		}
 
 		public void SetSignalFlag(int flag, bool value)
 		{
@@ -234,6 +252,8 @@ namespace AltarElementsZero.src.states.gameplay
 		private Force CurrentGravity = new(0, 12);
 		private uint CurrentAirFriction = 0;
 
+		private SubpxPosition PortalOutPosition = new(0, 0);
+
 		private uint ChunkLimitTop = 0;
 		private uint ChunkLimitBottom = 0;
 		private uint ChunkLimitLeft = 0;
@@ -290,6 +310,8 @@ namespace AltarElementsZero.src.states.gameplay
 			ChunkLimitBottom = (uint)(chunk.Bottom + 1) * (uint)Configuration.Chunk.Subpx.Height - 1;
 			ChunkLimitLeft = (uint)(chunk.Left) * (uint)Configuration.Chunk.Subpx.Width;
 			ChunkLimitRight = (uint)(chunk.Right + 1) * (uint)Configuration.Chunk.Subpx.Width - 1;
+
+			PortalOutPosition = new SubpxPosition(ChunkLimitLeft, ChunkLimitTop);
 
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
@@ -472,6 +494,10 @@ namespace AltarElementsZero.src.states.gameplay
 							_objectPool[nextAssignableObject].Init();
 							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 						}
+						else if(tile.Family == Tile.Families.PortalOut)
+						{
+							PortalOutPosition = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+						}
 						else if(tile.Family == Tile.Families.Barrel)
 						{
 							_objectPool[nextAssignableObject].behaviour = Barrel.Instance;
@@ -567,6 +593,18 @@ namespace AltarElementsZero.src.states.gameplay
 			}
 
 			return foundPlayer;
+		}
+
+		private void Teleport()
+		{
+			GameObject player = _objectPool[0];
+			ChunkPosition currentChunk = player.currentBoundingBox.Center().ToPx().ToTile().ToChunk();
+			ChunkPosition destinyChunk = new((uint)(currentChunk.X + teleportChunkRelativeX), (uint)(currentChunk.Y + teleportChunkRelativeY));
+
+			UpdateChunk(_level!.GetChunk((int)destinyChunk.X, (int)destinyChunk.Y));
+			player.currentBoundingBox.Position = PortalOutPosition;
+			player.previousBoundingBox.Position = PortalOutPosition;
+			UpdateCamera(player.currentBoundingBox.Center());
 		}
 
 		private void RestartFromCheckpoint(){

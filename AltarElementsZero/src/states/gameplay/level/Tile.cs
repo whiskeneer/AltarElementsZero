@@ -122,7 +122,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 
         readonly public bool IsObjectSpawn()
         {
-            return (Family >= Families.Toki && Family <= Families.DebugBox && Family != Families.PortalOut)
+            return (Family >= Families.Toki && Family <= Families.DebugBox)
                 || (Family >= Families.FanUp  && Family <= Families.TurbineRight);
         }
 
