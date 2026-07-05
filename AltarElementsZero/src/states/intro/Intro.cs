@@ -1,5 +1,6 @@
 ﻿using AltarElementsZero.src.states.editor;
 using AltarElementsZero.src.states.gameplay;
+using AltarElementsZero.src.states.menu;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -30,20 +31,22 @@ namespace AltarElementsZero.src.states.intro
 
             if (_inputHandler.IsPressed(Input.Jump))
             {
-                _manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY));
-            }
-            else if (_inputHandler.IsPressed(Input.Attack))
-			{
-				_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY));
+				_manager.RequestTransition(new MenuPayload());
+				//_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY));
 			}
-			else if (_inputHandler.IsPressed(Input.Dash))
-			{
-				_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY));
-			}
-			else if (_inputHandler.IsPressed(Input.Pause))
-            {
-                _manager.RequestTransition(new EditorPayload());
-            }
+   //         else if (_inputHandler.IsPressed(Input.Attack))
+			//{
+			//	_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY));
+			//}
+			//else if (_inputHandler.IsPressed(Input.Dash))
+			//{
+   //             //_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY));
+   //             _manager.RequestTransition(new MenuPayload());
+			//}
+			//else if (_inputHandler.IsPressed(Input.Pause))
+   //         {
+   //             _manager.RequestTransition(new EditorPayload());
+   //         }
 
         }
         public override void Draw(SpriteBatch spriteBatch)

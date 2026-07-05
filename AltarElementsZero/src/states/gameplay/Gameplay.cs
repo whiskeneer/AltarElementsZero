@@ -1339,6 +1339,25 @@ namespace AltarElementsZero.src.states.gameplay
 					);
 
 			}
+	
+			if(_payload.Configuration == GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY)
+			{
+				spriteBatch.Draw(
+					_assets.Atlas,
+					new Vector2(),
+					new Rectangle(608, 784, 32, 16),
+					Color.White
+					);
+				if((_animationFrame & 0x10) == 0x10)
+				{
+					spriteBatch.Draw(
+						_assets.Atlas,
+						new Vector2(32,0),
+						new Rectangle(640, 784, 16, 16),
+						Color.White
+						);
+				}
+			}
 
 		}
     }

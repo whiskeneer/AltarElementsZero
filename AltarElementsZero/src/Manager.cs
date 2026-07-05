@@ -1,6 +1,7 @@
 ﻿using AltarElementsZero.src.states.editor;
 using AltarElementsZero.src.states.gameplay;
 using AltarElementsZero.src.states.intro;
+using AltarElementsZero.src.states.menu;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -55,6 +56,14 @@ namespace AltarElementsZero.src
 				_gameServiceContainer,
 				this,
 				editorPayload,
+				_globalAssets,
+				_inputHandler
+				);
+			if (payload is MenuPayload menuPayload) return new Menu(
+				_graphicsDevice,
+				_gameServiceContainer,
+				this,
+				menuPayload,
 				_globalAssets,
 				_inputHandler
 				);
