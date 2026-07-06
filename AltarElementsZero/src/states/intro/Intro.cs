@@ -34,7 +34,7 @@ namespace AltarElementsZero.src.states.intro
         {
             base.Update(gameTime);
 
-            if (_inputHandler.IsPressed(Input.Jump))
+            if (_inputHandler.IsPressed(Input.Jump) || _inputHandler.IsPressed(Input.Pause))
             {
 				_manager.RequestTransition(new MenuPayload());
 				//_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY));

@@ -23,6 +23,7 @@ namespace AltarElementsZero.src.states.gameplay
 		RestartFromCheckpoint = 1 << 1,
 		RestartFromBeginning = 1 << 2,
 		Teleport = 1 << 3,
+		Pause = 1 << 4,
 	}
 
 	interface ISignalFlags
@@ -62,6 +63,24 @@ namespace AltarElementsZero.src.states.gameplay
             ), ISignalFlags
     {
 
+		private enum State {
+			PLAYING,
+			PAUSED,
+			RESUMING,
+		};
+		private enum PauseOptions{
+			RESUME,
+			GO_TO_CHECKPOINT,
+			RESTART,
+			EXIT
+		}
+		private State state = State.PLAYING;
+
+		private PauseOptions selectedPauseOption = PauseOptions.RESUME;
+		private int pauseFramePosition = 0;
+		private int enteringPauseFramePosition = 128*4;
+		private int enteringPauseOptionsPosition = 256*4;
+
 		public bool CreateGameObject(IBehaviour behaviour, byte spawnValue, SubpxPosition position){
 			int nextAssignableObject = GetNextAssignableObject();
 			if (nextAssignableObject == -1) return false;
@@ -100,6 +119,20 @@ namespace AltarElementsZero.src.states.gameplay
 			{
 				Teleport();
 			}
+			else if((gameplayMessages & GameplayMessages.Pause) == GameplayMessages.Pause)
+			{
+				if(_payload.Configuration == GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY)
+				{
+					state = State.PAUSED;
+					selectedPauseOption = PauseOptions.RESUME;
+					enteringPauseFramePosition = 128 * 4;
+					enteringPauseOptionsPosition = 256 * 4;
+				}
+				else
+				{
+					_manager.RequestTransition(new IntroPayload("HELLO"));
+				}
+			}	
 
 			//
 			teleportChunkRelativeX = 0;
@@ -666,28 +699,6 @@ namespace AltarElementsZero.src.states.gameplay
 		{
 			base.Update(gameTime);
 
-
-			//if (_inputHandler.IsPressed(Input.Pause))
-			//{
-			//    _manager.RequestTransition(new IntroPayload("ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
-			//}
-
-			//_drawIndices = _inputHandler.IsDown(Input.Dash);
-			//if (_inputHandler.IsPressed(Input.Dash))
-			//{
-			//	stopCamera = !stopCamera;
-			//}
-
-			//if (_inputHandler.IsPressed(Input.Attack))
-			//{
-			//	frameByFrameMode = !frameByFrameMode;
-			//}
-
-			//if (frameByFrameMode && !_inputHandler.IsPressed(Input.Jump))
-			//{
-			//	return;
-			//}
-
 			ApplyDarkness = false;
 			DarknessFrom = 0;
 			DarknessTo = uint.MaxValue;
@@ -703,54 +714,113 @@ namespace AltarElementsZero.src.states.gameplay
 				}
 			}
 
-			ResetAssignableObjects();
-
-
-			CalculateDesiredOutcomes();
-			ApplyHorizontalVelocities();
-			CheckHorizontalCollisions();
-			ApplyVerticalVelocities();
-			CheckVerticalCollisions();
-			SeparatePushables();
-			SeparatePushablesFromImmobile();
-
-			for (int o = 0; o < _objectPool.Length; o++)
+			if(state == State.PLAYING)
 			{
-				GameObject go = _objectPool[o];
-				if (!stopCamera)
+				ResetAssignableObjects();
+
+
+				CalculateDesiredOutcomes();
+				ApplyHorizontalVelocities();
+				CheckHorizontalCollisions();
+				ApplyVerticalVelocities();
+				CheckVerticalCollisions();
+				SeparatePushables();
+				SeparatePushablesFromImmobile();
+
+				for (int o = 0; o < _objectPool.Length; o++)
 				{
-					if (object.ReferenceEquals(go.behaviour, DebugPusher.Instance) || object.ReferenceEquals(go.behaviour, Ora.Instance))
+					GameObject go = _objectPool[o];
+					if (!stopCamera)
 					{
-						SubpxPosition focusCenter = go.currentBoundingBox.Center();
+						if (object.ReferenceEquals(go.behaviour, DebugPusher.Instance) || object.ReferenceEquals(go.behaviour, Ora.Instance))
+						{
+							SubpxPosition focusCenter = go.currentBoundingBox.Center();
 
-						if ((int)focusCenter.X < (int)ChunkLimitLeft ||
-							(int)focusCenter.X > (int)ChunkLimitRight ||
-							(int)focusCenter.Y < (int)ChunkLimitTop ||
-							(int)focusCenter.Y > (int)ChunkLimitBottom
-							)
-						{// focus is outside of chunk!
-							ChunkPosition newChunk = focusCenter.ToPx().ToTile().ToChunk();
-							UpdateChunk(_level.GetChunk((int)newChunk.X, (int)newChunk.Y));
+							if ((int)focusCenter.X < (int)ChunkLimitLeft ||
+								(int)focusCenter.X > (int)ChunkLimitRight ||
+								(int)focusCenter.Y < (int)ChunkLimitTop ||
+								(int)focusCenter.Y > (int)ChunkLimitBottom
+								)
+							{// focus is outside of chunk!
+								ChunkPosition newChunk = focusCenter.ToPx().ToTile().ToChunk();
+								UpdateChunk(_level.GetChunk((int)newChunk.X, (int)newChunk.Y));
+							}
+
+							UpdateCamera(focusCenter);
 						}
-
-						UpdateCamera(focusCenter);
 					}
 				}
+
+				ProcessGameplayMessages();
+			}
+			else if(state == State.RESUMING)
+			{
+				pauseFramePosition++;
+				if (pauseFramePosition >= 2 * 3 * 16)
+				{
+					pauseFramePosition = 0;
+				}
+				enteringPauseFramePosition += Math.Max(1, enteringPauseFramePosition >> 2);
+				enteringPauseOptionsPosition += Math.Max(1,enteringPauseOptionsPosition >> 2);
+
+				if(enteringPauseOptionsPosition > 256 * 4)
+				{
+					state = State.PLAYING;
+				}
+			}
+			else if(state == State.PAUSED)
+			{
+
+				pauseFramePosition++;
+				if(pauseFramePosition >= 2 * 3 * 16){
+					pauseFramePosition = 0;
+				}
+				enteringPauseFramePosition = Math.Max(0, enteringPauseFramePosition - Math.Max((enteringPauseFramePosition>>2),1));
+				enteringPauseOptionsPosition = Math.Max(0, enteringPauseOptionsPosition - Math.Max((enteringPauseOptionsPosition >> 2), 1));
+
+				if (_inputHandler.IsPressed(Input.Up))
+				{
+					selectedPauseOption--;
+					if(selectedPauseOption < PauseOptions.RESUME)
+					{
+						selectedPauseOption = PauseOptions.EXIT;
+					}
+				}
+				if(_inputHandler.IsPressed(Input.Down))
+				{
+					selectedPauseOption++;
+					if(selectedPauseOption > PauseOptions.EXIT)
+					{
+						selectedPauseOption = PauseOptions.RESUME;
+					}
+				}
+
+				if(_inputHandler.IsPressed(Input.Jump) || _inputHandler.IsPressed(Input.Pause))
+				{
+					switch(selectedPauseOption){
+						case PauseOptions.RESUME:
+							state = State.RESUMING;
+							enteringPauseFramePosition = 4;
+							enteringPauseOptionsPosition = 4;
+							break;
+						case PauseOptions.GO_TO_CHECKPOINT:
+							state = State.PLAYING;
+							RestartFromCheckpoint();
+							break;
+						case PauseOptions.RESTART:
+							state = State.PLAYING;
+							RestartFromBeginning();
+							break;
+						case PauseOptions.EXIT:
+							_manager.RequestTransition(new IntroPayload("HELLO"));
+							break;
+					}
+				}
+
+				
+
 			}
 
-			//if (frameByFrameMode && _inputHandler.IsPressed(Input.Jump))
-			//{
-			//	for (int o = 0; o < _objectPool.Length; o++)
-			//	{
-			//		GameObject gameObject = _objectPool[o];
-			//		if (gameObject.Type == GameObject.Types.NONEXISTENT) continue;
-			//		Console.Write($"{o} : UP={gameObject.PushedUp} DN={gameObject.PushedDown} LF={gameObject.PushedLeft} RH={gameObject.PushedRight} ");
-			//		Console.WriteLine($"P-UP={gameObject.PushedPreviouslyUp} P-DN={gameObject.PushedPreviouslyDown} P-LF={gameObject.PushedPreviouslyLeft} P-RH={gameObject.PushedPreviouslyRight}");
-			//	}
-			//}
-
-
-			ProcessGameplayMessages();
 
 		}
 
@@ -1357,6 +1427,58 @@ namespace AltarElementsZero.src.states.gameplay
 						Color.White
 						);
 				}
+			}
+
+			if(state == State.PAUSED || state == State.RESUMING)
+			{
+				SpriteEffects transparencyEffect = SpriteEffects.None;
+				if((_animationFrame & 1) == 1)
+				{
+					transparencyEffect = SpriteEffects.FlipHorizontally;
+				}
+				for(int j = 0; j < 8; j++)
+				{
+					for(int i = 0; i < 12; i++)
+					{
+						spriteBatch.Draw(
+							_assets.Atlas,
+							new Vector2(i*16, j*16),
+							new Rectangle(416, 1008, 16, 16),
+							Color.White,
+							0f, Vector2.Zero, 1f, transparencyEffect, 0f
+							);
+					}
+				}
+
+				spriteBatch.Draw(
+					_assets.Atlas,
+					new Vector2((pauseFramePosition>>1) - 16*3 - (enteringPauseFramePosition>>2), -(pauseFramePosition>>1)),
+					new Rectangle(528, 384, 128, 128),
+					Color.White);
+
+				spriteBatch.Draw(
+					_assets.Atlas,
+					new Vector2( -(pauseFramePosition >> 1) + 16 * 7 + (enteringPauseFramePosition>>2), (pauseFramePosition >> 1)),
+					new Rectangle(688, 384, 128, 128),
+					Color.White);
+
+
+				spriteBatch.Draw(
+					_assets.Atlas,
+					new Vector2(32 - (enteringPauseOptionsPosition>>2), 32),
+					new Rectangle(832, 416, 160, 64),
+					Color.White);
+
+
+
+				spriteBatch.Draw(
+					_assets.Atlas,
+					new Vector2(16 - (enteringPauseOptionsPosition>>2), 32 + 16 * (int)selectedPauseOption),
+					new Rectangle(816, 416, 16, 16),
+					Color.White
+				);
+
+
 			}
 
 		}

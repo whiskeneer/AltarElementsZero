@@ -94,8 +94,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             //
 
             if(inputHandler.IsPressed(Input.Pause)){
-                GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Exit);
-            }
+				//GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Exit);
+				GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Pause);
+
+			}
 
             if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
             {

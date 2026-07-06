@@ -107,7 +107,7 @@ namespace AltarElementsZero.src.states.menu
 				CurrentItem++;
 				if(CurrentItem >= listLength) CurrentItem -= listLength; 
 			}
-			if(_inputHandler.IsPressed(Input.Jump))
+			if(_inputHandler.IsPressed(Input.Jump) || _inputHandler.IsPressed(Input.Pause))
 			{
 				if(CurrentTab == (int)Tab.MAIN)
 				{
