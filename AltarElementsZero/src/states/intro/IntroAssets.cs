@@ -12,6 +12,7 @@ namespace AltarElementsZero.src.states.intro
             gameServiceContainer: gameServiceContainer)
     {
         public Texture2D? Background { get; private set; }
+        public Texture2D? Atlas { get; private set; }
         public RenderTarget2D? DebugText { get; private set; }
 
         public override void Load()
@@ -20,6 +21,7 @@ namespace AltarElementsZero.src.states.intro
 
             // Loading textures
             Background = _contentManager!.Load<Texture2D>("img/intro_static.png");
+            Atlas = _contentManager!.Load<Texture2D>("img/atlas.png");
 
             // Creating renderTargets
             DebugText = new RenderTarget2D(
@@ -63,6 +65,7 @@ namespace AltarElementsZero.src.states.intro
 
             // Unreferencing textures
             Background = null;
+            Atlas = null;
 
             // Disposing renterTargets
             DebugText!.Dispose();

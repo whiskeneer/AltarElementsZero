@@ -1,21 +1,35 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using System.Text.Json;
+using Microsoft.Xna.Framework.Input;
 
 namespace AltarElementsZero.src
 {
+	public enum InputIndices
+	{
+		UP, 
+		DOWN, 
+		LEFT, 
+		RIGHT,
+		JUMP, 
+		ATTACK, 
+		DASH, 
+		PAUSE,
+		FINISHED
+	}
+
 	[Flags]
 	public enum Input : Byte
 	{
 		None = 0,
 
-		Up = 1 << 0,
-		Down = 1 << 1,
-		Left = 1 << 2,
-		Right = 1 << 3,
+		Up = 1 << InputIndices.UP,
+		Down = 1 << InputIndices.DOWN,
+		Left = 1 << InputIndices.LEFT,
+		Right = 1 << InputIndices.RIGHT,
 
-		Jump = 1 << 4,	// Accept
-		Attack = 1 << 5,// Cancel
-		Dash = 1 << 6,
-		Pause = 1 << 7,
+		Jump = 1 << InputIndices.JUMP,		// Accept
+		Attack = 1 << InputIndices.ATTACK,	// Cancel
+		Dash = 1 << InputIndices.DASH,
+		Pause = 1 << InputIndices.PAUSE,
 	}
 
 	public struct InputActions
@@ -27,11 +41,79 @@ namespace AltarElementsZero.src
 
 	sealed class InputHandler
 	{
-		//private KeyboardState _previousKeyboardState;
-		//private KeyboardState _currentKeyboardState;
+		private KeyboardState _previousKeyboardState;
+		private KeyboardState _currentKeyboardState;
 
-		//private GamePadState _previousGamePadState;
-		//private GamePadState _currentGamePadState;
+		private GamePadState _previousGamePadState;
+		private GamePadState _currentGamePadState;
+
+		private Keys[] KeyboardSettings = [
+			Keys.Up, 
+			Keys.Down, 
+			Keys.Left, 
+			Keys.Right,
+			Keys.F,
+			Keys.D,
+			Keys.S,
+			Keys.A
+		];
+		private Buttons[] GamepadSettings = [
+			Buttons.DPadUp,
+			Buttons.DPadDown,
+			Buttons.DPadLeft,
+			Buttons.DPadRight,
+			Buttons.A,
+			Buttons.X,
+			Buttons.RightShoulder,
+			Buttons.Start
+		];
+
+		public string GetKeyboardKeyFor(Input input)
+		{			
+			for(int i = 0; i < 8; i++)
+			{
+				if(((int)input & (1<<i)) == (1<<i))
+				{
+					return Enum.GetName(KeyboardSettings[i])!;
+				}
+			}
+
+			return "NONE";
+		}
+		public string GetGamepadButtonFor(Input input)
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				if (((int)input & (1 << i)) == (1 << i))
+				{
+					return Enum.GetName(GamepadSettings[i])!;
+				}
+			}
+
+			return "NONE";
+		}
+
+		public void SaveKeyboardSettings()
+		{
+			var json = JsonSerializer.Serialize(KeyboardSettings);
+			File.WriteAllText("assets/config/keyboard.json", json);
+		}
+		public void SaveGamepadSettings()
+		{
+			var json = JsonSerializer.Serialize(GamepadSettings);
+			File.WriteAllText("assets/config/gamepad.json", json);
+		}
+		public void LoadKeyboardSettings()
+		{
+			var json = File.ReadAllText("assets/config/keyboard.json");
+			KeyboardSettings = JsonSerializer.Deserialize<Keys[]>(json)!;
+		}
+		public void LoadGamepadSettings()
+		{
+			var json = File.ReadAllText("assets/config/gamepad.json");
+			GamepadSettings = JsonSerializer.Deserialize<Buttons[]>(json)!;
+		}
+
 
 		private Input _previousInput;
 		private Input _currentInput;
@@ -45,9 +127,13 @@ namespace AltarElementsZero.src
 		{
 			REGULAR,
 			RECORDING,
-			PLAYBACK
+			PLAYBACK,
+			SETTING_KEYBOARD,
+			SETTING_GAMEPAD
 		}
 		private State state = State.REGULAR;
+		//private Input currentlySetting = Input.None;
+		private InputIndices currentlySettingIndex = InputIndices.FINISHED;
 
 		public InputActions Actions { get; private set; }
 
@@ -107,21 +193,58 @@ namespace AltarElementsZero.src
 			return state == State.PLAYBACK;
 		}
 
+		public bool SetKeyboard()
+		{
+			if (state != State.REGULAR) return false;
+			//currentlySetting = Input.Up;
+			currentlySettingIndex = InputIndices.UP;
+			state = State.SETTING_KEYBOARD;
+			return true;
+		}
+		public bool SetGamepad()
+		{
+			if(state != State.REGULAR) return false;
+
+			currentlySettingIndex = InputIndices.UP;
+			state = State.SETTING_GAMEPAD;
+			return true;
+		}
+		public bool IsSettingKeyboard()
+		{
+			return state == State.SETTING_KEYBOARD;
+		}
+		public bool IsSettingGamepad()
+		{
+			return state == State.SETTING_GAMEPAD;
+		}
+		public Input CurrentlySetting()
+		{
+			//return currentlySetting;
+			return (Input)((1 << (int)currentlySettingIndex) & 0xff);
+		}
+
 		public void Update()
 		{
 			_previousInput = _currentInput;
 
-			KeyboardState _currentKeyboardState = Keyboard.GetState();
-			GamePadState _currentGamePadState = GamePad.GetState(0);
+			_previousKeyboardState = _currentKeyboardState;
+			_previousGamePadState = _currentGamePadState;
 
-			if(state == State.PLAYBACK)
+			_currentKeyboardState = Keyboard.GetState();
+			_currentGamePadState = GamePad.GetState(0);
+
+			if (state == State.PLAYBACK)
 			{
 				_currentInput = Input.None;
-				if (_currentKeyboardState.IsKeyDown(Keys.A) || _currentGamePadState.IsButtonDown(Buttons.Start))
+				if (_currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.JUMP]) 
+					|| _currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.JUMP])
+					|| _currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.PAUSE]) 
+					|| _currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.PAUSE])
+					)
 				{
 					_currentInput |= Input.Pause;
 				}
-				if(_stream!.Position >= _stream.Length)
+				if (_stream!.Position >= _stream.Length)
 				{
 					_currentInput |= Input.Pause;
 				}
@@ -130,71 +253,106 @@ namespace AltarElementsZero.src
 					_currentInput |= (Input)_reader!.ReadByte();
 				}
 			}
-			else // REGULAR or RECORDING
+			else if (state == State.REGULAR || state == State.RECORDING) // REGULAR or RECORDING
 			{
 				_currentInput = Input.None;
-				if (_currentKeyboardState.IsKeyDown(Keys.Up) || _currentGamePadState.IsButtonDown(Buttons.DPadUp))
+				if (_currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.UP]) || 
+					_currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.UP]))
 				{
 					_currentInput |= Input.Up;
 				}
-				if (_currentKeyboardState.IsKeyDown(Keys.Down) || _currentGamePadState.IsButtonDown(Buttons.DPadDown))
+				if (_currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.DOWN]) ||
+					_currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.DOWN]))
 				{
 					_currentInput |= Input.Down;
 				}
-				if (_currentKeyboardState.IsKeyDown(Keys.Left) || _currentGamePadState.IsButtonDown(Buttons.DPadLeft))
+				if (_currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.LEFT]) ||
+					_currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.LEFT]))
 				{
 					_currentInput |= Input.Left;
 				}
-				if (_currentKeyboardState.IsKeyDown(Keys.Right) || _currentGamePadState.IsButtonDown(Buttons.DPadRight))
+				if (_currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.RIGHT]) ||
+					_currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.RIGHT]))
 				{
 					_currentInput |= Input.Right;
 				}
-				if (_currentKeyboardState.IsKeyDown(Keys.F) || _currentGamePadState.IsButtonDown(Buttons.A))
+				if (_currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.JUMP]) ||
+					_currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.JUMP]))
 				{
 					_currentInput |= Input.Jump;
 				}
-				if (_currentKeyboardState.IsKeyDown(Keys.D) || _currentGamePadState.IsButtonDown(Buttons.X))
+				if (_currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.ATTACK]) ||
+					_currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.ATTACK]))
 				{
 					_currentInput |= Input.Attack;
 				}
-				if (_currentKeyboardState.IsKeyDown(Keys.S) || _currentGamePadState.IsButtonDown(Buttons.RightShoulder))
+				if (_currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.DASH]) ||
+					_currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.DASH]))
 				{
 					_currentInput |= Input.Dash;
 				}
-				if (_currentKeyboardState.IsKeyDown(Keys.A) || _currentGamePadState.IsButtonDown(Buttons.Start))
+				if (_currentKeyboardState.IsKeyDown(KeyboardSettings[(int)InputIndices.PAUSE]) ||
+					_currentGamePadState.IsButtonDown(GamepadSettings[(int)InputIndices.PAUSE]))
 				{
 					_currentInput |= Input.Pause;
 				}
 			}
-			
-			if(state == State.RECORDING)
+			else if(state == State.SETTING_KEYBOARD)
+			{
+				if(currentlySettingIndex == InputIndices.FINISHED)
+				{
+					SaveKeyboardSettings();
+					state = State.REGULAR;	
+				}
+				else
+				{
+					//bool foundKeystroke = false;
+					for(int b = 0; b < 256; b++)
+					{
+						if(_currentKeyboardState.IsKeyDown((Keys)b) && _previousKeyboardState.IsKeyUp((Keys)b))
+						{
+							//foundKeystroke = true;
+							KeyboardSettings[(int)currentlySettingIndex] = (Keys)b;
+							currentlySettingIndex++;
+							break;
+						}
+					}
+
+				}
+
+
+			}
+			else if (state == State.SETTING_GAMEPAD)
+			{
+				if (currentlySettingIndex == InputIndices.FINISHED)
+				{
+					//SaveKeyboardSettings();
+					SaveGamepadSettings();
+					state = State.REGULAR;
+				}
+				else
+				{
+					for (int b = 0; b < 32; b++)
+					{
+						if (_currentGamePadState.IsButtonDown((Buttons)(1<<b)) && _previousGamePadState.IsButtonUp((Buttons)(1 << b)))
+						{
+							GamepadSettings[(int)currentlySettingIndex] = (Buttons)(1 << b);
+							currentlySettingIndex++;
+							break;
+						}
+					}
+
+				}
+
+
+			}
+
+			if (state == State.RECORDING)
 			{
 				_writer!.Write((byte)_currentInput);
 			}
 
 			InputActions actions;
-
-			//MapKey(Keys.Up, ref actions, Input.Up);
-			//MapKey(Keys.Down, ref actions, Input.Down);
-			//MapKey(Keys.Left, ref actions, Input.Left);
-			//MapKey(Keys.Right, ref actions, Input.Right);
-
-			//MapKey(Keys.F, ref actions, Input.Jump);
-			//MapKey(Keys.D, ref actions, Input.Attack);
-			//MapKey(Keys.S, ref actions, Input.Dash);
-			//MapKey(Keys.A, ref actions, Input.Pause);
-
-			////
-
-			//MapButton(Buttons.DPadUp, ref actions, Input.Up);
-			//MapButton(Buttons.DPadDown, ref actions, Input.Down);
-			//MapButton(Buttons.DPadLeft, ref actions, Input.Left);
-			//MapButton(Buttons.DPadRight, ref actions, Input.Right);
-
-			//MapButton(Buttons.A, ref actions, Input.Jump);
-			//MapButton(Buttons.X, ref actions, Input.Attack);
-			//MapButton(Buttons.RightShoulder, ref actions, Input.Dash);
-			//MapButton(Buttons.Start, ref actions, Input.Pause);
 
 			actions.IsDown = _currentInput;
 			actions.IsPressed = _currentInput & ~_previousInput;
@@ -202,25 +360,6 @@ namespace AltarElementsZero.src
 
 			Actions = actions;
 		}
-		//private void MapKey(Keys key, ref InputActions actions, Input input)
-		//{
-		//	bool previousDown = _previousKeyboardState.IsKeyDown(key);
-		//	bool currentDown = _currentKeyboardState.IsKeyDown(key);
-
-		//	if (currentDown) actions.IsDown |= input;
-		//	if (currentDown && !previousDown) actions.IsPressed |= input;
-		//	if (!currentDown && previousDown) actions.IsReleased |= input; 
-		//}
-
-		//private void MapButton(Buttons button, ref InputActions actions, Input input)
-		//{
-		//	bool previousDown = _previousGamePadState.IsButtonDown(button);
-		//	bool currentDown = _currentGamePadState.IsButtonDown(button);
-
-		//	if (currentDown) actions.IsDown |= input;
-		//	if (currentDown && !previousDown) actions.IsPressed |= input;
-		//	if (!currentDown && previousDown) actions.IsReleased |= input;
-		//}
 
 	}
 

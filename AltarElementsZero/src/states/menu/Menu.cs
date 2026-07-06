@@ -1,6 +1,7 @@
 ﻿using AltarElementsZero.src.states.editor;
 using AltarElementsZero.src.states.gameplay;
 using AltarElementsZero.src.states.gameplay.vectors;
+using AltarElementsZero.src.states.inputConfig;
 using AltarElementsZero.src.states.intro;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Design;
@@ -68,7 +69,7 @@ namespace AltarElementsZero.src.states.menu
 			//return new((uint)CurrentItem * 16, (uint)CurrentItem * 32);
 		}
 
-		private void Lerp(int fromX, int fromY, int toX, int toY, out int outX, out int outY)
+		private static void Lerp(int fromX, int fromY, int toX, int toY, out int outX, out int outY)
 		{
 			outX = ((toX - fromX)>>2) + fromX;
 			outY = ((toY - fromY)>>2) + fromY;
@@ -138,6 +139,12 @@ namespace AltarElementsZero.src.states.menu
 					else if(CurrentItem == (int)OptionsList.RECORD)
 					{
 						_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY));
+					}
+					else if (CurrentItem == (int)OptionsList.INPUT)
+					{
+						//_inputHandler.SaveKeyboardSettings();	
+						_manager.RequestTransition(new InputConfigPayload());
+
 					}
 				}
 			}

@@ -1,5 +1,6 @@
 ﻿using AltarElementsZero.src.states.editor;
 using AltarElementsZero.src.states.gameplay;
+using AltarElementsZero.src.states.inputConfig;
 using AltarElementsZero.src.states.intro;
 using AltarElementsZero.src.states.menu;
 using Microsoft.Xna.Framework;
@@ -64,6 +65,14 @@ namespace AltarElementsZero.src
 				_gameServiceContainer,
 				this,
 				menuPayload,
+				_globalAssets,
+				_inputHandler
+				);
+			if (payload is InputConfigPayload inputConfigPayload) return new InputConfig(
+				_graphicsDevice,
+				_gameServiceContainer,
+				this,
+				inputConfigPayload,
 				_globalAssets,
 				_inputHandler
 				);

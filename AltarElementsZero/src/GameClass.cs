@@ -57,6 +57,9 @@ class GameClass : Game
         _globalAssets = new GlobalAssets(GraphicsDevice, Services);
         _globalAssets.Load();
 
+        _inputHandler.LoadKeyboardSettings();
+        _inputHandler.LoadGamepadSettings();
+
         _manager = new(GraphicsDevice, Services, _globalAssets, _inputHandler);
         _manager.RequestTransition(new IntroPayload(debugText: "ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
 

@@ -451,5 +451,53 @@ namespace AltarElementsZero.src.renderer
                 }
             }
         }
+		public static void RenderText(
+	        SpriteBatch spriteBatch,
+	        PxPosition position,
+	        Texture2D atlas,
+	        string text,
+            int maxLength
+        )
+        {
+			for (int i = 0; i < text.Length && (maxLength == -1 || i < maxLength); i++)
+			{
+				char c = text[i];
+				byte b = (byte)c;
+
+				Vector2 outputVector = new(
+					position.X + i * 16,
+					position.Y
+				);
+				Rectangle sourceRectangle = new(
+					768 + 16 * (b & 0xf),
+					768 + 16 * ((b >> 4) & 0xf),
+					16,
+					16
+				);
+
+				spriteBatch.Draw(
+					atlas,
+					outputVector,
+					sourceRectangle,
+					Color.White
+				);
+			}
+		}
+
+		public static void RenderText(
+            SpriteBatch spriteBatch,
+            PxPosition position,
+            Texture2D atlas,
+            string text
+        )
+        {
+            RenderText(
+                spriteBatch,
+                position,
+                atlas,
+                text,
+                -1
+            );
+        }
     }
 }
