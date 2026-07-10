@@ -1,4 +1,5 @@
 ﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.screenEffects;
 using AltarElementsZero.src.states.editor;
 using AltarElementsZero.src.states.gameplay;
 using AltarElementsZero.src.states.gameplay.vectors;
@@ -23,41 +24,57 @@ namespace AltarElementsZero.src.states.intro
             globalAssets: globalAssets
             )
     {
+        private enum State{
+            ENTERING_INTRO,
+            IDLE,
+            ENTERING_MENU,
+        }
+        private State state = State.IDLE;
 
         private int timer = 0;
         public override void Enter()
         {
             base.Enter();
             timer = 0;
+            state = State.ENTERING_INTRO;
+            LoadingEffectEnd.Instance.Start();
+            
         }
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+			timer++;
 
-            if (_inputHandler.IsPressed(Input.Jump) || _inputHandler.IsPressed(Input.Pause))
-            {
-				_manager.RequestTransition(new MenuPayload());
-				//_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY));
-			}else{
-                timer++;
-                if(timer > 600)
+			if (state == State.IDLE){
+                if (_inputHandler.IsPressed(Input.Jump) || _inputHandler.IsPressed(Input.Pause))
                 {
-					_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY));
+                    LoadingEffectStart.Instance.Start();
+                    state = State.ENTERING_MENU;
+			    }else{
+                    if(timer > 600)
+                    {
+					    _manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY));
+				    }
+                }
+            }
+            else if(state == State.ENTERING_MENU)
+            {
+                LoadingEffectStart.Instance.Update();
+                if(LoadingEffectStart.Instance.IsFinished())
+                {
+					_manager.RequestTransition(new MenuPayload());
 				}
             }
-   //         else if (_inputHandler.IsPressed(Input.Attack))
-			//{
-			//	_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.PLAY_AUTOPLAY));
-			//}
-			//else if (_inputHandler.IsPressed(Input.Dash))
-			//{
-   //             //_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY));
-   //             _manager.RequestTransition(new MenuPayload());
-			//}
-			//else if (_inputHandler.IsPressed(Input.Pause))
-   //         {
-   //             _manager.RequestTransition(new EditorPayload());
-   //         }
+            else if(state == State.ENTERING_INTRO)
+            {
+                LoadingEffectEnd.Instance.Update();
+                if(LoadingEffectEnd.Instance.IsFinished())
+                {
+                    state = State.IDLE;
+                }
+            }
+
+
 
         }
         public override void Draw(SpriteBatch spriteBatch)
@@ -80,6 +97,17 @@ namespace AltarElementsZero.src.states.intro
                 new Rectangle(0, 384, 160, 48),
                 Color.White
                 );
+
+            if(state == State.ENTERING_MENU)
+            {
+                LoadingEffectStart.Instance.Draw(spriteBatch, _assets.Atlas!);
+            }
+            else if(state == State.ENTERING_INTRO)
+			{
+				LoadingEffectEnd.Instance.Draw(spriteBatch, _assets.Atlas!);
+			}
+
+
 
 		}
         public override void Exit()

@@ -13,6 +13,7 @@ using AltarElementsZero.src.states.intro;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
+using AltarElementsZero.src.screenEffects;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -64,9 +65,14 @@ namespace AltarElementsZero.src.states.gameplay
     {
 
 		private enum State {
+			ENTERING_GAMEPLAY,
 			PLAYING,
 			PAUSED,
 			RESUMING,
+			GOING_TO_CHECKPOINT,
+			RESTARTING,
+			EXITING
+
 		};
 		private enum PauseOptions{
 			RESUME,
@@ -74,7 +80,7 @@ namespace AltarElementsZero.src.states.gameplay
 			RESTART,
 			EXIT
 		}
-		private State state = State.PLAYING;
+		private State state = State.ENTERING_GAMEPLAY;
 
 		private PauseOptions selectedPauseOption = PauseOptions.RESUME;
 		private int pauseFramePosition = 0;
@@ -386,152 +392,46 @@ namespace AltarElementsZero.src.states.gameplay
 
 						// Is there a way to optimize this? 
 						// (for instance: indexed functions instead of long else-if chain)
-						if (tile.Family == Tile.Families.Toki)
-						{
-							_objectPool[nextAssignableObject].behaviour = Toki.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.MovingPlatform1)
-						{
-							_objectPool[nextAssignableObject].behaviour = MovingPlatform1.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.DebugBox)
-						{
-							_objectPool[nextAssignableObject].behaviour = DebugBox.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.DebugPusher)
-						{
-							_objectPool[nextAssignableObject].behaviour = DebugPusher.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.DebugImmobile)
-						{
-							_objectPool[nextAssignableObject].behaviour = DebugImmobile.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
 
-						else if (tile.Family == Tile.Families.FanUp)
+						IBehaviour spawningObjectBehaviour = tile.Family switch
 						{
-							_objectPool[nextAssignableObject].behaviour = CurrentUp.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j - 4).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.FloorButton)
-						{
-							_objectPool[nextAssignableObject].behaviour = FloorButton.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.SwitchableDoor)
-						{
-							_objectPool[nextAssignableObject].behaviour = SwitchableDoor.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.Checkpoint)
-						{
-							_objectPool[nextAssignableObject].behaviour = Checkpoint.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.TurbineLeft)
-						{
-							_objectPool[nextAssignableObject].behaviour = TurbineCurrentLeft.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i-7, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.TurbineRight)
-						{
-							_objectPool[nextAssignableObject].behaviour = TurbineCurrentRight.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i+1, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.Ufo)
-						{
-							_objectPool[nextAssignableObject].behaviour = Ufo.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.BreakableTile)
-						{
-							_objectPool[nextAssignableObject].behaviour = BreakableTile.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.Fire)
-						{
-							_objectPool[nextAssignableObject].behaviour = Fire.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.Torch)
-						{
-							_objectPool[nextAssignableObject].behaviour = Torch.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.Vine)
-						{
-							_objectPool[nextAssignableObject].behaviour = Vine.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.Water)
-						{
-							_objectPool[nextAssignableObject].behaviour = WaterRegion.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.Darkness)
-						{
-							_objectPool[nextAssignableObject].behaviour = Darkness.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.ClockKey)
-						{
-							_objectPool[nextAssignableObject].behaviour = ClockKey.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if (tile.Family == Tile.Families.PortalIn)
-						{
-							_objectPool[nextAssignableObject].behaviour = Portal.Instance;
-							_objectPool[nextAssignableObject].spawnValue = tile.Member;
-							_objectPool[nextAssignableObject].Init();
-							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
-						}
-						else if(tile.Family == Tile.Families.PortalOut)
+							Tile.Families.Toki => Toki.Instance,
+							Tile.Families.MovingPlatform1 => MovingPlatform1.Instance,
+							Tile.Families.DebugBox => DebugBox.Instance,
+							Tile.Families.DebugPusher => DebugPusher.Instance,
+							Tile.Families.DebugImmobile => DebugImmobile.Instance,
+							Tile.Families.FanUp => CurrentUp.Instance,
+							Tile.Families.FloorButton => FloorButton.Instance,
+							Tile.Families.SwitchableDoor => SwitchableDoor.Instance,
+							Tile.Families.Checkpoint => Checkpoint.Instance,
+							Tile.Families.TurbineLeft => TurbineCurrentLeft.Instance,
+							Tile.Families.TurbineRight => TurbineCurrentRight.Instance,
+							Tile.Families.Ufo => Ufo.Instance,
+							Tile.Families.BreakableTile => BreakableTile.Instance,
+							Tile.Families.Fire => Fire.Instance,
+							Tile.Families.Torch => Torch.Instance,
+							Tile.Families.Vine => Vine.Instance,
+							Tile.Families.Darkness => Darkness.Instance,
+							Tile.Families.Water => WaterRegion.Instance,
+							Tile.Families.ClockKey => ClockKey.Instance,
+							Tile.Families.PortalIn => Portal.Instance,
+							_ => EmptyObject.Instance,
+						};
+
+						if (tile.Family == Tile.Families.PortalOut)
 						{
 							PortalOutPosition = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
 						}
-						else if(tile.Family == Tile.Families.Barrel)
+
+						if(spawningObjectBehaviour != EmptyObject.Instance)
+						{
+							_objectPool[nextAssignableObject].behaviour = spawningObjectBehaviour;
+							_objectPool[nextAssignableObject].spawnValue = tile.Member;
+							_objectPool[nextAssignableObject].currentBoundingBox.Position = new TilePosition((uint)i, (uint)j).ToPx().ToSubpx();
+							_objectPool[nextAssignableObject].Init();
+						}
+
+						if(tile.Family == Tile.Families.Barrel)
 						{
 							_objectPool[nextAssignableObject].behaviour = Barrel.Instance;
 							_objectPool[nextAssignableObject].spawnValue = tile.Member;
@@ -556,17 +456,6 @@ namespace AltarElementsZero.src.states.gameplay
 					}
 				}
 			}
-
-			//int amountOfObjects = 0;
-			//for (int o = 0; o < _objectPool.Length; o++)
-			//{
-			//	if (_objectPool[o].Type != GameObject.Types.NONEXISTENT)
-			//	{
-			//		amountOfObjects++;
-			//	}
-			//}
-			//Console.Write("OBJECTS: ");
-			//Console.WriteLine(amountOfObjects);
 		}
 		private void UpdateCamera(SubpxPosition focusPosition)
 		{
@@ -694,6 +583,10 @@ namespace AltarElementsZero.src.states.gameplay
 				_manager.RequestTransition(new IntroPayload("ERROR"));
 			}
 
+			state = State.ENTERING_GAMEPLAY;
+			LoadingEffectEnd.Instance.Start();
+
+
         }
 		public override void Update(GameTime gameTime)
 		{
@@ -714,7 +607,15 @@ namespace AltarElementsZero.src.states.gameplay
 				}
 			}
 
-			if(state == State.PLAYING)
+			if(state == State.ENTERING_GAMEPLAY)
+			{
+				LoadingEffectEnd.Instance.Update();
+				if(LoadingEffectEnd.Instance.IsFinished())
+				{
+					state = State.PLAYING;
+				}
+			}
+			else if(state == State.PLAYING)
 			{
 				ResetAssignableObjects();
 
@@ -804,20 +705,53 @@ namespace AltarElementsZero.src.states.gameplay
 							enteringPauseOptionsPosition = 4;
 							break;
 						case PauseOptions.GO_TO_CHECKPOINT:
-							state = State.PLAYING;
-							RestartFromCheckpoint();
+							//state = State.PLAYING;
+							//RestartFromCheckpoint();
+							state = State.GOING_TO_CHECKPOINT;
+							LoadingEffectStart.Instance.Start();
 							break;
 						case PauseOptions.RESTART:
-							state = State.PLAYING;
-							RestartFromBeginning();
+							//	state = State.PLAYING;
+							//	RestartFromBeginning();
+							state = State.RESTARTING;
+							LoadingEffectStart.Instance.Start();
 							break;
 						case PauseOptions.EXIT:
-							_manager.RequestTransition(new IntroPayload("HELLO"));
+							//_manager.RequestTransition(new IntroPayload("HELLO"));
+							state = State.EXITING;
+							LoadingEffectStart.Instance.Start();
 							break;
 					}
 				}
 
-				
+			}
+			else if(state == State.GOING_TO_CHECKPOINT)
+			{
+				LoadingEffectStart.Instance.Update();
+				if(LoadingEffectStart.Instance.IsFinished())
+				{
+					RestartFromCheckpoint();
+					state = State.ENTERING_GAMEPLAY;
+					LoadingEffectEnd.Instance.Start();
+				}
+			}
+			else if(state == State.RESTARTING)
+			{
+				LoadingEffectStart.Instance.Update();
+				if (LoadingEffectStart.Instance.IsFinished())
+				{
+					RestartFromBeginning();
+					state = State.ENTERING_GAMEPLAY;
+					LoadingEffectEnd.Instance.Start();
+				}
+			}
+			else if(state== State.EXITING)
+			{
+				LoadingEffectStart.Instance.Update();
+				if (LoadingEffectStart.Instance.IsFinished())
+				{
+					_manager.RequestTransition(new IntroPayload("HELLO"));
+				}
 
 			}
 
@@ -1216,170 +1150,19 @@ namespace AltarElementsZero.src.states.gameplay
 		private void Render(SpriteBatch spriteBatch)
         {
 			if(_level == null) return;
-
-			//PxPosition CameraPosition = _camera.currentBoundingBox.Position.ToVisualPx();
-
-			if (CurrentBackground == 1)
+			IBackground background = CurrentBackground switch
 			{
-				int waterPosition = 16 * 6 - (int)(CameraPosition.Y >> 4);
-				int waterHorizonPosition = -(int)((CameraPosition.X >> 4) & (Configuration.VisibleScreen.Px.Width - 1));
-
-				int smallCloudsX = -(int)((CameraPosition.X >> 3) & (Configuration.VisibleScreen.Px.Width - 1));
-				int smallCloudsY = 16 * 3 - (int)(CameraPosition.Y >> 3);
-
-				int bigCloudsX = -(int)((CameraPosition.X >> 2) & (Configuration.VisibleScreen.Px.Width - 1));
-				int bigCloudsY = 16 * 3 - (int)(CameraPosition.Y >> 2);
-
-				spriteBatch.Draw(
-					texture: _assets.SkyBackground,
-					position: new Vector2(),
-					color: Color.White
-					);
-
-				spriteBatch.Draw(
-					texture: _assets.WaterHorizon,
-					position: new Vector2(waterHorizonPosition, Math.Max(0, waterPosition - 32)),
-					color: Color.White
-					);
-				spriteBatch.Draw(
-					texture: _assets.SkyCloudsSmall,
-					position: new Vector2(smallCloudsX, smallCloudsY),
-					color: Color.White
-					);
-
-				spriteBatch.Draw(
-					texture: _assets.SkyCloudsBig,
-					position: new Vector2(bigCloudsX, bigCloudsY),
-					color: Color.White
-					);
-
-				spriteBatch.Draw(
-					texture: _assets.WaterBackground,
-					position: new Vector2(0, Math.Max(0, waterPosition + 16)),
-					color: Color.White
-					);
-			}
-			else if (CurrentBackground == 2)
-			{
-				spriteBatch.Draw(
-					texture: _assets.TempleBackground,
-					position: new Vector2(),
-					color: Color.White
-					);
-				spriteBatch.Draw(
-					texture: _assets.TemplePilarsSmall,
-					position: new Vector2(),
-					color: Color.White
-					);
-				spriteBatch.Draw(
-					texture: _assets.TemplePilarsBig,
-					position: new Vector2(),
-					color: Color.White
-					);
-			}
-			else if (CurrentBackground == 3)
-			{
-				PxPosition cameraOffset = new(
-					CameraPosition.X - (ChunkLimitLeft >> Configuration.Px.SubpxPower),
-					CameraPosition.Y - (ChunkLimitTop >> Configuration.Px.SubpxPower)
-					);
-
-				spriteBatch.Draw(
-					texture: _assets.UnderwaterSky,
-					position: new Vector2( 
-						-(cameraOffset.X >> 4), 
-						-(cameraOffset.Y >> 4) - (5 << Configuration.Tile.PxPower)
-						),
-					color: Color.White
-					);
-				spriteBatch.Draw(
-					texture: _assets.UnderwaterTemple1,
-					position: new Vector2(
-						-(cameraOffset.X >> 4) + (10 << Configuration.Tile.PxPower),
-						-(cameraOffset.Y >> 4) + (1 << Configuration.Tile.PxPower)
-						),
-					sourceRectangle: new Rectangle(
-						0,
-						(int)((_animationFrame >> 4) & 7) * 32,
-						32+16,
-						32
-						),
-					color: Color.White
-					);
-				spriteBatch.Draw(
-					texture: _assets.UnderwaterTemple2,
-					position: new Vector2(
-						-(cameraOffset.X >> 4) + (2 << Configuration.Tile.PxPower),
-						-(cameraOffset.Y >> 4) + (1 << Configuration.Tile.PxPower)
-						),
-					sourceRectangle: new Rectangle(
-						0,
-						(int)((_animationFrame >> 4) & 7) * 32,
-						64 + 16,
-						32
-						),
-					color: Color.White
-					);
-				spriteBatch.Draw(
-					texture: _assets.UnderwaterFarRocks,
-					position: new Vector2(
-						-(cameraOffset.X >> 4),
-						-(cameraOffset.Y >> 4) + (3 << Configuration.Tile.PxPower)
-						),
-					color: Color.White
-					);
-				spriteBatch.Draw(
-					texture: _assets.UnderwaterCloseRocks,
-					position: new Vector2(
-						-(cameraOffset.X >> 3),
-						-(cameraOffset.Y >> 3) + (5 << Configuration.Tile.PxPower)
-						),
-					color: Color.White
-					);
-				spriteBatch.Draw(
-					texture: _assets.UnderwaterFarCorals,
-					position: new Vector2(
-						-(cameraOffset.X >> 2),
-						-(cameraOffset.Y >> 2) + (8 << Configuration.Tile.PxPower)
-						),
-					color: Color.White
-					);
-				spriteBatch.Draw(
-					texture: _assets.UnderwaterCloseCorals,
-					position: new Vector2(
-						-(cameraOffset.X >> 1),
-						-(cameraOffset.Y >> 1) + (13 << Configuration.Tile.PxPower)
-						),
-					color: Color.White
-					);
-			}
-			else if(CurrentBackground == 0x10)
-			{
-				Renderer.RenderBackground(
-					spriteBatch,
-					CameraPosition,
-					_assets.Atlas!,
-					Background1.Instance
-				);
-			}
-			else if (CurrentBackground == 0x11)
-			{
-				Renderer.RenderBackground(
-					spriteBatch,
-					CameraPosition,
-					_assets.Atlas!,
-					Background2.Instance
-				);
-			}
-			else if(CurrentBackground == 0x12)
-			{
-				Renderer.RenderBackground(
-					spriteBatch,
-					CameraPosition,
-					_assets.Atlas!,
-					Background3.Instance
-				);
-			}
+				0x11 => Background2.Instance,
+				0x12 => Background3.Instance,
+				_ => Background1.Instance,
+			};
+			Renderer.RenderBackground(
+				spriteBatch,
+				CameraPosition,
+				_assets.Atlas!,
+				background
+			);
+			
 
 			Renderer.RenderTiles(
 				spriteBatch,
@@ -1428,8 +1211,8 @@ namespace AltarElementsZero.src.states.gameplay
 						);
 				}
 			}
-
-			if(state == State.PAUSED || state == State.RESUMING)
+			
+			if(state == State.PAUSED || state == State.RESUMING || state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING)
 			{
 				SpriteEffects transparencyEffect = SpriteEffects.None;
 				if((_animationFrame & 1) == 1)
@@ -1480,6 +1263,15 @@ namespace AltarElementsZero.src.states.gameplay
 
 
 			}
+			if(state == State.ENTERING_GAMEPLAY)
+			{
+				LoadingEffectEnd.Instance.Draw(spriteBatch, _assets.Atlas!);
+			}
+			else if(state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING)
+			{
+				LoadingEffectStart.Instance.Draw(spriteBatch, _assets.Atlas!);
+			}
+			
 
 		}
     }

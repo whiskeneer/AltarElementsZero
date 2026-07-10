@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.editor;
+﻿using AltarElementsZero.src.screenEffects;
+using AltarElementsZero.src.states.editor;
 using AltarElementsZero.src.states.gameplay;
 using AltarElementsZero.src.states.gameplay.vectors;
 using AltarElementsZero.src.states.inputConfig;
@@ -24,11 +25,22 @@ namespace AltarElementsZero.src.states.menu
 			globalAssets: globalAssets
 			)
 	{
-
+		private enum State
+		{
+			ENTERING_MENU,
+			ON_MENU,
+			EXITING_MENU,
+		}
+		private State state = State.ENTERING_MENU;
+		private Payload savedPayload = new IntroPayload("DEFAULT");
 		public override void Enter()
 		{
 			base.Enter();
+			state = State.ENTERING_MENU;
+			LoadingEffectEnd.Instance.Start();
 		}
+
+
 
 		private readonly int BackgroundSpeedX = 1;
 		private readonly int BackgroundSpeedY = -1;
@@ -93,66 +105,102 @@ namespace AltarElementsZero.src.states.menu
 			if (BackgroundPositionY > 0) BackgroundPositionY -= 128;
 			if (BackgroundPositionY <= -128) BackgroundPositionY += 128;
 
-			int listLength = 1;
-			if (CurrentTab == (int)Tab.MAIN) listLength = (int)MainList.LENGTH;
-			else if (CurrentTab == (int)Tab.OPTIONS) listLength = (int)OptionsList.LENGTH;
-
-			if(_inputHandler.IsPressed(Input.Up))
+			if(state == State.ENTERING_MENU)
 			{
-				CurrentItem--;
-				if(CurrentItem < 0) CurrentItem += listLength;
-			}
-			if(_inputHandler.IsPressed(Input.Down))
-			{
-				CurrentItem++;
-				if(CurrentItem >= listLength) CurrentItem -= listLength; 
-			}
-			if(_inputHandler.IsPressed(Input.Jump) || _inputHandler.IsPressed(Input.Pause))
-			{
-				if(CurrentTab == (int)Tab.MAIN)
+				LoadingEffectEnd.Instance.Update();
+				if(LoadingEffectEnd.Instance.IsFinished())
 				{
-					if(CurrentItem == (int)MainList.OPTIONS)
-					{
-						CurrentTab = (int)Tab.OPTIONS;
-						CurrentItem = (int)OptionsList.INPUT;
-					}
-					else if(CurrentItem == (int)MainList.EXIT)
-					{
-						_manager.RequestTransition(new IntroPayload("HELLO"));
-					}
-					else if(CurrentItem == (int)MainList.PLAY)
-					{
-						_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY));
-					}
-				}
-				else if(CurrentTab == (int)Tab.OPTIONS)
-				{
-					if(CurrentItem == (int)OptionsList.BACK)
-					{
-						CurrentTab = (int)Tab.MAIN;
-						CurrentItem = (int)MainList.PLAY;
-					}
-					else if(CurrentItem == (int)OptionsList.EDITOR)
-					{
-						_manager.RequestTransition(new EditorPayload());
-					}
-					else if(CurrentItem == (int)OptionsList.RECORD)
-					{
-						_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY));
-					}
-					else if (CurrentItem == (int)OptionsList.INPUT)
-					{
-						//_inputHandler.SaveKeyboardSettings();	
-						_manager.RequestTransition(new InputConfigPayload());
-
-					}
+					state = State.ON_MENU;
 				}
 			}
+			else if(state == State.EXITING_MENU)
+			{
+				LoadingEffectStart.Instance.Update();
+				if(LoadingEffectStart.Instance.IsFinished())
+				{
+					_manager.RequestTransition(savedPayload);
+				}
+			}
+			else
+			{
+				int listLength = 1;
+				if (CurrentTab == (int)Tab.MAIN) listLength = (int)MainList.LENGTH;
+				else if (CurrentTab == (int)Tab.OPTIONS) listLength = (int)OptionsList.LENGTH;
 
-			TargetPosition(out int targetPositionX, out int targetPositionY);
-			Lerp(CurrentPositionX, CurrentPositionY, targetPositionX, targetPositionY, out int lerpPositionX, out int lerpPositionY);
-			CurrentPositionX = lerpPositionX;
-			CurrentPositionY = lerpPositionY;
+				if(_inputHandler.IsPressed(Input.Up))
+				{
+					CurrentItem--;
+					if(CurrentItem < 0) CurrentItem += listLength;
+				}
+				if(_inputHandler.IsPressed(Input.Down))
+				{
+					CurrentItem++;
+					if(CurrentItem >= listLength) CurrentItem -= listLength; 
+				}
+				if(_inputHandler.IsPressed(Input.Jump) || _inputHandler.IsPressed(Input.Pause))
+				{
+					if(CurrentTab == (int)Tab.MAIN)
+					{
+						if(CurrentItem == (int)MainList.OPTIONS)
+						{
+							CurrentTab = (int)Tab.OPTIONS;
+							CurrentItem = (int)OptionsList.INPUT;
+						}
+						else if(CurrentItem == (int)MainList.EXIT)
+						{
+							//_manager.RequestTransition(new IntroPayload("HELLO"));
+							savedPayload = new IntroPayload("HELLO");
+							state = State.EXITING_MENU;
+							LoadingEffectStart.Instance.Start();
+						}
+						else if(CurrentItem == (int)MainList.PLAY)
+						{
+							//_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY));
+							savedPayload = new GameplayPayload(GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY);
+							state = State.EXITING_MENU;
+							LoadingEffectStart.Instance.Start();
+						}
+					}
+					else if(CurrentTab == (int)Tab.OPTIONS)
+					{
+						if(CurrentItem == (int)OptionsList.BACK)
+						{
+							CurrentTab = (int)Tab.MAIN;
+							CurrentItem = (int)MainList.PLAY;
+						}
+						else if(CurrentItem == (int)OptionsList.EDITOR)
+						{
+							//_manager.RequestTransition(new EditorPayload());
+							savedPayload = new EditorPayload();
+							state = State.EXITING_MENU;
+							LoadingEffectStart.Instance.Start();
+						}
+						else if(CurrentItem == (int)OptionsList.RECORD)
+						{
+							//_manager.RequestTransition(new GameplayPayload(GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY));
+							savedPayload = new GameplayPayload(GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY);
+							state = State.EXITING_MENU;
+							LoadingEffectStart.Instance.Start();
+						}
+						else if (CurrentItem == (int)OptionsList.INPUT)
+						{
+							//_inputHandler.SaveKeyboardSettings();	
+							//_manager.RequestTransition(new InputConfigPayload());
+							savedPayload = new InputConfigPayload();
+							state = State.EXITING_MENU;
+							LoadingEffectStart.Instance.Start();
+
+						}
+					}
+				}
+
+				TargetPosition(out int targetPositionX, out int targetPositionY);
+				Lerp(CurrentPositionX, CurrentPositionY, targetPositionX, targetPositionY, out int lerpPositionX, out int lerpPositionY);
+				CurrentPositionX = lerpPositionX;
+				CurrentPositionY = lerpPositionY;
+
+
+			}
 
 
 		}
@@ -265,6 +313,14 @@ namespace AltarElementsZero.src.states.menu
 			//{
 
 			//}
+			if (state == State.ENTERING_MENU)
+			{
+				LoadingEffectEnd.Instance.Draw(spriteBatch, _assets.Atlas!);
+			}
+			else if (state == State.EXITING_MENU)
+			{
+				LoadingEffectStart.Instance.Draw(spriteBatch, _assets.Atlas!);
+			}
 
 		}
 		public override void Exit()
