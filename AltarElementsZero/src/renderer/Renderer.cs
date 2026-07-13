@@ -3,6 +3,7 @@ using AltarElementsZero.src.states.gameplay.level;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AltarElementsZero.src.renderer
 {
@@ -451,28 +452,57 @@ namespace AltarElementsZero.src.renderer
                 }
             }
         }
+
+        public enum Fonts
+        {
+            FONT8X8,
+            FONT16X16
+        }
+
 		public static void RenderText(
 	        SpriteBatch spriteBatch,
 	        PxPosition position,
 	        Texture2D atlas,
 	        string text,
-            int maxLength
+            int maxLength,
+            Fonts font
         )
         {
+            int fontOriginX, fontOriginY;
+            int fontWidth, fontHeight;
+            switch(font)
+            {
+                case Fonts.FONT8X8:
+                    fontOriginX = 896;
+                    fontOriginY = 656;
+                    fontWidth = 8;
+                    fontHeight = 8;
+                    break;
+                case Fonts.FONT16X16:
+                default:
+                    fontOriginX = 768;
+                    fontOriginY = 768;
+                    fontWidth = 16;
+                    fontHeight = 16;
+                    break;
+            }
+            int row = 0;
+            int col = 0;
+
 			for (int i = 0; i < text.Length && (maxLength == -1 || i < maxLength); i++)
 			{
 				char c = text[i];
 				byte b = (byte)c;
 
 				Vector2 outputVector = new(
-					position.X + i * 16,
-					position.Y
+					position.X + col * fontWidth,
+					position.Y + row * fontHeight
 				);
 				Rectangle sourceRectangle = new(
-					768 + 16 * (b & 0xf),
-					768 + 16 * ((b >> 4) & 0xf),
-					16,
-					16
+					fontOriginX + fontWidth * (b & 0xf),
+					fontOriginY + fontHeight * ((b >> 4) & 0xf),
+					fontWidth,
+					fontHeight
 				);
 
 				spriteBatch.Draw(
@@ -481,6 +511,16 @@ namespace AltarElementsZero.src.renderer
 					sourceRectangle,
 					Color.White
 				);
+
+                if (c == '\n')
+                {
+                    row++;
+                    col = 0;
+                }
+                else 
+                {
+                    col++;
+                }
 			}
 		}
 
@@ -488,7 +528,8 @@ namespace AltarElementsZero.src.renderer
             SpriteBatch spriteBatch,
             PxPosition position,
             Texture2D atlas,
-            string text
+            string text,
+            Fonts font
         )
         {
             RenderText(
@@ -496,8 +537,43 @@ namespace AltarElementsZero.src.renderer
                 position,
                 atlas,
                 text,
-                -1
+                -1,
+                font
             );
         }
-    }
+		public static void RenderText(
+	        SpriteBatch spriteBatch,
+	        PxPosition position,
+	        Texture2D atlas,
+	        string text
+            )
+        {
+			RenderText(
+		        spriteBatch,
+		        position,
+		        atlas,
+		        text,
+		        -1,
+		        Fonts.FONT16X16
+	        );
+		}
+		public static void RenderText(
+			SpriteBatch spriteBatch,
+			PxPosition position,
+			Texture2D atlas,
+			string text,
+			int maxLength
+			)
+		{
+			RenderText(
+				spriteBatch,
+				position,
+				atlas,
+				text,
+				maxLength,
+				Fonts.FONT16X16
+			);
+		}
+
+	}
 }

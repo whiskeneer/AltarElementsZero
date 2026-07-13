@@ -14,6 +14,7 @@ using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 using AltarElementsZero.src.screenEffects;
+using AltarElementsZero.src.states.gameplay.cutscenes;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -54,7 +55,8 @@ namespace AltarElementsZero.src.states.gameplay
         IManager manager,
         GameplayPayload payload,
         GlobalAssets globalAssets,
-        InputHandler inputHandler
+        InputHandler inputHandler,
+		CutsceneManager cutsceneManager
         ) : State<GameplayAssets, GameplayPayload>(
             manager: manager,
             payload: payload,
@@ -63,6 +65,8 @@ namespace AltarElementsZero.src.states.gameplay
             globalAssets: globalAssets
             ), ISignalFlags
     {
+
+		private CutsceneManager _cutsceneManager = cutsceneManager;
 
 		private enum State {
 			ENTERING_GAMEPLAY,
@@ -546,6 +550,14 @@ namespace AltarElementsZero.src.states.gameplay
 
 			UpdateChunk(_level!.GetChunk(chunkX, chunkY));
 			UpdateCamera(player.currentBoundingBox.Center());
+
+			//
+			if(LastActivatedCheckpointValue == 0)
+			{
+				_cutsceneManager.StartCutscene(CutsceneManager.CutsceneID.LEVEL1START);
+			}
+			//
+
 		}
 		private void RestartFromBeginning(){
 			LastActivatedCheckpoint = BeginningCheckpoint;
@@ -563,6 +575,8 @@ namespace AltarElementsZero.src.states.gameplay
         {
             GameObject.inputHandler = _inputHandler;
 			GameObject.signalFlags = this;
+
+			_cutsceneManager.ResetCutscenes();
 
             base.Enter();
 
@@ -617,42 +631,24 @@ namespace AltarElementsZero.src.states.gameplay
 			}
 			else if(state == State.PLAYING)
 			{
-				ResetAssignableObjects();
-
-
-				CalculateDesiredOutcomes();
-				ApplyHorizontalVelocities();
-				CheckHorizontalCollisions();
-				ApplyVerticalVelocities();
-				CheckVerticalCollisions();
-				SeparatePushables();
-				SeparatePushablesFromImmobile();
-
-				for (int o = 0; o < _objectPool.Length; o++)
+				if(_cutsceneManager.IsPlayingACutscene())
 				{
-					GameObject go = _objectPool[o];
-					if (!stopCamera)
-					{
-						if (object.ReferenceEquals(go.behaviour, DebugPusher.Instance) || object.ReferenceEquals(go.behaviour, Ora.Instance))
-						{
-							SubpxPosition focusCenter = go.currentBoundingBox.Center();
-
-							if ((int)focusCenter.X < (int)ChunkLimitLeft ||
-								(int)focusCenter.X > (int)ChunkLimitRight ||
-								(int)focusCenter.Y < (int)ChunkLimitTop ||
-								(int)focusCenter.Y > (int)ChunkLimitBottom
-								)
-							{// focus is outside of chunk!
-								ChunkPosition newChunk = focusCenter.ToPx().ToTile().ToChunk();
-								UpdateChunk(_level.GetChunk((int)newChunk.X, (int)newChunk.Y));
-							}
-
-							UpdateCamera(focusCenter);
-						}
-					}
+					_cutsceneManager.Update();
 				}
+				else
+				{
+					ResetAssignableObjects();
 
-				ProcessGameplayMessages();
+					CalculateDesiredOutcomes();
+					ApplyHorizontalVelocities();
+					CheckHorizontalCollisions();
+					ApplyVerticalVelocities();
+					CheckVerticalCollisions();
+					SeparatePushables();
+					SeparatePushablesFromImmobile();
+					FindCameraTarget();
+					ProcessGameplayMessages();
+				}
 			}
 			else if(state == State.RESUMING)
 			{
@@ -758,7 +754,32 @@ namespace AltarElementsZero.src.states.gameplay
 
 		}
 
-        
+        private void FindCameraTarget()
+		{
+			for (int o = 0; o < _objectPool.Length; o++)
+			{
+				GameObject go = _objectPool[o];
+				if (!stopCamera)
+				{
+					if (object.ReferenceEquals(go.behaviour, DebugPusher.Instance) || object.ReferenceEquals(go.behaviour, Ora.Instance))
+					{
+						SubpxPosition focusCenter = go.currentBoundingBox.Center();
+
+						if ((int)focusCenter.X < (int)ChunkLimitLeft ||
+							(int)focusCenter.X > (int)ChunkLimitRight ||
+							(int)focusCenter.Y < (int)ChunkLimitTop ||
+							(int)focusCenter.Y > (int)ChunkLimitBottom
+							)
+						{// focus is outside of chunk!
+							ChunkPosition newChunk = focusCenter.ToPx().ToTile().ToChunk();
+							UpdateChunk(_level.GetChunk((int)newChunk.X, (int)newChunk.Y));
+						}
+
+						UpdateCamera(focusCenter);
+					}
+				}
+			}
+		}
         private void CalculateDesiredOutcomes()
         {
 			for (int o = 0; o < _objectPool.Length; o++)
@@ -1211,6 +1232,8 @@ namespace AltarElementsZero.src.states.gameplay
 						);
 				}
 			}
+
+			_cutsceneManager.Draw(spriteBatch, _assets.Atlas!);
 			
 			if(state == State.PAUSED || state == State.RESUMING || state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING)
 			{

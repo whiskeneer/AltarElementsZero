@@ -1,4 +1,5 @@
 ﻿using AltarElementsZero.src;
+using AltarElementsZero.src.states.gameplay.cutscenes;
 using AltarElementsZero.src.states.intro;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,6 +8,7 @@ class GameClass : Game
 {
 
     private readonly InputHandler _inputHandler = new();
+    private CutsceneManager? _cutsceneManager;
 
     private SpriteBatch? _spriteBatch;
 
@@ -60,7 +62,9 @@ class GameClass : Game
         _inputHandler.LoadKeyboardSettings();
         _inputHandler.LoadGamepadSettings();
 
-        _manager = new(GraphicsDevice, Services, _globalAssets, _inputHandler);
+        _cutsceneManager = new CutsceneManager(_inputHandler);
+
+        _manager = new(GraphicsDevice, Services, _globalAssets, _inputHandler, _cutsceneManager);
         _manager.RequestTransition(new IntroPayload(debugText: "ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
 
         base.LoadContent();
@@ -72,6 +76,8 @@ class GameClass : Game
 
         _manager!.End();
         _manager = null;
+
+        _cutsceneManager = null;
 
         _globalAssets!.Unload();
         _globalAssets = null;

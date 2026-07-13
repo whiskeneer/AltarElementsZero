@@ -1,5 +1,6 @@
 ﻿using AltarElementsZero.src.states.editor;
 using AltarElementsZero.src.states.gameplay;
+using AltarElementsZero.src.states.gameplay.cutscenes;
 using AltarElementsZero.src.states.inputConfig;
 using AltarElementsZero.src.states.intro;
 using AltarElementsZero.src.states.menu;
@@ -17,13 +18,15 @@ namespace AltarElementsZero.src
 		GraphicsDevice graphicsDevice,
 		GameServiceContainer gameServiceContainer,
 		GlobalAssets globalAssets,
-		InputHandler inputHandler
+		InputHandler inputHandler,
+		CutsceneManager cutsceneManager
 		) : IManager
 	{
 		private readonly GraphicsDevice _graphicsDevice = graphicsDevice;
 		private readonly GameServiceContainer _gameServiceContainer = gameServiceContainer;
 		private readonly GlobalAssets _globalAssets = globalAssets;
 		private readonly InputHandler _inputHandler = inputHandler;
+		private readonly CutsceneManager _cutsceneManager = cutsceneManager;
 
 		private IState? _state = null;
 		private Payload? _payload = null;
@@ -50,7 +53,8 @@ namespace AltarElementsZero.src
 				this,
 				gameplayPayload,
 				_globalAssets,
-				_inputHandler
+				_inputHandler,
+				_cutsceneManager
 				);
 			if (payload is EditorPayload editorPayload) return new Editor(
 				_graphicsDevice,
