@@ -45,7 +45,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-			gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x00);
+			gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x00) - new PxPosition(0,256);
 			gameObject.atlasReference.Size = new PxSize(32, 32);
 			gameObject.atlasReference.Effects = SpriteEffects.None;
 			gameObject.atlasReference.Offset = new PxPosition(10, 6);
@@ -313,38 +313,38 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 					ref uint attackTimer = ref scythe.Timer2;
 					if (attackTimer > 6){
                         //gameObject.spritesheetIndex = 0x18;
-			            gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x18);
+			            gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x18) - new PxPosition(0, 256);
 					}
 					else
 					{
 						//gameObject.spritesheetIndex = 0x19;
-						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x19);
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x19) - new PxPosition(0, 256);
 					}
 				}
                 else if(scythe.State == (uint)Scythe.State.ACTIVE_DOWN)
                 {
                     //gameObject.spritesheetIndex = 0x13;
-					gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x13);
+					gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x13) - new PxPosition(0, 256);
 				}
                 else
                 {
                     if (inputHandler.IsDown(Input.Left))
                     {
 						//gameObject.spritesheetIndex = 0x08 + ((animationTimer>>3) & 0x3);
-						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x08 + ((animationTimer >> 3) & 0x3));
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x08 + ((animationTimer >> 3) & 0x3)) - new PxPosition(0, 256);
 						animationTimer++;
                     }
                     else if (inputHandler.IsDown(Input.Right))
                     {
 						//gameObject.spritesheetIndex = 0x08 + ((animationTimer >> 3) & 0x3);
-						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x08 + ((animationTimer >> 3) & 0x3));
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x08 + ((animationTimer >> 3) & 0x3)) - new PxPosition(0, 256);
 						animationTimer++;
                     }
                     else
                     {
                         animationTimer = 0;
 						//gameObject.spritesheetIndex = 0x2;
-						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x02);
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x02) - new PxPosition(0, 256);
 
 					}
 
@@ -365,18 +365,18 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 					if (attackTimer > 6)
 					{
 						//gameObject.spritesheetIndex = 0x1A;
-						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x1A);
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x1A) - new PxPosition(0, 256);
 					}
 					else
 					{
                         //gameObject.spritesheetIndex = 0x1B;
-                        gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x1B);
+                        gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x1B) - new PxPosition(0, 256);
 					}
 				}
                 else if (scythe.State == (uint)Scythe.State.ACTIVE_DOWN)
                 {
 					//gameObject.spritesheetIndex = 0x13;
-					gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x13);
+					gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x13) - new PxPosition(0, 256);
 				}
 				else
                 { 
@@ -384,20 +384,20 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                     {
                         animationTimer = 0;
 						//gameObject.spritesheetIndex = 0x10;
-						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x10);
+						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x10) - new PxPosition(0, 256);
 					}
 					else
                     {
                         if(animationTimer < 15)
                         {
 						    //gameObject.spritesheetIndex = 0x11;
-							gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x11);
+							gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x11) - new PxPosition(0, 256);
 							animationTimer++;
                         }
                         else
                         {
 							//gameObject.spritesheetIndex = 0x12;
-							gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x12);
+							gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x12) - new PxPosition(0, 256);
 						}
 					}
 
