@@ -289,11 +289,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 				if ((State)gameObject.State == State.LOOKING_LEFT)
 				{
-					gameObject.secondLinkedPosition = new PxPosition((uint)(-16 & 0xffffffff), (uint)(-7 & 0xffffffff)).ToSubpx();
+					//gameObject.secondLinkedPosition = new PxPosition((uint)(-16 & 0xffffffff), (uint)(-7 & 0xffffffff)).ToSubpx();
+					gameObject.secondLinkedPosition = new PxPosition((uint)(-(gameObject.secondLinkedObject.currentBoundingBox.Size.ToPx().X) & 0xffffffff), (uint)((-7 + 16 - gameObject.secondLinkedObject.currentBoundingBox.Size.ToPx().Y) & 0xffffffff)).ToSubpx();
 				}
 				else
 				{
-					gameObject.secondLinkedPosition = new PxPosition((uint)(11 & 0xffffffff), (uint)(-7 & 0xffffffff)).ToSubpx();
+					gameObject.secondLinkedPosition = new PxPosition((uint)(11 & 0xffffffff), (uint)((-7 + 16 - gameObject.secondLinkedObject.currentBoundingBox.Size.ToPx().Y) & 0xffffffff)).ToSubpx();
 				}
 
 				if (inputHandler.IsPressed(Input.Attack))

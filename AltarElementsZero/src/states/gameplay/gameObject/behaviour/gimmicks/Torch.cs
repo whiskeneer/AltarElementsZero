@@ -29,12 +29,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 			gameObject.isPersistentAcrossChunks = false;
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
-			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x33);
-			gameObject.atlasReference.Size = new PxSize(16, 16);
+			gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x33) + new PxPosition(5,0);
+			gameObject.atlasReference.Size = new PxSize(6, 16);
 			gameObject.atlasReference.Effects = SpriteEffects.None;
-			gameObject.atlasReference.Offset = new PxPosition(0, 0);
+			gameObject.atlasReference.Offset = new PxPosition(0, 4);
 
-			gameObject.currentBoundingBox.Size = new PxSize(16, 16).ToSubpx();
+			gameObject.currentBoundingBox.Size = new PxSize(6, 12).ToSubpx();
 			gameObject.State = (uint)State.OFF;
 		}
 
@@ -55,17 +55,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 			animationTimer++;
 			if (gameObject.State == (uint)State.OFF)
 			{
-				gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x33);
+				gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x33) + new PxPosition(5, 0);
 			}
 			else
 			{
 				if((animationTimer & 0x4) == 0x4)
 				{
-					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x34);
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x34) + new PxPosition(5, 0);
 				}
 				else
 				{
-					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x34) + new PxPosition(16,0);
+					gameObject.atlasReference.Start = LegacyMapper.StartFromObjectSpritesheetIndex(0x34) + new PxPosition(16,0) + new PxPosition(5, 0);
 				}
 			}
 			gameObject.SimulateRegularObjectPhysics();
