@@ -28,6 +28,7 @@ namespace AltarElementsZero.src.states.gameplay
 		Teleport = 1 << 3,
 		Pause = 1 << 4,
 		TriggerLevel1EndCutscene = 1 << 5,
+		TriggerLevel1BossTransition = 1 << 6,
 	}
 
 	interface ISignalFlags
@@ -77,7 +78,17 @@ namespace AltarElementsZero.src.states.gameplay
 			RESUMING,
 			GOING_TO_CHECKPOINT,
 			RESTARTING,
-			EXITING
+			EXITING,
+
+			GOING_TO_BOSS_STAGE,
+			ENTERING_BOSS_STAGE,
+
+			// Level 1 Boss
+			PANNING_UP,
+			WAITING_ABOVE,
+			PANNING_DOWN,
+
+
 
 		};
 		private enum PauseOptions{
@@ -92,6 +103,8 @@ namespace AltarElementsZero.src.states.gameplay
 		private int pauseFramePosition = 0;
 		private int enteringPauseFramePosition = 128*4;
 		private int enteringPauseOptionsPosition = 256*4;
+
+		private int cutsceneTimer = 0;
 
 		public bool CreateGameObject(IBehaviour behaviour, byte spawnValue, SubpxPosition position){
 			int nextAssignableObject = GetNextAssignableObject();
@@ -130,10 +143,17 @@ namespace AltarElementsZero.src.states.gameplay
 			else if((gameplayMessages & GameplayMessages.Teleport) == GameplayMessages.Teleport)
 			{
 				Teleport();
+				teleportChunkRelativeX = 0;
+				teleportChunkRelativeY = 0;
 			}
 			else if ((gameplayMessages & GameplayMessages.TriggerLevel1EndCutscene) == GameplayMessages.TriggerLevel1EndCutscene)
 			{
 				_cutsceneManager.StartCutscene(CutsceneManager.CutsceneID.LEVEL1BOSS);
+			}
+			else if((gameplayMessages & GameplayMessages.TriggerLevel1BossTransition) == GameplayMessages.TriggerLevel1BossTransition)
+			{
+				state = State.GOING_TO_BOSS_STAGE;
+				LoadingEffectStart.Instance.Start();
 			}
 			else if((gameplayMessages & GameplayMessages.Pause) == GameplayMessages.Pause)
 			{
@@ -151,8 +171,7 @@ namespace AltarElementsZero.src.states.gameplay
 			}	
 
 			//
-			teleportChunkRelativeX = 0;
-			teleportChunkRelativeY = 0;
+
 			gameplayMessages = GameplayMessages.None;
 		}
 
@@ -426,6 +445,7 @@ namespace AltarElementsZero.src.states.gameplay
 							Tile.Families.ClockKey => ClockKey.Instance,
 							Tile.Families.PortalIn => Portal.Instance,
 							Tile.Families.Level1EndTrigger => Level1EndTrigger.Instance,
+							Tile.Families.Level1EndFloor => FloorLevel1EndCutscene.Instance,
 							_ => EmptyObject.Instance,
 						};
 
@@ -636,6 +656,44 @@ namespace AltarElementsZero.src.states.gameplay
 					state = State.PLAYING;
 				}
 			}
+			else if(state == State.ENTERING_BOSS_STAGE)
+			{ 
+				LoadingEffectEnd.Instance.Update();
+				if(LoadingEffectEnd.Instance.IsFinished())
+				{
+					//state = State.PLAYING;
+					state = State.PANNING_UP;
+				}
+			}
+			else if(state == State.PANNING_UP)
+			{
+				CameraPosition.Y -= 2;
+				if(CameraPosition.Y <= (ChunkLimitTop >> Configuration.Px.SubpxPower))
+				{
+					state = State.WAITING_ABOVE;
+					//Console.WriteLine("WAITING ABOVE");
+					cutsceneTimer = 0;
+
+				}
+			}
+			else if(state == State.WAITING_ABOVE)
+			{
+				cutsceneTimer++;
+				if(cutsceneTimer >= 90)
+				{
+					state = State.PANNING_DOWN;
+				}
+			}
+			else if(state == State.PANNING_DOWN)
+			{
+				CameraPosition.Y += 2;
+				//if (CameraPosition.Y >= (ChunkLimitTop >> Configuration.Px.SubpxPower))
+				if(CameraPosition.Y >= (((int)_objectPool[0].currentBoundingBox.Center().ToPx().Y - (Configuration.VisibleScreen.Px.Height >> 1))))
+				{
+					state = State.PLAYING;
+
+				}
+			}
 			else if(state == State.PLAYING)
 			{
 				if(_cutsceneManager.IsPlayingACutscene())
@@ -748,6 +806,19 @@ namespace AltarElementsZero.src.states.gameplay
 					LoadingEffectEnd.Instance.Start();
 				}
 			}
+			else if(state == State.GOING_TO_BOSS_STAGE)
+			{
+				LoadingEffectStart.Instance.Update();
+				if (LoadingEffectStart.Instance.IsFinished())
+				{
+					Teleport();
+					//CameraPosition += new PxPosition(0,(uint)Configuration.Chunk.Px.Height);
+					CameraPosition.Y = (ChunkLimitBottom >> Configuration.Px.SubpxPower) - (uint)Configuration.Chunk.Px.Height;
+					state = State.ENTERING_BOSS_STAGE;
+					LoadingEffectEnd.Instance.Start();
+
+				}
+			}
 			else if(state== State.EXITING)
 			{
 				LoadingEffectStart.Instance.Update();
@@ -779,7 +850,7 @@ namespace AltarElementsZero.src.states.gameplay
 							)
 						{// focus is outside of chunk!
 							ChunkPosition newChunk = focusCenter.ToPx().ToTile().ToChunk();
-							UpdateChunk(_level.GetChunk((int)newChunk.X, (int)newChunk.Y));
+							UpdateChunk(_level!.GetChunk((int)newChunk.X, (int)newChunk.Y));
 						}
 
 						UpdateCamera(focusCenter);
@@ -1240,6 +1311,23 @@ namespace AltarElementsZero.src.states.gameplay
 				}
 			}
 
+			if(state == State.WAITING_ABOVE)
+			{
+				PxPosition mermaidSprite = ((cutsceneTimer >> 3) & 0x03) switch
+				{
+					0 => new PxPosition(256 + 32, 512),
+					2 => new PxPosition(256 + 64, 512),
+					_ => new PxPosition(256, 512),
+				};
+				spriteBatch.Draw(
+					_assets.Atlas,
+					new Vector2(Configuration.VisibleScreen.Px.Width/2 + (cutsceneTimer - 45) * 4 ,32),
+					new Rectangle((int)mermaidSprite.X, (int)mermaidSprite.Y, 32, 32),
+					Color.White,
+					0f, Vector2.Zero, 1f, SpriteEffects.FlipHorizontally, 0f
+					);
+			}
+
 			_cutsceneManager.Draw(spriteBatch, _assets.Atlas!);
 			
 			if(state == State.PAUSED || state == State.RESUMING || state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING)
@@ -1293,11 +1381,11 @@ namespace AltarElementsZero.src.states.gameplay
 
 
 			}
-			if(state == State.ENTERING_GAMEPLAY)
+			if(state == State.ENTERING_GAMEPLAY || state == State.ENTERING_BOSS_STAGE)
 			{
 				LoadingEffectEnd.Instance.Draw(spriteBatch, _assets.Atlas!);
 			}
-			else if(state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING)
+			else if(state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING || state == State.GOING_TO_BOSS_STAGE)
 			{
 				LoadingEffectStart.Instance.Draw(spriteBatch, _assets.Atlas!);
 			}

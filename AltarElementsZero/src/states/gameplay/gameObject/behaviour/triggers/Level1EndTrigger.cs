@@ -61,6 +61,136 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.triggers
 		}
 	}
 
+	class FloorLevel1EndCutscene : IBehaviour
+	{
+		public static readonly FloorLevel1EndCutscene Instance = new();
+
+		public enum State
+		{
+			SOLID,
+			BREAKING,
+			BROKEN
+		}
+		public enum FlagTypes : UInt32
+		{
+			None = 0,
+			Break = 1 << 0,
+		}
+		public void Init(GameObject gameObject)
+		{
+			gameObject.Type = GameObject.Types.IMMOBILE;
+			gameObject.isPersistentAcrossChunks = false;
+			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
+			gameObject.currentBoundingBox.Size = new PxSize(160, 16).ToSubpx();
+			gameObject.atlasReference.Start = new PxPosition(512, 832);
+			gameObject.atlasReference.Size = new PxSize(32, 32);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(0, 8);
+			gameObject.atlasReference.RepeatX = 4;
+
+			gameObject.State = (uint)State.SOLID;
+		}
+		public void Update(GameObject gameObject)
+		{
+			switch((State)gameObject.State)
+			{
+				case State.SOLID:
+					if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Break) == FlagTypes.Break)
+					{
+						gameObject.State = (uint)State.BREAKING;
+						gameObject.Timer = 0;
+					}
+					break;
+				case State.BREAKING:
+					gameObject.Timer++;
+
+					gameObject.atlasReference.Start = ((gameObject.Timer >> 2) & 1) switch
+					{
+						1 => new PxPosition(512 + 32, 832),
+						_ => new PxPosition(512 + 64, 832),
+					};
+
+					if(gameObject.Timer >= 90)
+					{
+						gameObject.State = (uint)State.BROKEN;
+						gameObject.Timer = 0;
+
+						gameObject.Type = GameObject.Types.PUSHABLE;
+						//gameObject.currentBoundingBox.Size = new();
+					}
+
+					break;
+				case State.BROKEN:
+					gameObject.Timer++;
+					gameObject.atlasReference.Start = new PxPosition(512 + 96, 832);
+
+					if(gameObject.Timer >= 90)
+					{
+						GameObject.signalFlags!.SetTeleportDestiny(1, 0);
+						GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.TriggerLevel1BossTransition);
+					}
+					break;
+			}
+
+		}
+
+		public void Interact(GameObject own, GameObject other)
+		{
+			if(other.behaviour == TridentLevel1EndCutscene.Instance)
+			{
+				own.InteractionFlags |= (uint)FlagTypes.Break;
+			}
+		}
+
+	}
+
+	class TridentLevel1EndCutscene : IBehaviour
+	{
+
+		public static readonly TridentLevel1EndCutscene Instance = new();
+
+		public enum State
+		{
+			HELD,
+			THROWN
+		}
+
+		public void Init(GameObject gameObject)
+		{
+			gameObject.Type = GameObject.Types.REGION;
+			gameObject.isPersistentAcrossChunks = false;
+			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
+			gameObject.currentBoundingBox.Size = new PxSize(9, 24).ToSubpx();
+			gameObject.atlasReference.Start = new PxPosition(352, 552);
+			gameObject.atlasReference.Size = new PxSize(9, 24);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(0, 0);
+
+			gameObject.State = (uint)State.HELD;
+			gameObject.Timer = 0;
+		}
+		public void Update(GameObject gameObject)
+		{
+			if (gameObject.State == (uint)State.HELD)
+			{
+				gameObject.Timer++;
+				if(gameObject.Timer == 60)
+				{
+					gameObject.State = (uint)State.THROWN;
+					gameObject.Timer = 0;
+				}
+			}
+			if(gameObject.State == (uint)State.THROWN)
+			{
+				gameObject.currentBoundingBox.Position += new PxPosition(0, 2).ToSubpx();
+			}
+		}
+		public void Interact(GameObject own, GameObject other)
+		{
+
+		}
+	}
+
 	class MermaidLevel1EndCutscene : IBehaviour
 	{
 		public static readonly MermaidLevel1EndCutscene Instance = new();
@@ -149,6 +279,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.triggers
 					{
 						gameObject.atlasReference.Start = new PxPosition(256 + 32, 544);
 					}
+					if(actionTimer == 60)
+					{
+						// create trident
+						GameObject.signalFlags!.CreateGameObject(
+							TridentLevel1EndCutscene.Instance,
+							0,
+							gameObject.currentBoundingBox.Position + new PxPosition(1, 3).ToSubpx()
+						);
+					}
+
+
 					if(actionTimer >= 120)
 					{
 						actionTimer = 0;

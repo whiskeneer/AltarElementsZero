@@ -62,8 +62,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             gameObject.State = (uint)State.LOOKING_RIGHT;
 			gameObject.SubState = (uint)SubState.NORMAL;
 
+			gameObject.InteractionFlags = 0;
 
-        }
+			//Console.WriteLine("NORMAL");
+
+
+		}
 
 		static private void ThrowHeldObject(GameObject gameObject)
 		{
@@ -122,6 +126,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.StopReadingInput) == FlagTypes.StopReadingInput)
 			{
 				gameObject.SubState = (uint)SubState.NO_INPUT;
+				//Console.WriteLine("NO INPUT");
+
 			}
 			bool readingInput = gameObject.SubState == (uint)SubState.NORMAL;
 
