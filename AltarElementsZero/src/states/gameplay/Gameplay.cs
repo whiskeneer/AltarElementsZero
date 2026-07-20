@@ -15,6 +15,7 @@ using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 using AltarElementsZero.src.screenEffects;
 using AltarElementsZero.src.states.gameplay.cutscenes;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.triggers;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -26,6 +27,7 @@ namespace AltarElementsZero.src.states.gameplay
 		RestartFromBeginning = 1 << 2,
 		Teleport = 1 << 3,
 		Pause = 1 << 4,
+		TriggerLevel1EndCutscene = 1 << 5,
 	}
 
 	interface ISignalFlags
@@ -128,6 +130,10 @@ namespace AltarElementsZero.src.states.gameplay
 			else if((gameplayMessages & GameplayMessages.Teleport) == GameplayMessages.Teleport)
 			{
 				Teleport();
+			}
+			else if ((gameplayMessages & GameplayMessages.TriggerLevel1EndCutscene) == GameplayMessages.TriggerLevel1EndCutscene)
+			{
+				_cutsceneManager.StartCutscene(CutsceneManager.CutsceneID.LEVEL1BOSS);
 			}
 			else if((gameplayMessages & GameplayMessages.Pause) == GameplayMessages.Pause)
 			{
@@ -419,6 +425,7 @@ namespace AltarElementsZero.src.states.gameplay
 							Tile.Families.Water => WaterRegion.Instance,
 							Tile.Families.ClockKey => ClockKey.Instance,
 							Tile.Families.PortalIn => Portal.Instance,
+							Tile.Families.Level1EndTrigger => Level1EndTrigger.Instance,
 							_ => EmptyObject.Instance,
 						};
 

@@ -3,6 +3,7 @@ using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.triggers;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,6 +16,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
         {
             None = 0,
             Hurt = 1 << 0,
+			StopReadingInput = 1 << 1,
         }
 
         public static readonly Ora Instance = new();
@@ -24,6 +26,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             LOOKING_RIGHT,
             LOOKING_LEFT
         }
+		public enum SubState : uint
+		{
+			NORMAL,
+			NO_INPUT
+		}
 
         private const int GROUND_IMPULSE = 64+16;
         private const int AIR_IMPULSE = 128;
@@ -53,6 +60,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			gameObject.currentBoundingBox.Size = new PxSize(11, 24).ToSubpx();
 
             gameObject.State = (uint)State.LOOKING_RIGHT;
+			gameObject.SubState = (uint)SubState.NORMAL;
 
 
         }
@@ -93,10 +101,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
             //
 
-            if(inputHandler.IsPressed(Input.Pause)){
+            if(inputHandler.IsPressed(Input.Pause))
+			{
 				//GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Exit);
 				GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Pause);
-
 			}
 
             if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
@@ -111,12 +119,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				gameObject.currentBoundingBox.Position = center;
                 return;
 			}
-            
-
+            if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.StopReadingInput) == FlagTypes.StopReadingInput)
+			{
+				gameObject.SubState = (uint)SubState.NO_INPUT;
+			}
+			bool readingInput = gameObject.SubState == (uint)SubState.NORMAL;
 
 			// PHYSICS
 
-			if (inputHandler.IsDown(Input.Left))
+			if (readingInput && inputHandler.IsDown(Input.Left))
             {
                 gameObject.AirImpulse = new(-AIR_IMPULSE, 0);
                 gameObject.GroundImpulse = -GROUND_IMPULSE;
@@ -131,7 +142,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 
 			}
-			else if (inputHandler.IsDown(Input.Right))
+			else if (readingInput && inputHandler.IsDown(Input.Right))
             {
 				gameObject.AirImpulse = new(AIR_IMPULSE, 0);
                 gameObject.GroundImpulse = GROUND_IMPULSE;
@@ -156,7 +167,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 
 			// JUMP BUFFERING
-			if(inputHandler.IsPressed(Input.Jump))
+			if(readingInput && inputHandler.IsPressed(Input.Jump))
 			{
 				jumpBuffer = JUMP_BUFFER_TIME;
 			}
@@ -178,7 +189,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			}
             else if(jumpTimer > 0)
             {
-                if (!inputHandler.IsDown(Input.Jump))
+                if (!(readingInput && inputHandler.IsDown(Input.Jump)))
                 {
                     jumpTimer = 0;
                 }
@@ -206,11 +217,11 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			// SCYTHE SYNCHRONIZATION
 
 
-			if (inputHandler.IsPressed(Input.Attack))
+			if (readingInput && inputHandler.IsPressed(Input.Attack))
 			{
 				if (scythe.State == (uint)Scythe.State.INACTIVE && gameObject.secondLinkedObject == null)
 				{
-					if (inputHandler.IsDown(Input.Down) && !(gameObject.PushedUp || gameObject.PushedPreviouslyUp))
+					if (readingInput && inputHandler.IsDown(Input.Down) && !(gameObject.PushedUp || gameObject.PushedPreviouslyUp))
 					{
 						if (gameObject.previousVelocity.Y < 0)
 						{
@@ -297,7 +308,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 					gameObject.secondLinkedPosition = new PxPosition((uint)(11 & 0xffffffff), (uint)((-7 + 16 - gameObject.secondLinkedObject.currentBoundingBox.Size.ToPx().Y) & 0xffffffff)).ToSubpx();
 				}
 
-				if (inputHandler.IsPressed(Input.Attack))
+				if (readingInput && inputHandler.IsPressed(Input.Attack))
 				{
 					ThrowHeldObject(gameObject);
 				}
@@ -329,13 +340,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				}
                 else
                 {
-                    if (inputHandler.IsDown(Input.Left))
+                    if (readingInput && inputHandler.IsDown(Input.Left))
                     {
 						//gameObject.spritesheetIndex = 0x08 + ((animationTimer>>3) & 0x3);
 						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x08 + ((animationTimer >> 3) & 0x3)) - new PxPosition(0, 256);
 						animationTimer++;
                     }
-                    else if (inputHandler.IsDown(Input.Right))
+                    else if (readingInput && inputHandler.IsDown(Input.Right))
                     {
 						//gameObject.spritesheetIndex = 0x08 + ((animationTimer >> 3) & 0x3);
 						gameObject.atlasReference.Start = LegacyMapper.StartFromOraSpritesheetIndex(0x08 + ((animationTimer >> 3) & 0x3)) - new PxPosition(0, 256);
@@ -421,10 +432,18 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 		public void Interact(GameObject own, GameObject other)
 		{
             IBehaviour otherBehaviour = other.behaviour;
-            // Can this be optimized?
-            // (I could use extra GameObject bools but I'm starting
-            //  to worry about the potential size of the objectPool)
-            if(otherBehaviour == Arrow.Instance)
+
+			bool readingInput = own.SubState == (uint)SubState.NORMAL;
+
+			// Can this be optimized?
+			// (I could use extra GameObject bools but I'm starting
+			//  to worry about the potential size of the objectPool)
+			if (otherBehaviour == Level1EndTrigger.Instance)
+			{
+                own.InteractionFlags |= (UInt32) FlagTypes.StopReadingInput;
+			}
+
+			if (otherBehaviour == Arrow.Instance)
             {   
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
             }
@@ -463,7 +482,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 			if (own.secondLinkedObject == null && 
                 (otherBehaviour == DebugBox.Instance || otherBehaviour == Torch.Instance) &&
-                GameObject.inputHandler!.IsPressed(Input.Attack))
+				readingInput && GameObject.inputHandler!.IsPressed(Input.Attack))
             {
                 ObjectBoundingBox checkingBoundingBox = own.currentBoundingBox;
 

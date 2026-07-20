@@ -474,7 +474,7 @@ namespace AltarElementsZero.src.renderer
             {
                 case Fonts.FONT8X8:
                     fontOriginX = 896;
-                    fontOriginY = 656;
+                    fontOriginY = 640;
                     fontWidth = 8;
                     fontHeight = 8;
                     break;

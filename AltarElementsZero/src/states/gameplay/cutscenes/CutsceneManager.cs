@@ -24,13 +24,25 @@ namespace AltarElementsZero.src.states.gameplay.cutscenes
 		private readonly Cutscene[] Cutscenes = new Cutscene[(int)CutsceneID.CUTSCENES_LENGTH]{
 			new Cutscene(
 				new Dialogue[]{
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "hola"),
-					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, "hola"),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "adios"),
-					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, "adios")
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "hola"),
+					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, "hola"),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "adios"),
+					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, "adios")
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "alguien\naprovechó\nmientras\ndormía para"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "robar mis\nPODERES DEL\nTIEMPO."),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "ya se las\nverá conmigo"),
 				}
 			),
-			new Cutscene()
+			new Cutscene(
+				new Dialogue[]{
+					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " EY!!!"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "holaquetal"),
+					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " ESTOY MUY\n ENOJADA\n CONTIGO!!!"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "no serías\nla primera"),
+					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " PAGARÁS POR\n LO QUE\n HICISTE"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "bueno"),
+				}
+			)
 		};
 		public void ResetCutscenes()
 		{

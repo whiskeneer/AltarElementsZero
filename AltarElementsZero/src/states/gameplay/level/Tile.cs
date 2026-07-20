@@ -164,11 +164,13 @@ namespace AltarElementsZero.src.states.gameplay.level
 
 
 
-			Toki = 128,
+			Toki = 0x80,
             MovingPlatform1,
 
-            Ufo = 128 + 16,
+            Ufo = 0x90,
             BreakableTile,
+
+            Level1EndTrigger = 0xA0,
 
             Barrel = 0xd0,
             Fire,
@@ -235,7 +237,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 			"UFO",     "BRKABLE", "UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+			"LVL1ENDT","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
