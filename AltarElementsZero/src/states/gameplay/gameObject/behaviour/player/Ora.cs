@@ -430,7 +430,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             }
 			if (otherBehaviour == Barrel.Instance && (Barrel.State)other.State != Barrel.State.STOPPED)
 			{
-                own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
+				if((Barrel.State)other.State == Barrel.State.GOING_LEFT && own.currentBoundingBox.Center().X < other.currentBoundingBox.Center().X)
+				{
+					own.InteractionFlags |= (UInt32) FlagTypes.Hurt;	
+				}
+				else if ((Barrel.State)other.State == Barrel.State.GOING_RIGHT && own.currentBoundingBox.Center().X > other.currentBoundingBox.Center().X)
+				{
+					own.InteractionFlags |= (UInt32)FlagTypes.Hurt;
+				}
 			}
 			if (otherBehaviour == Fire.Instance)
 			{
@@ -475,7 +482,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                     own.secondLinkedObject = other;
                     other.isPersistentAcrossChunks = true;
 
-                }
+					if ((State)own.State == State.LOOKING_LEFT)
+					{
+						//gameObject.secondLinkedPosition = new PxPosition((uint)(-16 & 0xffffffff), (uint)(-7 & 0xffffffff)).ToSubpx();
+						own.secondLinkedPosition = new PxPosition((uint)(-(own.secondLinkedObject.currentBoundingBox.Size.ToPx().X) & 0xffffffff), (uint)((-7 + 16 - own.secondLinkedObject.currentBoundingBox.Size.ToPx().Y) & 0xffffffff)).ToSubpx();
+					}
+					else
+					{
+						own.secondLinkedPosition = new PxPosition((uint)(11 & 0xffffffff), (uint)((-7 + 16 - own.secondLinkedObject.currentBoundingBox.Size.ToPx().Y) & 0xffffffff)).ToSubpx();
+					}
+
+				}
 
             }
 
