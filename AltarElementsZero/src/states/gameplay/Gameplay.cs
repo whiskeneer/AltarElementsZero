@@ -552,7 +552,7 @@ namespace AltarElementsZero.src.states.gameplay
 			UpdateCamera(player.currentBoundingBox.Center());
 
 			//
-			if(LastActivatedCheckpointValue == 0)
+			if(LastActivatedCheckpointValue == 0 && _payload.Configuration == GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY)
 			{
 				_cutsceneManager.StartCutscene(CutsceneManager.CutsceneID.LEVEL1START);
 			}

@@ -36,7 +36,7 @@ namespace AltarElementsZero.src.states.gameplay.cutscenes
 		{
 			for (int i = 0; i < Cutscenes.Length; i++)
 			{
-				Cutscene cutscene = Cutscenes[i];
+				ref Cutscene cutscene = ref Cutscenes[i];
 				cutscene.Played = false;
 			}
 		}
