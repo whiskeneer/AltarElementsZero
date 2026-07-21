@@ -5,6 +5,88 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 {
+
+	class Boss1MovingPlatform : IBehaviour
+	{
+		public static readonly Boss1MovingPlatform Instance = new();
+
+		public static byte GetSpawnValueFromParameters(int tileOffsetX, bool movingRight, uint floorLevel)
+		{
+			byte b = 0;
+			if (movingRight) b |= 0x80;
+			b |= (byte)((floorLevel << 4)&0x30); // for sprite selection
+			b |= (byte)(tileOffsetX & 0x0f);
+			return b;
+		}
+		public static void GetParametersFromSpawnValue(byte spawnValue, out int tileOffsetX,out bool movingRight,out uint floorLevel)
+		{
+			movingRight = (spawnValue & 0x80) == 0x80;
+			floorLevel = (uint)(spawnValue >> 4) & 0x3;
+			tileOffsetX = (spawnValue & 0xf);
+			if ((tileOffsetX & 0x8) == 0x8) tileOffsetX |= ~(0xf);
+		}
+
+		private enum State
+		{
+			GOING_RIGHT,
+			GOING_LEFT,
+		}
+		public void Init(GameObject gameObject)
+		{
+			GetParametersFromSpawnValue(gameObject.spawnValue, out int tileOffsetX, out bool movingRight, out uint floorLevel);
+
+			gameObject.Type = GameObject.Types.UNSTOPPABLE;
+			gameObject.isPersistentAcrossChunks = false;
+
+			gameObject.drawOrder = GameObject.DrawOrderTypes.MIDDLE;
+			gameObject.atlasReference.Start = new PxPosition(512 + 32 * floorLevel, 864);
+			gameObject.atlasReference.Size = new PxSize(32, 16);
+			gameObject.atlasReference.Effects = SpriteEffects.None;
+			gameObject.atlasReference.Offset = new PxPosition(0, 0);
+
+			gameObject.currentBoundingBox.Position += new TilePosition((uint)(tileOffsetX & uint.MaxValue), 0).ToPx().ToSubpx();
+			gameObject.previousBoundingBox.Position = gameObject.currentBoundingBox.Position;
+
+			gameObject.currentBoundingBox.Size = new PxSize(32, 16).ToSubpx();
+
+			gameObject.State = movingRight switch 
+			{	
+				true => (uint)State.GOING_RIGHT,
+				_ => (uint)State.GOING_LEFT,
+			};
+		}
+		public void Update(GameObject gameObject)
+		{
+			GameObject.signalFlags!.GetChunkLimits(out uint _, out uint _, out uint limitLeft, out uint limitRight);
+
+			switch ((State)gameObject.State)
+			{
+				case State.GOING_LEFT:
+					gameObject.currentVelocity = new SubpxVelocity(-(1 << Configuration.Px.SubpxPower),0);
+					if (gameObject.currentBoundingBox.Position.X + gameObject.currentBoundingBox.Size.X <= limitLeft)
+					{
+						gameObject.previousBoundingBox.Position.X += (uint)16 << Configuration.Tile.SubpxPower;
+						gameObject.currentBoundingBox.Position.X += (uint)16 << Configuration.Tile.SubpxPower;
+					}
+					break;
+				case State.GOING_RIGHT:
+					gameObject.currentVelocity = new SubpxVelocity((1 << Configuration.Px.SubpxPower),0);
+					if(gameObject.currentBoundingBox.Position.X >= limitRight)
+					{
+						gameObject.previousBoundingBox.Position.X -= (uint)16 << Configuration.Tile.SubpxPower;
+						gameObject.currentBoundingBox.Position.X -= (uint)16 << Configuration.Tile.SubpxPower;
+					}
+					break;
+			}
+
+		}
+		public void Interact(GameObject own, GameObject other)
+		{
+
+		}
+	}
+
+
 	class Trident : IBehaviour
 	{
 		public static readonly Trident Instance = new();

@@ -476,6 +476,7 @@ namespace AltarElementsZero.src.states.gameplay
 							Tile.Families.Level1EndTrigger => Level1EndTrigger.Instance,
 							Tile.Families.Level1EndFloor => FloorLevel1EndCutscene.Instance,
 							Tile.Families.Mermaid => Mermaid.Instance,
+							Tile.Families.Boss1MovingPlatform => Boss1MovingPlatform.Instance,
 							_ => EmptyObject.Instance,
 						};
 

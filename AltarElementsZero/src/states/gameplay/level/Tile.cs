@@ -173,6 +173,7 @@ namespace AltarElementsZero.src.states.gameplay.level
             Level1EndTrigger = 0xA0,
             Level1EndFloor,
             Mermaid,
+            Boss1MovingPlatform,
 
             Barrel = 0xd0,
             Fire,
@@ -239,7 +240,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 			"UFO",     "BRKABLE", "UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
-			"LVL1ENDT","LVL1ENDF","MERMAID" ,"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+			"LVL1ENDT","LVL1ENDF","MERMAID" ,"MOV PLAT","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
