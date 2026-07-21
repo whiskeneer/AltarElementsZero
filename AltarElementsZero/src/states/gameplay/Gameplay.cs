@@ -135,7 +135,7 @@ namespace AltarElementsZero.src.states.gameplay
 			self.linkedObject = newObject;
 
 
-			Console.WriteLine("CREATED");
+			//Console.WriteLine("CREATED");
 
 			return true;
 		}

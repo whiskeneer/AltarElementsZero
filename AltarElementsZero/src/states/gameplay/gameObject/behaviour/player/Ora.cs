@@ -1,4 +1,5 @@
 ﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.debug;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.effects;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies;
@@ -460,6 +461,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
             {   
                 own.InteractionFlags |= (UInt32) FlagTypes.Hurt;
             }
+			if (otherBehaviour == Trident.Instance)
+			{
+				own.InteractionFlags |= (UInt32)FlagTypes.Hurt;
+			}
 			if (otherBehaviour == Barrel.Instance && (Barrel.State)other.State != Barrel.State.STOPPED)
 			{
 				if((Barrel.State)other.State == Barrel.State.GOING_LEFT && own.currentBoundingBox.Center().X < other.currentBoundingBox.Center().X)

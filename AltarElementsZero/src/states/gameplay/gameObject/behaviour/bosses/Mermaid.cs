@@ -1,21 +1,34 @@
 ﻿using AltarElementsZero.src.renderer;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.player;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 {
-	class TridentRight : IBehaviour
+	class Trident : IBehaviour
 	{
-		public static readonly TridentRight Instance = new();
+		public static readonly Trident Instance = new();
+
+		public enum SpawnValue
+		{
+			FACING_RIGHT,
+			FACING_LEFT,
+		}
+
 		public void Init(GameObject gameObject)
 		{
 			gameObject.Type = GameObject.Types.REGION;
 			gameObject.isPersistentAcrossChunks = false;
 
 			gameObject.drawOrder = GameObject.DrawOrderTypes.FRONT;
+
 			gameObject.atlasReference.Start = new PxPosition(320, 544);
 			gameObject.atlasReference.Size = new PxSize(24, 9);
-			gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
+			gameObject.atlasReference.Effects = (SpawnValue)gameObject.spawnValue switch
+			{
+				SpawnValue.FACING_RIGHT => SpriteEffects.FlipHorizontally,
+				_ => SpriteEffects.None,
+			};
 			gameObject.atlasReference.Offset = new PxPosition(1, 3);
 
 			gameObject.currentBoundingBox.Size = new PxSize(22, 3).ToSubpx();
@@ -30,13 +43,26 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 			if(gameObject.Timer >= Mermaid.ATTACKING_HOLDING_TIME)
 			{
 				gameObject.atlasReference.Start = new PxPosition(320, 560);
-				gameObject.currentBoundingBox.Position.X += (uint)(2 << Configuration.Px.SubpxPower);
-				GameObject.signalFlags!.GetChunkLimits(out uint _, out uint _, out uint _, out uint limitRight);
-				if(gameObject.currentBoundingBox.Position.X > limitRight)
+
+				if((SpawnValue)gameObject.spawnValue == SpawnValue.FACING_RIGHT)
 				{
-					//Console.WriteLine("I DONT EXIST ANYMORE");
-					gameObject.Delete();
+					gameObject.currentBoundingBox.Position.X += (uint)(2 << Configuration.Px.SubpxPower);
+					GameObject.signalFlags!.GetChunkLimits(out uint _, out uint _, out uint _, out uint limitRight);
+					if(gameObject.currentBoundingBox.Position.X > limitRight)
+					{
+						gameObject.Delete();
+					}
 				}
+				else
+				{
+					gameObject.currentBoundingBox.Position.X -= (uint)(2 << Configuration.Px.SubpxPower);
+					GameObject.signalFlags!.GetChunkLimits(out uint limitLeft, out uint _, out uint _, out uint _);
+					if (gameObject.currentBoundingBox.Position.X < limitLeft - gameObject.currentBoundingBox.Size.X)
+					{
+						gameObject.Delete();
+					}
+				}
+
 			}else{
 
 
@@ -62,6 +88,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 		{
 			NONE,
 			HURT
+		}
+
+		[Flags]
+		public enum FlagTypes : UInt32
+		{
+			None = 0,
+			Hurt = 1 << 0,
 		}
 
 		const uint ATTACKING_COOLDOWN_TIME = 90;
@@ -106,53 +139,107 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 			ref uint animationTimer = ref gameObject.Timer3;
 			ref uint health = ref gameObject.Timer4;
 
+			if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Hurt) == FlagTypes.Hurt)
+			{
+				if((SubState)gameObject.SubState == SubState.NONE)
+				{
+					gameObject.SubState = (uint)SubState.HURT;
+					health--;
+
+					if(gameObject.linkedObject != null)
+					{
+						gameObject.linkedObject.Delete();
+						gameObject.linkedObject = null;
+					}
+
+				}
+			}
+
 			// movement
 			switch((State)gameObject.State)
 			{
 				case State.INIT:
-					gameObject.drawOrder = GameObject.DrawOrderTypes.BACK;
-					gameObject.State = (uint)State.ATTACKING_FROM_LEFT;
-					actionTimer = 0;
-					GameObject.signalFlags!.GetChunkLimits(out uint limitUp, out uint _, out uint limitLeft, out uint _);
-					gameObject.currentBoundingBox.Position = new SubpxPosition(limitLeft,limitUp);
+					{				
+						gameObject.drawOrder = GameObject.DrawOrderTypes.BACK;
+						gameObject.State = (uint)State.ATTACKING_FROM_LEFT;
+						actionTimer = 0;
+						GameObject.signalFlags!.GetChunkLimits(out uint limitUp, out uint _, out uint limitLeft, out uint _);
+						gameObject.currentBoundingBox.Position = new SubpxPosition(limitLeft,limitUp);
+					}
 					break;
 
 				case State.ATTACKING_FROM_LEFT:
-					gameObject.linkedPosition = new PxPosition((uint)((-8) & uint.MaxValue),12).ToSubpx();
+				case State.ATTACKING_FROM_RIGHT: // modify
+					if((SubState)gameObject.SubState == SubState.HURT)
+					{
+						gameObject.currentBoundingBox.Position.Y -= (uint)2 << Configuration.Px.SubpxPower;
+						GameObject.signalFlags!.GetChunkLimits(out uint limitUp, out uint _, out uint limitLeft, out uint limitRight);
 
-					uint playerY =  GameObject.signalFlags!.GetPlayerPosition().Y;
-					uint mermaidY = gameObject.currentBoundingBox.Center().Y;
-					int diff = ((int)playerY - (int)mermaidY) >> 2;
-					if(diff < -(4<<Configuration.Px.SubpxPower))
-					{
-						diff = -(4 << Configuration.Px.SubpxPower);
+						if (gameObject.currentBoundingBox.Position.Y <= limitUp)
+						{
+							gameObject.State = (State)gameObject.State switch
+							{
+								State.ATTACKING_FROM_RIGHT => (uint)State.ATTACKING_FROM_LEFT,
+								_ => (uint)State.ATTACKING_FROM_RIGHT,
+							};
+							gameObject.SubState = (uint)SubState.NONE;
+							actionTimer = 0;
+							gameObject.currentBoundingBox.Position = (State)gameObject.State switch
+							{
+								State.ATTACKING_FROM_RIGHT => new SubpxPosition(limitRight - (uint)(32 << Configuration.Px.SubpxPower), limitUp),
+								_ => new SubpxPosition(limitLeft, limitUp),
+							};
+						}
 					}
-					if (diff > (4 << Configuration.Px.SubpxPower))
+					else
 					{
-						diff = (4 << Configuration.Px.SubpxPower);
-					}
-					gameObject.currentBoundingBox.Position.Y += (uint)(diff);
-					//Console.WriteLine(gameObject.currentBoundingBox.Position.Y);
+						gameObject.linkedPosition = (State)gameObject.State switch
+						{
+							State.ATTACKING_FROM_LEFT => new PxPosition((uint)((20) & uint.MaxValue), 12).ToSubpx(),
+							_ => new PxPosition((uint)((32 - 20 - 22) & uint.MaxValue), 12).ToSubpx(),
 
-					actionTimer++;
-					if(actionTimer == ATTACKING_CHARGING_END)
-					{
-						GameObject.signalFlags!.CreateAndAttachObject(
-							TridentRight.Instance, 
-							0,
-							//gameObject.currentBoundingBox.Position
-							gameObject
-						);
-					}
-					if(actionTimer == ATTACKING_HOLDING_END)
-					{
-						gameObject.linkedObject = null;
+						};
 
-					}
+						uint playerY =  GameObject.signalFlags!.GetPlayerPosition().Y;
+						uint mermaidY = gameObject.currentBoundingBox.Center().Y;
+						int diff = ((int)playerY - (int)mermaidY) >> 2;
+						if(diff < -(4<<Configuration.Px.SubpxPower))
+						{
+							diff = -(4 << Configuration.Px.SubpxPower);
+						}
+						if (diff > (4 << Configuration.Px.SubpxPower))
+						{
+							diff = (4 << Configuration.Px.SubpxPower);
+						}
+						gameObject.currentBoundingBox.Position.Y += (uint)(diff);
+						//Console.WriteLine(gameObject.currentBoundingBox.Position.Y);
+
+						actionTimer++;
+						Trident.SpawnValue spawnValue = (State)gameObject.State switch
+						{ 
+							State.ATTACKING_FROM_LEFT => Trident.SpawnValue.FACING_RIGHT,
+							_ => Trident.SpawnValue.FACING_LEFT,
+
+						};
+						if(actionTimer == ATTACKING_CHARGING_END)
+						{
+							GameObject.signalFlags!.CreateAndAttachObject(
+								Trident.Instance, 
+								(byte)spawnValue,
+								//gameObject.currentBoundingBox.Position
+								gameObject
+							);
+						}
+						if(actionTimer == ATTACKING_HOLDING_END)
+						{
+							gameObject.linkedObject = null;
+
+						}
 					
-					if(actionTimer >= ATTACKING_THROWING_END)
-					{
-						actionTimer = 0;	
+						if(actionTimer >= ATTACKING_THROWING_END)
+						{
+							actionTimer = 0;	
+						}
 					}
 
 					break;
@@ -163,20 +250,60 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 			switch((State)gameObject.State)
 			{
 				case State.ATTACKING_FROM_LEFT:
-					gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
-					if(actionTimer < ATTACKING_COOLDOWN_TIME)
+				case State.ATTACKING_FROM_RIGHT:
+					if((State)gameObject.State == State.ATTACKING_FROM_LEFT)
 					{
-						gameObject.atlasReference.Start = ((animationTimer >> 3) & 0x03) switch
+						gameObject.atlasReference.Effects = SpriteEffects.FlipHorizontally;
+					}
+					else
+					{
+						gameObject.atlasReference.Effects = SpriteEffects.None;
+					}
+
+					if ((SubState)gameObject.SubState == SubState.HURT)
+					{
+						gameObject.atlasReference.Start = ((animationTimer >> 1) & 0x01) switch
 						{
-							0 => new PxPosition(256 + 32, 512),
-							2 => new PxPosition(256 + 64, 512),
-							_ => new PxPosition(256, 512),
+							0 => new PxPosition(320, 576),
+							_ => new PxPosition(320 + 32, 576),
 						};
 					}
 					else
 					{
-						gameObject.atlasReference.Start = new PxPosition(256, 544);
+						if(actionTimer < ATTACKING_COOLDOWN_END)
+						{
+							gameObject.atlasReference.Start = ((animationTimer >> 3) & 0x03) switch
+							{
+								0 => new PxPosition(256 + 32, 512),
+								2 => new PxPosition(256 + 64, 512),
+								_ => new PxPosition(256, 512),
+							};
+						}
+						else if(actionTimer < ATTACKING_CHARGING_END)
+						{
+							gameObject.atlasReference.Start = ((animationTimer >> 1) & 0x01) switch
+							{
+								0 => new PxPosition(256, 544),
+								_ => new PxPosition(256 + 32, 544),
+							};
+						}
+						else if(actionTimer < ATTACKING_HOLDING_END)
+						{
+							gameObject.atlasReference.Start = new PxPosition(256, 544);
+						}
+						else
+						{
+							if(actionTimer < ATTACKING_HOLDING_END + 5)
+							{
+								gameObject.atlasReference.Start = new PxPosition(256, 544 + 32);
+							}
+							else
+							{
+								gameObject.atlasReference.Start = new PxPosition(256 + 32, 544 + 32);
+							}
+						}
 					}
+
 					break;
 			}
 
@@ -185,7 +312,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 
 		public void Interact(GameObject own, GameObject other)
 		{
-
+			if(other.behaviour == Scythe.Instance)
+			{
+				own.InteractionFlags |= (uint)FlagTypes.Hurt;
+			}
 		}
 
 	}
