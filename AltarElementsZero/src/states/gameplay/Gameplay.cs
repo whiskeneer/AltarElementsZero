@@ -920,6 +920,9 @@ namespace AltarElementsZero.src.states.gameplay
 				if (gameObject.Type != GameObject.Types.NONEXISTENT && gameObject.Type != GameObject.Types.RESERVED && gameObject.Type != GameObject.Types.SPAWNING)
 				{
 					gameObject.ApplyHorizontalDesiredVelocity();
+
+					gameObject.linkedObject?.currentBoundingBox.Position = gameObject.currentBoundingBox.Position + gameObject.linkedPosition;
+					gameObject.secondLinkedObject?.currentBoundingBox.Position = gameObject.currentBoundingBox.Position + gameObject.secondLinkedPosition;
 				}
 			}
 		}
@@ -1027,6 +1030,9 @@ namespace AltarElementsZero.src.states.gameplay
 				if (gameObject.Type != GameObject.Types.NONEXISTENT && gameObject.Type != GameObject.Types.RESERVED && gameObject.Type != GameObject.Types.SPAWNING)
 				{
 					gameObject.ApplyVerticalDesiredVelocity();
+
+					gameObject.linkedObject?.currentBoundingBox.Position = gameObject.currentBoundingBox.Position + gameObject.linkedPosition;
+					gameObject.secondLinkedObject?.currentBoundingBox.Position = gameObject.currentBoundingBox.Position + gameObject.secondLinkedPosition;
 				}
 			}
 		}
