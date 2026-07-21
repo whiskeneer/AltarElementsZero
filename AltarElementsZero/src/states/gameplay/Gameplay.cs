@@ -690,6 +690,7 @@ namespace AltarElementsZero.src.states.gameplay
 				//if (CameraPosition.Y >= (ChunkLimitTop >> Configuration.Px.SubpxPower))
 				if(CameraPosition.Y >= (((int)_objectPool[0].currentBoundingBox.Center().ToPx().Y - (Configuration.VisibleScreen.Px.Height >> 1))))
 				{
+					Ora.Instance.ContinueReadingInput(_objectPool[0]);
 					state = State.PLAYING;
 
 				}
@@ -812,6 +813,7 @@ namespace AltarElementsZero.src.states.gameplay
 				if (LoadingEffectStart.Instance.IsFinished())
 				{
 					Teleport();
+					SetCheckpoint(0xff, _objectPool[0].currentBoundingBox.Position.ToPx().ToTile());
 					//CameraPosition += new PxPosition(0,(uint)Configuration.Chunk.Px.Height);
 					CameraPosition.Y = (ChunkLimitBottom >> Configuration.Px.SubpxPower) - (uint)Configuration.Chunk.Px.Height;
 					state = State.ENTERING_BOSS_STAGE;

@@ -91,6 +91,14 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			gameObject.secondLinkedObject = null;
 		}
 
+		public void ContinueReadingInput(GameObject gameObject)
+		{
+			if((SubState)gameObject.SubState == SubState.NO_INPUT)
+			{
+				gameObject.SubState = (uint)SubState.NORMAL;
+			}
+		}
+
         public void Update(GameObject gameObject)
         {
             InputHandler inputHandler = GameObject.inputHandler!;
@@ -127,7 +135,6 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			{
 				gameObject.SubState = (uint)SubState.NO_INPUT;
 				//Console.WriteLine("NO INPUT");
-
 			}
 			bool readingInput = gameObject.SubState == (uint)SubState.NORMAL;
 
