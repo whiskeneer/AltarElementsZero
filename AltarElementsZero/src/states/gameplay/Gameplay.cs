@@ -16,6 +16,7 @@ using AltarElementsZero.src.states.gameplay.gameObject.behaviour;
 using AltarElementsZero.src.screenEffects;
 using AltarElementsZero.src.states.gameplay.cutscenes;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.triggers;
+using AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -48,6 +49,9 @@ namespace AltarElementsZero.src.states.gameplay
 		SubpxPosition GetPlayerPosition();
 
 		bool CreateGameObject(IBehaviour behaviour, byte spawnValue, SubpxPosition position);
+
+		bool CreateAndAttachObject(IBehaviour behaviour, byte spawnValue, GameObject self);
+		void GetChunkLimits(out uint limitUp, out uint limitDown, out uint limitLeft, out uint limitRight);
 
 	}
 
@@ -119,6 +123,23 @@ namespace AltarElementsZero.src.states.gameplay
 			return true;
 
 		}
+		public bool CreateAndAttachObject(IBehaviour behaviour, byte spawnValue, GameObject self){
+			int nextAssignableObject = GetNextAssignableObject();
+			if (nextAssignableObject == -1) return false;
+
+			GameObject newObject = _objectPool[nextAssignableObject];
+			newObject.behaviour = behaviour;
+			newObject.spawnValue = spawnValue;
+			//newObject.currentBoundingBox.Position = position;
+			newObject.Type = GameObject.Types.SPAWNING;
+			self.linkedObject = newObject;
+
+
+			Console.WriteLine("CREATED");
+
+			return true;
+		}
+
 
 		private GameplayMessages gameplayMessages = GameplayMessages.None;
 
@@ -326,6 +347,14 @@ namespace AltarElementsZero.src.states.gameplay
 		private uint ChunkLimitBottom = 0;
 		private uint ChunkLimitLeft = 0;
 		private uint ChunkLimitRight = 0;
+		public void GetChunkLimits(out uint limitUp, out uint limitDown, out uint limitLeft, out uint limitRight)
+		{
+			limitUp = ChunkLimitTop;
+			limitDown = ChunkLimitBottom;
+			limitLeft = ChunkLimitLeft;
+			limitRight = ChunkLimitRight;
+		}
+
 		private PxPosition CameraPosition = new();
 
 		private bool ApplyDarkness = false;
@@ -446,6 +475,7 @@ namespace AltarElementsZero.src.states.gameplay
 							Tile.Families.PortalIn => Portal.Instance,
 							Tile.Families.Level1EndTrigger => Level1EndTrigger.Instance,
 							Tile.Families.Level1EndFloor => FloorLevel1EndCutscene.Instance,
+							Tile.Families.Mermaid => Mermaid.Instance,
 							_ => EmptyObject.Instance,
 						};
 
