@@ -10,7 +10,9 @@
 		{
 			None,
 			Ora,
-			Mermaid
+			Mermaid,
+			MermaidHurt,
+			MermaidCrying
 		}
 		public enum SpeakerPosition
 		{

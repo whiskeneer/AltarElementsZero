@@ -14,6 +14,7 @@ namespace AltarElementsZero.src.states.gameplay.cutscenes
 		{
 			LEVEL1START,
 			LEVEL1BOSS,
+			LEVEL1END,
 
 			CUTSCENES_LENGTH,
 			NONE = CUTSCENES_LENGTH
@@ -24,10 +25,6 @@ namespace AltarElementsZero.src.states.gameplay.cutscenes
 		private readonly Cutscene[] Cutscenes = new Cutscene[(int)CutsceneID.CUTSCENES_LENGTH]{
 			new Cutscene(
 				new Dialogue[]{
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "hola"),
-					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, "hola"),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "adios"),
-					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, "adios")
 					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "alguien\naprovechó\nmientras\ndormía para"),
 					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "robar mis\nPODERES DEL\nTIEMPO."),
 					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "ya se las\nverá conmigo"),
@@ -42,7 +39,29 @@ namespace AltarElementsZero.src.states.gameplay.cutscenes
 					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " PAGARÁS POR\n LO QUE\n HICISTE"),
 					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "bueno"),
 				}
-			)
+			),
+			new Cutscene(
+				new Dialogue[]{
+					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " POR QUÉ ME\n HACES ESTO\n ?!?!?!"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "vos\nempezaste"),
+					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " NO ES CIERTO\n !!!"),
+					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " VOS ROBASTE\n MI MICRÓFONO\n !!!"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "..."),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "no"),
+					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " CLARO QUE\n SI!"),
+					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Y si no\n fuiste vos,\n entonces fue\n una de tus\n secuaces."),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "Mis Tokis?\n(los \n\"cerditos\")"),
+					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Eh? No!\n Fue una\n chica con\n traje de\n idol"),
+					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Se escapó\n usando tus\n PODERES DEL\n TIEMPO"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "interesante\n..."),
+
+					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " ..."),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "..."),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "buenochau"),
+					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " EY!!!\n ESPERÁ!!!"),
+
+				}
+			),
 		};
 		public void ResetCutscenes()
 		{
@@ -88,20 +107,14 @@ namespace AltarElementsZero.src.states.gameplay.cutscenes
 
 			if (dialogue.Speaker != Dialogue.Characters.None)
 			{
-				Rectangle speakerRectangle;
-				switch (dialogue.Speaker)
+				var speakerRectangle = dialogue.Speaker switch
 				{
-					case Dialogue.Characters.Ora:
-						speakerRectangle = new Rectangle(0, 640, 64, 128);
-						break;
-					case Dialogue.Characters.Mermaid:
-						speakerRectangle = new Rectangle(64, 640, 96, 128);
-						break;
-					default:
-						speakerRectangle = new Rectangle(0, 0, 0, 0);
-						break;
-				}
-
+					Dialogue.Characters.Ora => new Rectangle(0, 640, 64, 128),
+					Dialogue.Characters.Mermaid => new Rectangle(64, 640, 96, 128),
+					Dialogue.Characters.MermaidHurt => new Rectangle(160, 640, 96, 128),
+					Dialogue.Characters.MermaidCrying => new Rectangle(256, 640, 96, 128),
+					_ => new Rectangle(0, 0, 0, 0),
+				};
 				Vector2 speakerPosition;
 				SpriteEffects mirrorSpeaker;
 				PxPosition textPosition;

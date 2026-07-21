@@ -17,6 +17,7 @@ using AltarElementsZero.src.screenEffects;
 using AltarElementsZero.src.states.gameplay.cutscenes;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.triggers;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses;
+using AltarElementsZero.src.states.credits;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -30,6 +31,7 @@ namespace AltarElementsZero.src.states.gameplay
 		Pause = 1 << 4,
 		TriggerLevel1EndCutscene = 1 << 5,
 		TriggerLevel1BossTransition = 1 << 6,
+		TriggerLevel1BossEnd = 1 << 7,
 	}
 
 	interface ISignalFlags
@@ -92,8 +94,8 @@ namespace AltarElementsZero.src.states.gameplay
 			WAITING_ABOVE,
 			PANNING_DOWN,
 
-
-
+			MERMAID_DEFEATED,
+			LEVEL1_ENDING
 		};
 		private enum PauseOptions{
 			RESUME,
@@ -176,7 +178,12 @@ namespace AltarElementsZero.src.states.gameplay
 				state = State.GOING_TO_BOSS_STAGE;
 				LoadingEffectStart.Instance.Start();
 			}
-			else if((gameplayMessages & GameplayMessages.Pause) == GameplayMessages.Pause)
+			else if ((gameplayMessages & GameplayMessages.TriggerLevel1BossEnd) == GameplayMessages.TriggerLevel1BossEnd)
+			{
+				cutsceneTimer = 0;
+				state = State.MERMAID_DEFEATED;
+			}
+			else if ((gameplayMessages & GameplayMessages.Pause) == GameplayMessages.Pause)
 			{
 				if(_payload.Configuration == GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY)
 				{
@@ -725,6 +732,65 @@ namespace AltarElementsZero.src.states.gameplay
 					state = State.PLAYING;
 
 				}
+			}
+			else if(state == State.MERMAID_DEFEATED)
+			{
+				cutsceneTimer++;
+				for(int o = 0;  o < _objectPool.Length; o++)
+				{ 
+					if(_objectPool[o].behaviour == Mermaid.Instance)
+					{
+						_objectPool[o].behaviour.Update(_objectPool[o]);
+					}
+				}
+
+				if(cutsceneTimer == 90)
+				{
+					LoadingEffectStart.Instance.Start();
+				}
+				else if(cutsceneTimer >= 90)
+				{
+					LoadingEffectStart.Instance.Update();
+					if(LoadingEffectStart.Instance.IsFinished())
+					{
+						cutsceneTimer = 0;
+						LoadingEffectEnd.Instance.Start();
+						state = State.LEVEL1_ENDING;
+					}
+				}
+
+			}
+			else if(state == State.LEVEL1_ENDING)
+			{
+				if(cutsceneTimer == 0)
+				{
+					LoadingEffectEnd.Instance.Update();
+					if (LoadingEffectEnd.Instance.IsFinished())
+					{
+						cutsceneTimer = 1;
+					}
+				}
+				else
+				{
+					if (_cutsceneManager.IsPlayingACutscene())
+					{
+						_cutsceneManager.Update();
+					}
+					else
+					{
+						cutsceneTimer++;
+
+						if(cutsceneTimer == 60)
+						{
+							_cutsceneManager.StartCutscene(CutsceneManager.CutsceneID.LEVEL1END);
+						}
+						if(cutsceneTimer == 120)
+						{
+							_manager.RequestTransition(new CreditsPayload());
+						}
+					}
+				}
+
 			}
 			else if(state == State.PLAYING)
 			{
@@ -1366,10 +1432,19 @@ namespace AltarElementsZero.src.states.gameplay
 					0f, Vector2.Zero, 1f, SpriteEffects.FlipHorizontally, 0f
 					);
 			}
-
+			if (state == State.LEVEL1_ENDING)
+			{
+				spriteBatch.Draw(
+					_assets.Atlas,
+					new Vector2(),
+					new Rectangle(384, 512, 192, 128),
+					Color.White
+				);
+			}
 			_cutsceneManager.Draw(spriteBatch, _assets.Atlas!);
 			
-			if(state == State.PAUSED || state == State.RESUMING || state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING)
+			if(state == State.PAUSED || state == State.RESUMING || state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING 
+				)
 			{
 				SpriteEffects transparencyEffect = SpriteEffects.None;
 				if((_animationFrame & 1) == 1)
@@ -1420,11 +1495,13 @@ namespace AltarElementsZero.src.states.gameplay
 
 
 			}
-			if(state == State.ENTERING_GAMEPLAY || state == State.ENTERING_BOSS_STAGE)
+
+			if(state == State.ENTERING_GAMEPLAY || state == State.ENTERING_BOSS_STAGE || state == State.LEVEL1_ENDING)
 			{
 				LoadingEffectEnd.Instance.Draw(spriteBatch, _assets.Atlas!);
 			}
-			else if(state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING || state == State.GOING_TO_BOSS_STAGE)
+			else if(state == State.GOING_TO_CHECKPOINT || state == State.RESTARTING || state == State.EXITING || state == State.GOING_TO_BOSS_STAGE ||
+				(state == State.MERMAID_DEFEATED && cutsceneTimer > 90))
 			{
 				LoadingEffectStart.Instance.Draw(spriteBatch, _assets.Atlas!);
 			}

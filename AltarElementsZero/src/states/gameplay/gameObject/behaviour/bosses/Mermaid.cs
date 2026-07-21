@@ -165,11 +165,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 			INIT,
 			ATTACKING_FROM_LEFT,
 			ATTACKING_FROM_RIGHT,
+			DEFEATED,
 		}
 		private enum SubState
 		{
 			NONE,
-			HURT
+			HURT,
 		}
 
 		[Flags]
@@ -209,7 +210,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 
 			gameObject.State = (uint)State.INIT;
 			gameObject.SubState = (uint)SubState.NONE;
-			health = 5;
+			health = 1;
 			animationTimer = 0;
 			actionTimer = 0;
 
@@ -233,6 +234,15 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 						gameObject.linkedObject.Delete();
 						gameObject.linkedObject = null;
 					}
+					if(health <= 0)
+					{
+						gameObject.drawOrder = GameObject.DrawOrderTypes.FRONT;
+
+						GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.TriggerLevel1BossEnd);
+						gameObject.State = (uint)State.DEFEATED;
+						actionTimer = 0;
+						gameObject.SavedSpeed = -240;
+					}
 
 				}
 			}
@@ -249,7 +259,18 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 						gameObject.currentBoundingBox.Position = new SubpxPosition(limitLeft,limitUp);
 					}
 					break;
-
+				case State.DEFEATED:
+					if(actionTimer < 30)
+					{
+						// do nothing
+					}
+					else
+					{
+						gameObject.SavedSpeed += 10;
+						gameObject.currentBoundingBox.Position.Y += (uint)gameObject.SavedSpeed;
+					}
+					actionTimer++;
+					break;
 				case State.ATTACKING_FROM_LEFT:
 				case State.ATTACKING_FROM_RIGHT: // modify
 					if((SubState)gameObject.SubState == SubState.HURT)
@@ -331,6 +352,13 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 			animationTimer++;
 			switch((State)gameObject.State)
 			{
+				case State.DEFEATED:
+					gameObject.atlasReference.Start = new PxPosition(320, 576);
+					if(gameObject.SavedSpeed > 0)
+					{
+						gameObject.atlasReference.Effects |= SpriteEffects.FlipVertically;
+					}
+					break;
 				case State.ATTACKING_FROM_LEFT:
 				case State.ATTACKING_FROM_RIGHT:
 					if((State)gameObject.State == State.ATTACKING_FROM_LEFT)

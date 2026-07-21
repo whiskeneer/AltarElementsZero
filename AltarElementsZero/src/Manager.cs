@@ -1,4 +1,5 @@
-﻿using AltarElementsZero.src.states.editor;
+﻿using AltarElementsZero.src.states.credits;
+using AltarElementsZero.src.states.editor;
 using AltarElementsZero.src.states.gameplay;
 using AltarElementsZero.src.states.gameplay.cutscenes;
 using AltarElementsZero.src.states.inputConfig;
@@ -77,6 +78,14 @@ namespace AltarElementsZero.src
 				_gameServiceContainer,
 				this,
 				inputConfigPayload,
+				_globalAssets,
+				_inputHandler
+				);
+			if (payload is CreditsPayload creditsPayload) return new Credits(
+				_graphicsDevice,
+				_gameServiceContainer,
+				this,
+				creditsPayload,
 				_globalAssets,
 				_inputHandler
 				);
