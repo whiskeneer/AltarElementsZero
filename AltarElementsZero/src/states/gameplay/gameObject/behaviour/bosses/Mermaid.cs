@@ -210,7 +210,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 
 			gameObject.State = (uint)State.INIT;
 			gameObject.SubState = (uint)SubState.NONE;
-			health = 1;
+			health = 5;
 			animationTimer = 0;
 			actionTimer = 0;
 
