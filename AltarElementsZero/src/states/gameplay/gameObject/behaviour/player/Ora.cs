@@ -60,6 +60,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 			gameObject.currentBoundingBox.Size = new PxSize(11, 24).ToSubpx();
 
+			gameObject.currentBoundingBox.Position += new PxSize((16 - 11) / 2,32 - 24).ToSubpx();
+			gameObject.previousBoundingBox.Position = gameObject.currentBoundingBox.Position;
+
             gameObject.State = (uint)State.LOOKING_RIGHT;
 			gameObject.SubState = (uint)SubState.NORMAL;
 

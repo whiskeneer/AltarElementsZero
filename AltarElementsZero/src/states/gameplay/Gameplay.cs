@@ -599,12 +599,16 @@ namespace AltarElementsZero.src.states.gameplay
 		}
 
 		private void RestartFromCheckpoint(){
+
+
 			GameObject player = _objectPool[0];
+			player.Delete();
 			player.behaviour = Ora.Instance;
-			player.Init();
 			player.currentBoundingBox.Position = LastActivatedCheckpoint.ToPx().ToSubpx();
+			player.Init();
 
 			GameObject scythe = _objectPool[1];
+			scythe.Delete();
 			scythe.behaviour = Scythe.Instance;
 			scythe.Init();
 			player.LinkWith(scythe);
