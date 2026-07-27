@@ -31,6 +31,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.Collected) == FlagTypes.Collected)
 			{
 				GameObject.signalFlags!.SetSignalFlag(gameObject.spawnValue, true);
+
+				GameObject.globalAssets!.CollectableSFXInstance!.Stop();
+				GameObject.globalAssets!.CollectableSFXInstance!.Play();
 			}
 
 			if(GameObject.signalFlags!.GetSignalFlag(gameObject.spawnValue))

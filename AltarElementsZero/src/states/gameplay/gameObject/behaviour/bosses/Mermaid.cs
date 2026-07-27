@@ -229,7 +229,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses
 					gameObject.SubState = (uint)SubState.HURT;
 					health--;
 
-					if(gameObject.linkedObject != null)
+					GameObject.globalAssets!.HitSFXInstance!.Stop();
+					GameObject.globalAssets!.HitSFXInstance!.Play();
+
+					if (gameObject.linkedObject != null)
 					{
 						gameObject.linkedObject.Delete();
 						gameObject.linkedObject = null;

@@ -43,6 +43,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 				gameObject.behaviour = EnemyDefeated.Instance;
 				gameObject.Init();
 				gameObject.currentBoundingBox.Position = center;
+
+				GameObject.globalAssets!.BreakingWallSFXInstance!.Stop();
+				GameObject.globalAssets!.BreakingWallSFXInstance!.Play();
 			}
 		}
 

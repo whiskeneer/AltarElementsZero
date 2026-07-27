@@ -41,6 +41,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 				GameObject.signalFlags!.SetTeleportDestiny(chunkOffsetX, chunkOffsetY);
 				GameObject.signalFlags!.EmitGameplayMessage(GameplayMessages.Teleport);
+
+				GameObject.globalAssets!.PortalSFXInstance!.Stop();
+				GameObject.globalAssets!.PortalSFXInstance!.Play();
 			}
 
 

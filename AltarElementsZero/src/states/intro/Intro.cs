@@ -6,6 +6,7 @@ using AltarElementsZero.src.states.gameplay.vectors;
 using AltarElementsZero.src.states.menu;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 
 namespace AltarElementsZero.src.states.intro
 {
@@ -38,6 +39,9 @@ namespace AltarElementsZero.src.states.intro
             timer = 0;
             state = State.ENTERING_INTRO;
             LoadingEffectEnd.Instance.Start();
+            MediaPlayer.Stop();
+            MediaPlayer.IsRepeating = false;
+            MediaPlayer.Play(_globalAssets.IntroOST);
             
         }
         public override void Update(GameTime gameTime)
@@ -49,7 +53,10 @@ namespace AltarElementsZero.src.states.intro
                 if (_inputHandler.IsPressed(Input.Jump) || _inputHandler.IsPressed(Input.Pause))
                 {
                     LoadingEffectStart.Instance.Start();
-                    state = State.ENTERING_MENU;
+
+					_globalAssets!.LoadingScreenSFXInstance!.Stop();
+					_globalAssets!.LoadingScreenSFXInstance!.Play();
+					state = State.ENTERING_MENU;
 			    }else{
                     if(timer > 600)
                     {
@@ -114,7 +121,9 @@ namespace AltarElementsZero.src.states.intro
         {
             // if allocating on Enter, dispose here
             base.Exit();
-        }
+			MediaPlayer.Stop();
 
-    }
+		}
+
+	}
 }

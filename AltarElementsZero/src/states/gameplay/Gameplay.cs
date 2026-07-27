@@ -18,6 +18,7 @@ using AltarElementsZero.src.states.gameplay.cutscenes;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.triggers;
 using AltarElementsZero.src.states.gameplay.gameObject.behaviour.bosses;
 using AltarElementsZero.src.states.credits;
+using Microsoft.Xna.Framework.Media;
 
 namespace AltarElementsZero.src.states.gameplay
 {
@@ -96,13 +97,14 @@ namespace AltarElementsZero.src.states.gameplay
 
 			MERMAID_DEFEATED,
 			LEVEL1_ENDING
-		};
+		}
 		private enum PauseOptions{
 			RESUME,
 			GO_TO_CHECKPOINT,
 			RESTART,
 			EXIT
 		}
+
 		private State state = State.ENTERING_GAMEPLAY;
 
 		private PauseOptions selectedPauseOption = PauseOptions.RESUME;
@@ -172,16 +174,21 @@ namespace AltarElementsZero.src.states.gameplay
 			else if ((gameplayMessages & GameplayMessages.TriggerLevel1EndCutscene) == GameplayMessages.TriggerLevel1EndCutscene)
 			{
 				_cutsceneManager.StartCutscene(CutsceneManager.CutsceneID.LEVEL1BOSS);
+				MediaPlayer.Stop();
 			}
 			else if((gameplayMessages & GameplayMessages.TriggerLevel1BossTransition) == GameplayMessages.TriggerLevel1BossTransition)
 			{
 				state = State.GOING_TO_BOSS_STAGE;
 				LoadingEffectStart.Instance.Start();
+
+				_globalAssets!.LoadingScreenSFXInstance!.Stop();
+				_globalAssets!.LoadingScreenSFXInstance!.Play();
 			}
 			else if ((gameplayMessages & GameplayMessages.TriggerLevel1BossEnd) == GameplayMessages.TriggerLevel1BossEnd)
 			{
 				cutsceneTimer = 0;
 				state = State.MERMAID_DEFEATED;
+				MediaPlayer.Stop();
 			}
 			else if ((gameplayMessages & GameplayMessages.Pause) == GameplayMessages.Pause)
 			{
@@ -191,6 +198,10 @@ namespace AltarElementsZero.src.states.gameplay
 					selectedPauseOption = PauseOptions.RESUME;
 					enteringPauseFramePosition = 128 * 4;
 					enteringPauseOptionsPosition = 256 * 4;
+
+
+					_globalAssets!.MenuInSFXInstance!.Stop();
+					_globalAssets!.MenuInSFXInstance!.Play();
 				}
 				else
 				{
@@ -579,6 +590,10 @@ namespace AltarElementsZero.src.states.gameplay
 
 						BeginningCheckpoint = new TilePosition((uint)i, (uint)j);
 						RestartFromBeginning();
+
+						MediaPlayer.Stop();
+						MediaPlayer.IsRepeating = true;
+						MediaPlayer.Play(_globalAssets.Level1OST);
 					}
 				}
 			}
@@ -623,7 +638,10 @@ namespace AltarElementsZero.src.states.gameplay
 			//
 			if(LastActivatedCheckpointValue == 0 && _payload.Configuration == GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY)
 			{
+
 				_cutsceneManager.StartCutscene(CutsceneManager.CutsceneID.LEVEL1START);
+
+				
 			}
 			//
 
@@ -643,6 +661,7 @@ namespace AltarElementsZero.src.states.gameplay
         public override void Enter()
         {
             GameObject.inputHandler = _inputHandler;
+			GameObject.globalAssets = _globalAssets;
 			GameObject.signalFlags = this;
 
 			_cutsceneManager.ResetCutscenes();
@@ -735,6 +754,8 @@ namespace AltarElementsZero.src.states.gameplay
 					Ora.Instance.ContinueReadingInput(_objectPool[0]);
 					state = State.PLAYING;
 
+					MediaPlayer.Play(_globalAssets.BossOST);
+
 				}
 			}
 			else if(state == State.MERMAID_DEFEATED)
@@ -751,6 +772,9 @@ namespace AltarElementsZero.src.states.gameplay
 				if(cutsceneTimer == 90)
 				{
 					LoadingEffectStart.Instance.Start();
+
+					_globalAssets!.LoadingScreenSFXInstance!.Stop();
+					_globalAssets!.LoadingScreenSFXInstance!.Play();
 				}
 				else if(cutsceneTimer >= 90)
 				{
@@ -866,23 +890,36 @@ namespace AltarElementsZero.src.states.gameplay
 							state = State.RESUMING;
 							enteringPauseFramePosition = 4;
 							enteringPauseOptionsPosition = 4;
+
+							_globalAssets!.MenuOutSFXInstance!.Stop();
+							_globalAssets!.MenuOutSFXInstance!.Play();
+
 							break;
 						case PauseOptions.GO_TO_CHECKPOINT:
 							//state = State.PLAYING;
 							//RestartFromCheckpoint();
 							state = State.GOING_TO_CHECKPOINT;
 							LoadingEffectStart.Instance.Start();
+
+							_globalAssets!.LoadingScreenSFXInstance!.Stop();
+							_globalAssets!.LoadingScreenSFXInstance!.Play();
 							break;
 						case PauseOptions.RESTART:
 							//	state = State.PLAYING;
 							//	RestartFromBeginning();
 							state = State.RESTARTING;
 							LoadingEffectStart.Instance.Start();
+
+							_globalAssets!.LoadingScreenSFXInstance!.Stop();
+							_globalAssets!.LoadingScreenSFXInstance!.Play();
 							break;
 						case PauseOptions.EXIT:
 							//_manager.RequestTransition(new IntroPayload("HELLO"));
 							state = State.EXITING;
 							LoadingEffectStart.Instance.Start();
+
+							_globalAssets!.LoadingScreenSFXInstance!.Stop();
+							_globalAssets!.LoadingScreenSFXInstance!.Play();
 							break;
 					}
 				}
@@ -928,6 +965,7 @@ namespace AltarElementsZero.src.states.gameplay
 				if (LoadingEffectStart.Instance.IsFinished())
 				{
 					_manager.RequestTransition(new IntroPayload("HELLO"));
+					MediaPlayer.Stop();
 				}
 
 			}
@@ -1337,6 +1375,7 @@ namespace AltarElementsZero.src.states.gameplay
         public override void Exit()
         {
             GameObject.inputHandler = null;
+			GameObject.globalAssets = null;
 			GameObject.signalFlags = null;
 
 			switch (_payload.Configuration)
@@ -1353,6 +1392,7 @@ namespace AltarElementsZero.src.states.gameplay
 
 			// if allocating on Enter, dispose here
 			base.Exit();
+			MediaPlayer.Stop();
         }
 
 		private void Render(SpriteBatch spriteBatch)

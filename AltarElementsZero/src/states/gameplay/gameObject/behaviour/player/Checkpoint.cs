@@ -71,6 +71,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 			if(!activated && object.ReferenceEquals(other.behaviour, Ora.Instance)){
 				GameObject.signalFlags!.SetCheckpoint(own.spawnValue, own.currentBoundingBox.Position.ToPx().ToTile());
+
+				GameObject.globalAssets!.CheckpointSFXInstance!.Stop();
+				GameObject.globalAssets!.CheckpointSFXInstance!.Play();
 			}
 
 		}

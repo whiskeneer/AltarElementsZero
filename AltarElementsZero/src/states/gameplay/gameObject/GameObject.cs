@@ -38,6 +38,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject
 
         // Delete later, only for testing
         public static InputHandler? inputHandler = null;
+        public static GlobalAssets? globalAssets = null;
 
         // For new physics implementation
         public SubpxVelocity previousVelocity = new();

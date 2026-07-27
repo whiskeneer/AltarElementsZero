@@ -141,6 +141,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 							gameObject.linkedObject.Type = GameObject.Types.RESERVED;
 							gameObject.previousBoundingBox.Position += new PxPosition(0, (uint)(-24 & 0xffffffff)).ToSubpx();
 							gameObject.currentBoundingBox.Position += new PxPosition(0, (uint)(-24 & 0xffffffff)).ToSubpx();
+
+							GameObject.globalAssets!.HitSFXInstance!.Stop();
+							GameObject.globalAssets!.HitSFXInstance!.Play();
 						}
 						break;
 					case (uint)State.GOING_LEFT:
@@ -152,6 +155,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 							gameObject.linkedObject.Type = GameObject.Types.RESERVED;
 							gameObject.previousBoundingBox.Position += new PxPosition(0, (uint)(-24 & 0xffffffff)).ToSubpx();
 							gameObject.currentBoundingBox.Position += new PxPosition(0, (uint)(-24 & 0xffffffff)).ToSubpx();
+
+							GameObject.globalAssets!.HitSFXInstance!.Stop();
+							GameObject.globalAssets!.HitSFXInstance!.Play();
 						}
 						break;
 					case (uint)State.STOPPED:
@@ -163,6 +169,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 							gameObject.linkedObject.Type = GameObject.Types.PUSHABLE;
 							gameObject.previousBoundingBox.Position += new PxPosition(0, 24).ToSubpx();
 							gameObject.currentBoundingBox.Position += new PxPosition(0, 24).ToSubpx();
+
+							GameObject.globalAssets!.HitSFXInstance!.Stop();
+							GameObject.globalAssets!.HitSFXInstance!.Play();
 						}
 						else if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.HitFromTheLeft) == FlagTypes.HitFromTheLeft)
 						{
@@ -172,6 +181,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 							gameObject.linkedObject.Type = GameObject.Types.PUSHABLE;
 							gameObject.previousBoundingBox.Position += new PxPosition(0, 24).ToSubpx();
 							gameObject.currentBoundingBox.Position += new PxPosition(0, 24).ToSubpx();
+
+							GameObject.globalAssets!.HitSFXInstance!.Stop();
+							GameObject.globalAssets!.HitSFXInstance!.Play();
 						}
 						break;
 					default:

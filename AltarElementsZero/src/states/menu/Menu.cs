@@ -7,6 +7,7 @@ using AltarElementsZero.src.states.intro;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Design;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 
 namespace AltarElementsZero.src.states.menu
 {
@@ -38,6 +39,9 @@ namespace AltarElementsZero.src.states.menu
 			base.Enter();
 			state = State.ENTERING_MENU;
 			LoadingEffectEnd.Instance.Start();
+			MediaPlayer.Stop();
+			MediaPlayer.IsRepeating = true;
+			MediaPlayer.Play(_globalAssets.MenuOST);
 		}
 
 
@@ -152,6 +156,9 @@ namespace AltarElementsZero.src.states.menu
 							savedPayload = new IntroPayload("HELLO");
 							state = State.EXITING_MENU;
 							LoadingEffectStart.Instance.Start();
+
+							_globalAssets!.LoadingScreenSFXInstance!.Stop();
+							_globalAssets!.LoadingScreenSFXInstance!.Play();
 						}
 						else if(CurrentItem == (int)MainList.PLAY)
 						{
@@ -159,6 +166,9 @@ namespace AltarElementsZero.src.states.menu
 							savedPayload = new GameplayPayload(GameplayPayload.GameplayConfiguration.NORMAL_GAMEPLAY);
 							state = State.EXITING_MENU;
 							LoadingEffectStart.Instance.Start();
+
+							_globalAssets!.LoadingScreenSFXInstance!.Stop();
+							_globalAssets!.LoadingScreenSFXInstance!.Play();
 						}
 					}
 					else if(CurrentTab == (int)Tab.OPTIONS)
@@ -174,6 +184,9 @@ namespace AltarElementsZero.src.states.menu
 							savedPayload = new EditorPayload();
 							state = State.EXITING_MENU;
 							LoadingEffectStart.Instance.Start();
+
+							_globalAssets!.LoadingScreenSFXInstance!.Stop();
+							_globalAssets!.LoadingScreenSFXInstance!.Play();
 						}
 						else if(CurrentItem == (int)OptionsList.RECORD)
 						{
@@ -181,6 +194,9 @@ namespace AltarElementsZero.src.states.menu
 							savedPayload = new GameplayPayload(GameplayPayload.GameplayConfiguration.RECORD_AUTOPLAY);
 							state = State.EXITING_MENU;
 							LoadingEffectStart.Instance.Start();
+
+							_globalAssets!.LoadingScreenSFXInstance!.Stop();
+							_globalAssets!.LoadingScreenSFXInstance!.Play();
 						}
 						else if (CurrentItem == (int)OptionsList.INPUT)
 						{
@@ -189,6 +205,9 @@ namespace AltarElementsZero.src.states.menu
 							savedPayload = new InputConfigPayload();
 							state = State.EXITING_MENU;
 							LoadingEffectStart.Instance.Start();
+
+							_globalAssets!.LoadingScreenSFXInstance!.Stop();
+							_globalAssets!.LoadingScreenSFXInstance!.Play();
 
 						}
 					}
@@ -327,6 +346,7 @@ namespace AltarElementsZero.src.states.menu
 		{
 			// if allocating on Enter, dispose here
 			base.Exit();
+			MediaPlayer.Stop();
 		}
 	}
 }

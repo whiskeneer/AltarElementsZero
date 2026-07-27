@@ -3,6 +3,7 @@ using AltarElementsZero.src.renderer;
 using AltarElementsZero.src.states.gameplay.vectors;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 
 namespace AltarElementsZero.src.states.credits
 {
@@ -24,6 +25,10 @@ namespace AltarElementsZero.src.states.credits
 		public override void Enter()
 		{
 			base.Enter();
+
+			MediaPlayer.Stop();
+			MediaPlayer.IsRepeating = false;
+			MediaPlayer.Play(_globalAssets.IntroOST);
 		}
 		public override void Update(GameTime gameTime)
 		{
@@ -45,6 +50,7 @@ namespace AltarElementsZero.src.states.credits
 		{
 			// if allocating on Enter, dispose here
 			base.Exit();
+			MediaPlayer.Stop();
 		}
 	}
 }

@@ -57,6 +57,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 						gameObject.State = (uint)State.BURNING;
 						gameObject.atlasReference.Start = GetBurningAnimation(gameObject);
 						gameObject.Timer = 30;
+
+						GameObject.globalAssets!.BurningVineSFXInstance!.Stop();
+						GameObject.globalAssets!.BurningVineSFXInstance!.Play();
 					}
 					break;
 				case State.BURNING:

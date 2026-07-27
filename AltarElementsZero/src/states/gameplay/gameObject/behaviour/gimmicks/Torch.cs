@@ -44,6 +44,12 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.gimmicks
 
 			if (((FlagTypes)gameObject.InteractionFlags & FlagTypes.TurnOn) == FlagTypes.TurnOn)
 			{
+				if (gameObject.State != (uint)State.ON)
+				{
+					GameObject.globalAssets!.TorchOnSFXInstance!.Stop();
+					GameObject.globalAssets!.TorchOnSFXInstance!.Play();
+				}
+
 				gameObject.State = (uint)State.ON;
 			}
 			if(((FlagTypes)gameObject.InteractionFlags & FlagTypes.TurnOff) == FlagTypes.TurnOff)

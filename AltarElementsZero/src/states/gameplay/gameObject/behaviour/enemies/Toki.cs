@@ -85,6 +85,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 					)
 				);
 				CooldownTimer = 90;
+
+				GameObject.globalAssets!.TokiShootSFXInstance!.Stop();
+				GameObject.globalAssets!.TokiShootSFXInstance!.Play();
 			}
 			if ((State)gameObject.State == State.ATTACKING_RIGHT && AnimationTimer == 32)
 			{
@@ -98,6 +101,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 					)
 				);
 				CooldownTimer = 90;
+
+				GameObject.globalAssets!.TokiShootSFXInstance!.Stop();
+				GameObject.globalAssets!.TokiShootSFXInstance!.Play();
 			}
 
 			if ((State)gameObject.State == State.GOING_LEFT && CooldownTimer == 0){
@@ -273,6 +279,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.enemies
 				gameObject.behaviour = EnemyDefeated.Instance;
 				gameObject.Init();
 				gameObject.currentBoundingBox.Position = center;
+
+				GameObject.globalAssets!.HitSFXInstance!.Stop();
+				GameObject.globalAssets!.HitSFXInstance!.Play();
 			}
 		}
 

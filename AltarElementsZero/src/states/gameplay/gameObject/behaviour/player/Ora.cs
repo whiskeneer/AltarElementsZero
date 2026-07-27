@@ -85,6 +85,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 				gameObject.secondLinkedObject.AppliedForces += new Force(100, -100);
 			}
 			UnlinkHeldObject(gameObject);
+
+			GameObject.globalAssets!.ThrowSFXInstance!.Stop();
+			GameObject.globalAssets!.ThrowSFXInstance!.Play();
 		}
 		static private void UnlinkHeldObject(GameObject gameObject)
 		{
@@ -129,6 +132,10 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
                 {
 					UnlinkHeldObject(gameObject);
 				}
+
+
+				GameObject.globalAssets!.OraHitSFXInstance!.Stop();
+				GameObject.globalAssets!.OraHitSFXInstance!.Play();
 
 				SubpxPosition center = gameObject.currentBoundingBox.Center();
 				gameObject.TransformInto(OraDefeated.Instance, 0);
@@ -203,6 +210,9 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 
 				gameObject.previousVelocity.Y = floorVerticalSpeed;
 				gameObject.AppliedForces += new Force(0, -JUMP_SUSTAIN - JUMP_FORCE);
+
+				GameObject.globalAssets!.JumpSFXInstance!.Stop();
+				GameObject.globalAssets!.JumpSFXInstance!.Play();
 			}
             else if(jumpTimer > 0)
             {
@@ -247,10 +257,17 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 						gameObject.AppliedForces += new Force(0, DOWN_ATTACK_IMPULSE);
 						scythe.State = (uint)Scythe.State.ACTIVE_DOWN;
 						jumpTimer = 0;
+
+						GameObject.globalAssets!.AttackDownSFXInstance!.Stop();
+						GameObject.globalAssets!.AttackDownSFXInstance!.Play();
 					}
 					else
 					{
 						scythe.State = (uint)Scythe.State.ACTIVE;
+
+
+						GameObject.globalAssets!.AttackSideSFXInstance!.Stop();
+						GameObject.globalAssets!.AttackSideSFXInstance!.Play();
 					}
 
 				}
@@ -532,6 +549,8 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 						own.secondLinkedPosition = new PxPosition((uint)(11 & 0xffffffff), (uint)((-7 + 16 - own.secondLinkedObject.currentBoundingBox.Size.ToPx().Y) & 0xffffffff)).ToSubpx();
 					}
 
+					GameObject.globalAssets!.GrabSFXInstance!.Stop();
+					GameObject.globalAssets!.GrabSFXInstance!.Play();
 				}
 
             }
