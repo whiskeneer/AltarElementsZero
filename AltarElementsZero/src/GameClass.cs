@@ -1,6 +1,7 @@
 ﻿using AltarElementsZero.src;
 using AltarElementsZero.src.states.gameplay.cutscenes;
 using AltarElementsZero.src.states.intro;
+using AltarElementsZero.src.states.warning;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -65,9 +66,10 @@ class GameClass : Game
         _cutsceneManager = new CutsceneManager(_inputHandler);
 
         _manager = new(GraphicsDevice, Services, _globalAssets, _inputHandler, _cutsceneManager);
-        _manager.RequestTransition(new IntroPayload(debugText: "ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
+		//_manager.RequestTransition(new IntroPayload(debugText: "ALTAR\nELEMENTS\nZERO\n(ALPHA)"));
+		_manager.RequestTransition(new WarningPayload());
 
-        base.LoadContent();
+		base.LoadContent();
     }
     protected override void UnloadContent()
     {

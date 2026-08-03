@@ -14,6 +14,7 @@ namespace AltarElementsZero.src
     {
         public Texture2D? Placeholder { get; private set; }
         public Texture2D? RomanFont { get; private set; }
+		public Texture2D? Atlas {  get; private set; }
 
         public Song? Level1OST {  get; private set; }
         public Song? BossOST { get; private set; }
@@ -72,6 +73,7 @@ namespace AltarElementsZero.src
 
             Placeholder = _contentManager!.Load<Texture2D>("img/default_placeholder.png");
             RomanFont = _contentManager!.Load<Texture2D>("img/font_placeholder.png");
+			Atlas = _contentManager!.Load<Texture2D>("img/atlas.png");
 
 
             Level1OST = Song.FromUri("", new Uri("assets/music/OST/ost_level1.ogg", UriKind.Relative));
@@ -129,6 +131,7 @@ namespace AltarElementsZero.src
 
             Placeholder = null;
             RomanFont = null;
+			Atlas = null;
 
             Level1OST = null;
             BossOST = null;

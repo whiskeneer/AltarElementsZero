@@ -5,6 +5,7 @@ using AltarElementsZero.src.states.gameplay.cutscenes;
 using AltarElementsZero.src.states.inputConfig;
 using AltarElementsZero.src.states.intro;
 using AltarElementsZero.src.states.menu;
+using AltarElementsZero.src.states.warning;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -86,6 +87,14 @@ namespace AltarElementsZero.src
 				_gameServiceContainer,
 				this,
 				creditsPayload,
+				_globalAssets,
+				_inputHandler
+				);
+			if (payload is WarningPayload warningPayload) return new Warning(
+				_graphicsDevice,
+				_gameServiceContainer,
+				this,
+				warningPayload,
 				_globalAssets,
 				_inputHandler
 				);
