@@ -44,7 +44,9 @@ namespace AltarElementsZero.src.states.credits
 				_assets.Atlas!,
 				Background1.Instance
 				);
-			Renderer.RenderText(spriteBatch, new PxPosition(),_assets.Atlas!, "\n   MUCHAS\n   GRACIAS\n  POR JUGAR\n\nDEMO 1.0 VER\nEL DESTELLO", -1, Renderer.Fonts.FONT16X16);
+			//Renderer.RenderText(spriteBatch, new PxPosition(),_assets.Atlas!, "\n   MUCHAS\n   GRACIAS\n  POR JUGAR\n\nDEMO 1.0 VER\nEL DESTELLO", -1, Renderer.Fonts.FONT16X16);
+			Renderer.RenderText(spriteBatch, new PxPosition(),_assets.Atlas!, "\n THANK YOU\n SO MUCH FOR\n PLAYING\n\nALTAR\nELEMENTS\nDEMO 1.0", -1, Renderer.Fonts.FONT16X16);
+
 		}
 		public override void Exit()
 		{
