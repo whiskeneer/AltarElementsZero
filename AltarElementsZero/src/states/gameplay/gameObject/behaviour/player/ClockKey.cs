@@ -39,7 +39,7 @@ namespace AltarElementsZero.src.states.gameplay.gameObject.behaviour.player
 			if(GameObject.signalFlags!.GetSignalFlag(gameObject.spawnValue))
 			{
 				gameObject.drawOrder = GameObject.DrawOrderTypes.NONE;
-				gameObject.currentBoundingBox.Size = new PxSize(16, 16).ToSubpx();
+				gameObject.currentBoundingBox.Size = new PxSize(0, 0).ToSubpx();
 			}
 			else
 			{
