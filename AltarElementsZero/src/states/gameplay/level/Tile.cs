@@ -175,6 +175,9 @@ namespace AltarElementsZero.src.states.gameplay.level
             Mermaid,
             Boss1MovingPlatform,
 
+            MovingSpringHorizontal = 0xc0,
+            MovingSpringVertical,
+
             Barrel = 0xd0,
             Fire,
             Torch,
@@ -245,7 +248,7 @@ namespace AltarElementsZero.src.states.gameplay.level
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
-			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
+			"MV SPR H","MV SPR V","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 			"UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN","UNASSIGN",
 
 			"BARREL"  ,"FIRE"    ,"TORCH"   ,"VINE"    ,"WATER"   ,"DARKNESS","UNASSIGN","UNASSIGN",

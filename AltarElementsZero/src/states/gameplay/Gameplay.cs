@@ -495,6 +495,8 @@ namespace AltarElementsZero.src.states.gameplay
 							Tile.Families.Level1EndFloor => FloorLevel1EndCutscene.Instance,
 							Tile.Families.Mermaid => Mermaid.Instance,
 							Tile.Families.Boss1MovingPlatform => Boss1MovingPlatform.Instance,
+							Tile.Families.MovingSpringHorizontal => MovingSpringHorizontal.Instance,
+							Tile.Families.MovingSpringVertical => MovingSpringVertical.Instance,
 							_ => EmptyObject.Instance,
 						};
 
