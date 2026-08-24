@@ -25,66 +25,69 @@ namespace AltarElementsZero.src.states.gameplay.cutscenes
 		private readonly Cutscene[] Cutscenes = new Cutscene[(int)CutsceneID.CUTSCENES_LENGTH]{
 			new Cutscene(
 				new Dialogue[]{
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "alguien\naprovechó\nmientras\ndormía para"),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "robar mis\nPODERES DEL\nTIEMPO."),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "ya se las\nverá conmigo"),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "somebody\nstole my\nTIME POWERS\nwhile I was\nsleeping"),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "they'll pay\nfor this")
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "alguien\naprovechó\nmientras\ndormía para"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "robar mis\nPODERES DEL\nTIEMPO."),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "ya se las\nverá conmigo")
+
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "somebody\nstole my\nTIME POWERS\nwhile I was\nsleeping"),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "they'll pay\nfor this")
 
 				}
 			),
 			new Cutscene(
 				new Dialogue[]{
-					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " EY!!!"),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "holaquetal"),
-					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " ESTOY MUY\n ENOJADA\n CONTIGO!!!"),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "no serías\nla primera"),
-					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " PAGARÁS POR\n LO QUE\n HICISTE"),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "bueno"),
-					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " HEY!!!"),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "what's up"),
-					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " I AM VERY\n ANGRY WITH\n YOU!!!"),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "wouldn't be\nthe first\none"),
-					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " YOU'LL PAY\n FOR WHAT\n YOU DID"),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "k"),
+					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " EY!!!"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "holaquetal"),
+					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " ESTOY MUY\n ENOJADA\n CONTIGO!!!"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "no serías\nla primera"),
+					new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " PAGARÁS POR\n LO QUE\n HICISTE"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "bueno")
+
+					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " HEY!!!"),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "what's up"),
+					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " I AM VERY\n ANGRY WITH\n YOU!!!"),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "wouldn't be\nthe first\none"),
+					//new Dialogue(Dialogue.Characters.Mermaid, Dialogue.SpeakerPosition.Right, " YOU'LL PAY\n FOR WHAT\n YOU DID"),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "k"),
 				}
 			),
 			new Cutscene(
 				new Dialogue[]{
-					//new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " POR QUÉ ME\n HACES ESTO\n ?!?!?!"),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "vos\nempezaste"),
-					//new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " NO ES CIERTO\n !!!"),
-					//new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " VOS ROBASTE\n MI MICRÓFONO\n !!!"),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "..."),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "no"),
-					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " CLARO QUE\n SI!"),
-					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Y si no\n fuiste vos,\n entonces fue\n una de tus\n secuaces."),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "Mis Tokis?\n(los \n\"cerditos\")"),
-					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Eh? No!\n Fue una\n chica con\n traje de\n idol"),
-					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Se escapó\n usando tus\n PODERES DEL\n TIEMPO"),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "interesante\n..."),
-
-					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " ..."),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "..."),
-					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "buenochau"),
-					//new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " EY!!!\n ESPERÁ!!!"),
-					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " WHY ARE YOU\n DOING THIS\n TO ME?!?!?!"),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "you started\nit"),
-					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " THAT'S NOT\n TRUE!!!"),
-					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " YOU STOLE MY\n MICROPHONE\n !!!"),
+					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " POR QUÉ ME\n HACES ESTO\n ?!?!?!"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "vos\nempezaste"),
+					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " NO ES CIERTO\n !!!"),
+					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " VOS ROBASTE\n MI MICRÓFONO\n !!!"),
 					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "..."),
 					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "no"),
-					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " OF COURSE\n YOU DID!"),
-					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " And if it\n wasn't you,\n then it was\n one of your\n minions."),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "My Tokis?\n(the \"little\npigs\")"),
-					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Huh? No!\n It was a\n girl in an\n idol outfit"),
-					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " She got\n away using\n your TIME\n POWERS"),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "interesting\n..."),
+					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " CLARO QUE\n SI!"),
+					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Y si no\n fuiste vos,\n entonces fue\n una de tus\n secuaces."),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "Mis Tokis?\n(los \n\"cerditos\")"),
+					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Eh? No!\n Fue una\n chica con\n traje de\n idol"),
+					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Se escapó\n usando tus\n PODERES DEL\n TIEMPO"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "interesante\n..."),
 
 					new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " ..."),
 					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "..."),
-					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "kthxbye"),
-					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " HEY!!!\n WAIT!!!"),
+					new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "buenochau"),
+					new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " EY!!!\n ESPERÁ!!!")
+
+					//new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " WHY ARE YOU\n DOING THIS\n TO ME?!?!?!"),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "you started\nit"),
+					//new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " THAT'S NOT\n TRUE!!!"),
+					//new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " YOU STOLE MY\n MICROPHONE\n !!!"),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "..."),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "no"),
+					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " OF COURSE\n YOU DID!"),
+					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " And if it\n wasn't you,\n then it was\n one of your\n minions."),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "My Tokis?\n(the \"little\npigs\")"),
+					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " Huh? No!\n It was a\n girl in an\n idol outfit"),
+					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " She got\n away using\n your TIME\n POWERS"),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "interesting\n..."),
+
+					//new Dialogue(Dialogue.Characters.MermaidCrying, Dialogue.SpeakerPosition.Right, " ..."),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "..."),
+					//new Dialogue(Dialogue.Characters.Ora, Dialogue.SpeakerPosition.Left, "kthxbye"),
+					//new Dialogue(Dialogue.Characters.MermaidHurt, Dialogue.SpeakerPosition.Right, " HEY!!!\n WAIT!!!"),
 				}
 			),
 		};

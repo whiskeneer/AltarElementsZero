@@ -1041,8 +1041,134 @@ namespace AltarElementsZero.src.states.gameplay
 			for (int o = 0; o < _objectPool.Length; o++)
 			{
 				GameObject go1 = _objectPool[o];
+
+				
+
 				if (go1.Type == GameObject.Types.NONEXISTENT || go1.Type == GameObject.Types.RESERVED || go1.Type == GameObject.Types.SPAWNING) continue;
 				go1.CleanHorizontalPushFlags();
+
+
+				//if (go1.Type != GameObject.Types.PUSHABLE && go1.Type != GameObject.Types.PROJECTILE) continue;
+
+				if (go1.Type == GameObject.Types.PUSHABLE || go1.Type == GameObject.Types.PROJECTILE){
+
+					TileSpan tileSpan = go1.currentBoundingBox.GetTileSpan();
+					if(go1.currentVelocity.X > 0)
+					{ // going right
+						bool foundCollision = false;
+
+						for(int col = (int)tileSpan.Left;
+							col <= (int)tileSpan.Right && !foundCollision;
+							col++)
+						{
+							bool oraFoundSpikes = false;
+							bool oraFoundWall = false;
+
+							for(int row  = (int)tileSpan.Top;
+								row <= (int)tileSpan.Bottom && !foundCollision;
+								row++)
+							{
+								Tile tile = _level.GetTile(col,row);
+								if (!tile.IsSolid()) continue;
+
+								ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
+								if (go1.currentBoundingBox & tileBoundingBox)
+								{
+
+
+
+
+									// TODO: que sea una funcion
+
+									if(object.ReferenceEquals(go1.behaviour,Ora.Instance) && tile.Family == Tile.Families.Spikes)
+									{
+										//go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+										oraFoundSpikes = true;
+									}
+									else
+									{
+										go1.currentBoundingBox.LeanAtLeft(tileBoundingBox, (uint)Configuration.Tile.Subpx.Width);
+										go1.FixHorizontalVelocity();
+										go1.PushedLeft = true;
+
+										oraFoundWall = true;
+										foundCollision = true;
+									}
+								}
+
+
+
+							}
+
+							if(oraFoundSpikes && !oraFoundWall)
+							{
+								go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+							}
+
+						}
+					}
+					else
+					{ // going left (or idle)
+						bool foundCollision = false;
+
+						for (int col = (int)tileSpan.Right;
+							col >= (int)tileSpan.Left && !foundCollision;
+							col--)
+						{
+							bool oraFoundSpikes = false;
+							bool oraFoundWall = false;
+
+							for (int row = (int)tileSpan.Top;
+								row <= (int)tileSpan.Bottom && !foundCollision;
+								row++)
+							{
+								Tile tile = _level.GetTile(col, row);
+								if (!tile.IsSolid()) continue;
+
+								ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
+								if (go1.currentBoundingBox & tileBoundingBox)
+								{
+
+									//foundCollision = true;
+
+									if (object.ReferenceEquals(go1.behaviour, Ora.Instance) && tile.Family == Tile.Families.Spikes)
+									{
+										//go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+										oraFoundSpikes = true;
+									}
+									else
+									{
+										go1.currentBoundingBox.LeanAtRight(tileBoundingBox, (uint)Configuration.Tile.Subpx.Width);
+										go1.FixHorizontalVelocity();
+										go1.PushedRight = true;
+
+										oraFoundWall = true;
+										foundCollision = true;
+									}
+								}
+
+							}
+
+							if (oraFoundSpikes && !oraFoundWall)
+							{
+								go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+							}
+						}
+					}
+
+
+					//if (o == 0)
+					//{ // ORA
+					//	GameObject linked = _objectPool[o + 1]; // SCYTHE
+					//	linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+					//}
+
+					go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+					go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
+
+
+				}
+
 				for (int u = o + 1; u < _objectPool.Length; u++)
 				{
 					GameObject go2 = _objectPool[u];
@@ -1051,82 +1177,6 @@ namespace AltarElementsZero.src.states.gameplay
 					GameObject.CheckHorizontalCollisions(go1, go2);
 				}
 
-				if (go1.Type != GameObject.Types.PUSHABLE && go1.Type != GameObject.Types.PROJECTILE) continue;
-
-				TileSpan tileSpan = go1.currentBoundingBox.GetTileSpan();
-                if(go1.currentVelocity.X > 0)
-                { // going right
-                    bool foundCollision = false;
-
-                    for(int col = (int)tileSpan.Left;
-                        col <= (int)tileSpan.Right && !foundCollision;
-                        col++)
-                    {
-                        for(int row  = (int)tileSpan.Top;
-                            row <= (int)tileSpan.Bottom && !foundCollision;
-                            row++)
-                        {
-                            Tile tile = _level.GetTile(col,row);
-                            if (!tile.IsSolid()) continue;
-
-                            ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
-                            if (go1.currentBoundingBox & tileBoundingBox)
-                            {
-                                go1.currentBoundingBox.LeanAtLeft(tileBoundingBox, (uint)Configuration.Tile.Subpx.Width);
-								go1.FixHorizontalVelocity();
-								go1.PushedLeft = true;
-								foundCollision = true;
-
-								if(object.ReferenceEquals(go1.behaviour,Ora.Instance) && tile.Family == Tile.Families.Spikes){
-									go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
-								}
-                            }
-
-                        }
-                    }
-                }
-                else
-                { // going left (or idle)
-					bool foundCollision = false;
-
-					for (int col = (int)tileSpan.Right;
-						col >= (int)tileSpan.Left && !foundCollision;
-						col--)
-					{
-						for (int row = (int)tileSpan.Top;
-							row <= (int)tileSpan.Bottom && !foundCollision;
-							row++)
-						{
-							Tile tile = _level.GetTile(col, row);
-							if (!tile.IsSolid()) continue;
-
-							ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
-							if (go1.currentBoundingBox & tileBoundingBox)
-							{
-								go1.currentBoundingBox.LeanAtRight(tileBoundingBox, (uint)Configuration.Tile.Subpx.Width);
-								go1.FixHorizontalVelocity();
-								go1.PushedRight = true;
-								foundCollision = true;
-
-								if (object.ReferenceEquals(go1.behaviour, Ora.Instance) && tile.Family == Tile.Families.Spikes)
-								{
-									go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
-								}
-							}
-
-						}
-					}
-				}
-
-
-				//if (o == 0)
-				//{ // ORA
-				//	GameObject linked = _objectPool[o + 1]; // SCYTHE
-				//	linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
-				//}
-
-				go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
-				go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
 
 			}
 		}
@@ -1153,6 +1203,127 @@ namespace AltarElementsZero.src.states.gameplay
 				GameObject go1 = _objectPool[o];
 				if (go1.Type == GameObject.Types.NONEXISTENT || go1.Type == GameObject.Types.RESERVED || go1.Type == GameObject.Types.SPAWNING) continue;
 				go1.CleanVerticalPushFlags();
+
+
+				//if (go1.Type != GameObject.Types.PUSHABLE && go1.Type != GameObject.Types.PROJECTILE) continue;
+
+				if (go1.Type == GameObject.Types.PUSHABLE || go1.Type == GameObject.Types.PROJECTILE)
+				{
+					TileSpan tileSpan = go1.currentBoundingBox.GetTileSpan();
+					if (go1.currentVelocity.Y > 0)
+					{ // going down
+						bool foundCollision = false;
+
+						for (int row = (int)tileSpan.Top;
+							row <= (int)tileSpan.Bottom && !foundCollision;
+							row++)
+						{
+
+							bool oraFoundSpikes = false;
+							bool oraFoundWall = false;
+
+							for (int col = (int)tileSpan.Left;
+								col <= (int)tileSpan.Right && !foundCollision;
+								col++)
+							{
+								Tile tile = _level.GetTile(col, row);
+								if (!tile.IsSolid()) continue;
+
+								ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
+								if (go1.currentBoundingBox & tileBoundingBox)
+								{
+
+
+									if (object.ReferenceEquals(go1.behaviour, Ora.Instance) && tile.Family == Tile.Families.Spikes)
+									{
+										//go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+										oraFoundSpikes = true;
+									}
+									else
+									{
+										go1.currentBoundingBox.LeanAbove(tileBoundingBox, (uint)Configuration.Tile.Subpx.Height);
+										go1.FixVerticalVelocity();
+										go1.PushedUp = true;
+										//foundCollision = true;
+
+										go1.VelocityBelow = tile.GetSurfaceVelocityAbove();
+										go1.FrictionCoefficientsBelow = tile.GetFrictionCoefficients();
+
+										oraFoundWall = true;
+										foundCollision = true;
+									}
+
+								}
+
+							}
+
+							if (oraFoundSpikes && !oraFoundWall)
+							{
+								go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+							}
+						}
+					}
+					else
+					{ // going up (or idle)
+						bool foundCollision = false;
+
+						for (int row = (int)tileSpan.Bottom;
+							row >= (int)tileSpan.Top && !foundCollision;
+							row--)
+						{
+
+							bool oraFoundSpikes = false;
+							bool oraFoundWall = false;
+
+
+							for (int col = (int)tileSpan.Left;
+								col <= (int)tileSpan.Right && !foundCollision;
+								col++)
+							{
+								Tile tile = _level.GetTile(col, row);
+								if (!tile.IsSolid()) continue;
+
+								ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
+								if (go1.currentBoundingBox & tileBoundingBox)
+								{
+
+									//foundCollision = true;
+
+									if (object.ReferenceEquals(go1.behaviour, Ora.Instance) && tile.Family == Tile.Families.Spikes)
+									{
+										//go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+										oraFoundSpikes = true;
+									}
+									else
+									{
+										go1.currentBoundingBox.LeanBelow(tileBoundingBox, (uint)Configuration.Tile.Subpx.Height);
+										go1.FixVerticalVelocity();
+										go1.PushedDown = true;
+
+										oraFoundWall = true;
+										foundCollision = true;
+									}
+								}
+
+							}
+							if (oraFoundSpikes && !oraFoundWall)
+							{
+								go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
+							}
+						}
+					}
+
+					//if (o == 0)
+					//{ // ORA
+					//	GameObject linked = _objectPool[o + 1]; // SCYTHE
+					//	linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+					//}
+
+					go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
+					go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
+				}
+
+
 				for (int u = o + 1; u < _objectPool.Length; u++)
 				{
 					GameObject go2 = _objectPool[u];
@@ -1161,86 +1332,6 @@ namespace AltarElementsZero.src.states.gameplay
 					GameObject.CheckVerticalCollisions(go1, go2);
 				}
 
-				if (go1.Type != GameObject.Types.PUSHABLE && go1.Type != GameObject.Types.PROJECTILE) continue;
-
-				TileSpan tileSpan = go1.currentBoundingBox.GetTileSpan();
-				if (go1.currentVelocity.Y > 0)
-				{ // going down
-					bool foundCollision = false;
-
-					for (int row = (int)tileSpan.Top;
-						row <= (int)tileSpan.Bottom && !foundCollision;
-						row++)
-					{
-						for (int col = (int)tileSpan.Left;
-							col <= (int)tileSpan.Right && !foundCollision;
-							col++)
-						{
-							Tile tile = _level.GetTile(col, row);
-							if (!tile.IsSolid()) continue;
-
-							ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
-							if (go1.currentBoundingBox & tileBoundingBox)
-							{
-								go1.currentBoundingBox.LeanAbove(tileBoundingBox, (uint)Configuration.Tile.Subpx.Height);
-								go1.FixVerticalVelocity();
-								go1.PushedUp = true;
-								foundCollision = true;
-
-								go1.VelocityBelow = tile.GetSurfaceVelocityAbove();
-								go1.FrictionCoefficientsBelow = tile.GetFrictionCoefficients();
-
-								if (object.ReferenceEquals(go1.behaviour, Ora.Instance) && tile.Family == Tile.Families.Spikes)
-								{
-									go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
-								}
-
-							}
-
-						}
-					}
-				}
-				else
-				{ // going up (or idle)
-					bool foundCollision = false;
-
-					for (int row = (int)tileSpan.Bottom;
-						row >= (int)tileSpan.Top && !foundCollision;
-						row--)
-					{
-						for (int col = (int)tileSpan.Left;
-							col <= (int)tileSpan.Right && !foundCollision;
-							col++)
-						{
-							Tile tile = _level.GetTile(col, row);
-							if (!tile.IsSolid()) continue;
-
-							ObjectBoundingBox tileBoundingBox = ObjectBoundingBox.FromTile((uint)col, (uint)row);
-							if (go1.currentBoundingBox & tileBoundingBox)
-							{
-								go1.currentBoundingBox.LeanBelow(tileBoundingBox, (uint)Configuration.Tile.Subpx.Height);
-								go1.FixVerticalVelocity();
-								go1.PushedDown = true;
-								foundCollision = true;
-
-								if (object.ReferenceEquals(go1.behaviour, Ora.Instance) && tile.Family == Tile.Families.Spikes)
-								{
-									go1.InteractionFlags |= (uint)(Ora.FlagTypes.Hurt);
-								}
-							}
-
-						}
-					}
-				}
-
-				//if (o == 0)
-				//{ // ORA
-				//	GameObject linked = _objectPool[o + 1]; // SCYTHE
-				//	linked.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
-				//}
-
-				go1.linkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.linkedPosition;
-				go1.secondLinkedObject?.currentBoundingBox.Position = go1.currentBoundingBox.Position + go1.secondLinkedPosition;
 			}
 		}
 
